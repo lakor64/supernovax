@@ -130,13 +130,34 @@
     <None Include="dxgi.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dxgiadapter.h" />
+    <ClInclude Include="dxgidebug.h" />
+    <ClInclude Include="dxgidevice.h" />
+    <ClInclude Include="dxgidevicesubobject.h" />
     <ClInclude Include="dxgifactory.h" />
+    <ClInclude Include="dxgiinfoqueue.h" />
+    <ClInclude Include="dxgikeyedmutex.h" />
     <ClInclude Include="dxgiobject.h" />
+    <ClInclude Include="dxgioutput.h" />
+    <ClInclude Include="dxgiresource.h" />
+    <ClInclude Include="dxgisurface.h" />
+    <ClInclude Include="dxgiswapchain.h" />
+    <ClCompile Include="exports.cpp" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dxgiadapter.cpp" />
+    <ClCompile Include="dxgidebug.cpp" />
+    <ClCompile Include="dxgidevice.cpp" />
+    <ClCompile Include="dxgidevicesubobject.cpp" />
     <ClCompile Include="dxgifactory.cpp" />
+    <ClCompile Include="dxgiinfoqueue.cpp" />
+    <ClCompile Include="dxgikeyedmutex.cpp" />
     <ClCompile Include="dxgiobject.cpp" />
+    <ClCompile Include="dxgioutput.cpp" />
+    <ClCompile Include="dxgiresource.cpp" />
+    <ClCompile Include="dxgisurface.cpp" />
+    <ClCompile Include="dxgiswapchain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

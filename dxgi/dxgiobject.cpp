@@ -69,8 +69,7 @@ HRESULT WINAPI CDXGIObject::GetPrivateData(_In_ REFGUID Name, _Inout_ UINT* Data
 
 HRESULT WINAPI CDXGIObject::GetParent(_In_ REFIID Id, _Out_ void** pParent)
 {
-	// this is set as NOINTERFACE for compatibily with IDXGIFactory
-	return E_NOINTERFACE;
+	return E_NOTIMPL;
 }
 
 HRESULT WINAPI CDXGIObject::SetPrivateDataInterface(_In_ REFGUID Name, _In_ IUnknown* pUnknown)

@@ -4,3 +4,4 @@
 #define STRICT 1
 #include <Windows.h>
 #include <dxgi.h>
+#include <dxgidebug.h>
