@@ -2,21 +2,26 @@
 
 #include "dxgidevicesubobject.h"
 
-class CDXGISwapChain : public CDXGIDeviceSubObject, IDXGISwapChain
+class ATL_NO_VTABLE CDXGISwapChain :
+	public DXGIObjRoot,
+	public CDXGIDeviceSubObject<IDXGISwapChain>
 {
 public:
-	virtual HRESULT WINAPI QueryInterface(_In_ REFIID id, _Inout_ void** ppObj) override;
+	BEGIN_COM_MAP(CDXGISwapChain)
+		COM_INTERFACE_ENTRY(IDXGISwapChain)
+		COM_INTERFACE_ENTRY(IDXGIDeviceSubObject)
+		COM_INTERFACE_ENTRY(IDXGIObject)
+	END_COM_MAP()
 
-	HRESULT WINAPI GetBuffer(_In_ UINT Buffer, _In_ REFIID riid, _Out_ void** ppSurface);
-	HRESULT WINAPI GetContainingOutput(_Out_ IDXGIOutput** ppOutput);
-	HRESULT WINAPI GetDesc(_Out_ DXGI_SWAP_CHAIN_DESC* pDesc);
-	HRESULT WINAPI GetFrameStatistics(_Out_ DXGI_FRAME_STATISTICS* pStats);
-	HRESULT WINAPI GetFullscreenState(_Out_opt_ BOOL* pFullscreen, _Out_opt_ IDXGIOutput** ppTarget);
-	HRESULT WINAPI GetLastPresentCount(_Out_ UINT* pLastPresentCount);
-	HRESULT WINAPI Present(_In_ UINT SyncInterval, _In_ UINT Flags);
-	HRESULT WINAPI ResizeBuffers(_In_ UINT BufferCount, _In_ UINT Width, _In_ UINT Height, _In_ DXGI_FORMAT NewFormat, _In_ UINT SwapChainFlags);
-	HRESULT WINAPI ResizeTarget(_In_ const DXGI_MODE_DESC* pNewTargetParameters);
-	HRESULT WINAPI SetFullscreenState(_In_ BOOL Fullscreen, _In_ IDXGIOutput* pTarget);
+	// IDXGISwapChain
+	STDMETHODIMP GetBuffer(_In_ UINT Buffer, _In_ REFIID riid, _Out_ void** ppSurface) override;
+	STDMETHODIMP GetContainingOutput(_COM_Outptr_ IDXGIOutput** ppOutput) override;
+	STDMETHODIMP GetDesc(_Out_ DXGI_SWAP_CHAIN_DESC* pDesc) override;
+	STDMETHODIMP GetFrameStatistics(_Out_ DXGI_FRAME_STATISTICS* pStats) override;
+	STDMETHODIMP GetFullscreenState(_Out_opt_ BOOL* pFullscreen, _COM_Outptr_ IDXGIOutput** ppTarget) override;
+	STDMETHODIMP GetLastPresentCount(_Out_ UINT* pLastPresentCount) override;
+	STDMETHODIMP Present(_In_ UINT SyncInterval, _In_ UINT Flags) override;
+	STDMETHODIMP ResizeBuffers(_In_ UINT BufferCount, _In_ UINT Width, _In_ UINT Height, _In_ DXGI_FORMAT NewFormat, _In_ UINT SwapChainFlags) override;
+	STDMETHODIMP ResizeTarget(_In_ const DXGI_MODE_DESC* pNewTargetParameters) override;
+	STDMETHODIMP SetFullscreenState(_In_ BOOL Fullscreen, _In_ IDXGIOutput* pTarget) override;
 };
-
-// TODO: SwapChain1

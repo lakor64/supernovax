@@ -2,11 +2,19 @@
 
 #include "dxgidevicesubobject.h"
 
-class CDXGIKeyedMutex : public CDXGIDeviceSubObject, IDXGIKeyedMutex
+class ATL_NO_VTABLE CDXGIKeyedMutex : 
+	public CDXGIDeviceSubObject<IDXGIKeyedMutex>,
+	public DXGIObjRoot
 {
 public:
-	virtual HRESULT WINAPI QueryInterface(_In_ REFIID id, _Inout_ void** ppObj) override;
 
-	HRESULT WINAPI AcquireSync(_In_ UINT64 Key, _In_ DWORD dwMilliseconds);
-	HRESULT WINAPI ReleaseSync(_In_ UINT64 Key);
+	BEGIN_COM_MAP(CDXGIKeyedMutex)
+		COM_INTERFACE_ENTRY(IDXGIKeyedMutex)
+		COM_INTERFACE_ENTRY(IDXGIDeviceSubObject)
+		COM_INTERFACE_ENTRY(IDXGIObject)
+	END_COM_MAP()
+
+	// IDXGIKeyedMutex
+	STDMETHODIMP AcquireSync(_In_ UINT64 Key, _In_ DWORD dwMilliseconds) override;
+	STDMETHODIMP ReleaseSync(_In_ UINT64 Key) override;
 };

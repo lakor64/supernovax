@@ -2,68 +2,117 @@
 
 #include <unordered_map>
 
-class CDXGIObject : public IDXGIObject
+struct DXGIPrivateData
+{
+	LPVOID pData;
+	UINT nSize;
+	bool isCOM;
+
+	DXGIPrivateData() : pData(nullptr), nSize(0), isCOM(false) {}
+	~DXGIPrivateData() {
+		if (pData)
+		{
+			if (isCOM)
+				((IUnknown*)pData)->Release();
+			else
+				free(pData);
+
+			pData = nullptr;
+			nSize = 0;
+		}
+	}
+	bool Set(IUnknown* pUnknown)
+	{
+		pData = pUnknown;
+		nSize = sizeof(pUnknown);
+		isCOM = true;
+		pUnknown->AddRef();
+		return true;
+	}
+
+	bool Set(LPCVOID pData, UINT nSize)
+	{
+		this->nSize = nSize;
+		isCOM = false;
+
+		this->pData = malloc(nSize);
+
+		if (!this->pData)
+			return false;
+
+		memcpy_s(this->pData, nSize, pData, nSize);
+		return true;
+	}
+};
+
+template <typename T>
+class ATL_NO_VTABLE CDXGIObject : 
+	public virtual T
 {
 public:
-	struct DXGIPrivateData
+	STDMETHODIMP SetPrivateData(_In_ REFGUID Name, _In_ UINT DataSize, _In_opt_ const void* pDataSize) override
 	{
-		LPVOID pData;
-		UINT nSize;
-		bool isCOM;
-
-		DXGIPrivateData() : pData(nullptr), nSize(0), isCOM(false) {}
-		~DXGIPrivateData() {
-			if (pData)
-			{
-				if (isCOM)
-					((IUnknown*)pData)->Release();
-				else
-					free(pData);
-
-				pData = nullptr;
-				nSize = 0;
-			}
-		}
-		bool Set(IUnknown* pUnknown)
+		if (!pDataSize)
 		{
-			pData = pUnknown;
-			nSize = sizeof(pUnknown);
-			isCOM = true;
-			pUnknown->AddRef();
-			return true;
+			return DeletePD(Name);
 		}
 
-		bool Set(LPCVOID pData, UINT nSize)
-		{
-			this->nSize = nSize;
-			isCOM = false;
+		FreeCOMPD(Name);
 
-			this->pData = malloc(nSize);
+		DXGIPrivateData data;
+		if (!data.Set(pDataSize, DataSize))
+			return E_OUTOFMEMORY;
 
-			if (!this->pData)
-				return false;
+		m_mData.insert_or_assign(Name, data);
+		return S_OK;
+	}
 
-			memcpy_s(this->pData, nSize, pData, nSize);
-			return true;
-		}
-	};
+	STDMETHODIMP GetPrivateData(_In_ REFGUID Name, _Inout_ UINT* DataSize, _Out_ void* pData) override
+	{
+		auto it = m_mData.find(Name);
+		if (it == m_mData.end())
+			return DXGI_ERROR_NOT_FOUND;
 
-	virtual ULONG WINAPI AddRef(VOID);
-	virtual ULONG WINAPI Release(VOID);
-	virtual HRESULT WINAPI QueryInterface(_In_ REFIID id, _Inout_ void** ppObj);
+		if (*DataSize < it->second.nSize)
+			return DXGI_ERROR_MORE_DATA;
 
-	// IDXGIObject
-	HRESULT WINAPI SetPrivateData(_In_ REFGUID Name, _In_ UINT DataSize, _In_ const void* pDataSize);
-	HRESULT WINAPI GetPrivateData(_In_ REFGUID Name, _Inout_ UINT* DataSize, _Out_ void* pData);
-	virtual HRESULT WINAPI GetParent(_In_ REFIID Id, _Out_ void** pParent);
-	HRESULT WINAPI SetPrivateDataInterface(_In_ REFGUID Name, _In_ IUnknown* pUnknown);
+		memcpy_s(pData, *DataSize, it->second.pData, it->second.nSize);
+
+		if (it->second.isCOM)
+			((IUnknown*)it->second.pData)->AddRef();
+
+		return S_OK;
+	}
+
+	virtual STDMETHODIMP GetParent(_In_ REFIID Id, _Out_ void** pParent) override
+	{
+		return E_NOTIMPL;
+	}
+
+	STDMETHODIMP SetPrivateDataInterface(_In_ REFGUID Name, _In_opt_ const IUnknown* pUnknown) override
+	{
+		return SetPrivateData(Name, sizeof(pUnknown), pUnknown);
+	}
 
 protected:
 	ULONG m_uRef;
 	std::unordered_map<GUID, DXGIPrivateData> m_mData;
 
 private:
-	HRESULT DeletePD(_In_ REFGUID Name);
+	STDMETHODIMP DeletePD(_In_ REFGUID Name)
+	{
+		auto it = m_mData.find(Name);
+		if (it == m_mData.end())
+			return S_OK;
+
+		if (it->second.isCOM)
+		{
+			((IUnknown*)it->second.pData)->Release();
+		}
+
+		m_mData.erase(it);
+		return S_OK;
+	}
 
 	inline void FreeCOMPD(_In_ REFGUID Name)
 	{

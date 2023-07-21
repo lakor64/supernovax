@@ -2,18 +2,21 @@
 
 #include "dxgiobject.h"
 
-class CDXGIAdapter : public CDXGIObject, public IDXGIAdapter
+class ATL_NO_VTABLE CDXGIAdapter : 
+	public DXGIObjRoot,
+	public CDXGIObject<IDXGIAdapter1>
 {
 public:
-	// IUnknown
-	virtual HRESULT WINAPI QueryInterface(_In_ REFIID id, _Inout_ void** ppObj) override;
-	// IDXGIObject
-	virtual HRESULT WINAPI GetParent(_In_ REFIID Id, _Out_ void** pParent) override;
-	// IDXGIAdapter
-	HRESULT WINAPI CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Out_ LARGE_INTEGER* pUMDVersion);
-	HRESULT WINAPI EnumOutputs(_In_ UINT Output, _Out_ IDXGIOutput** ppOutput);
-	HRESULT WINAPI GetDesc(_Out_ DXGI_ADAPTER_DESC* pDesc);
-};
+	BEGIN_COM_MAP(CDXGIAdapter)
+		COM_INTERFACE_ENTRY(IDXGIAdapter1)
+		COM_INTERFACE_ENTRY(IDXGIAdapter)
+		COM_INTERFACE_ENTRY(IDXGIObject)
+	END_COM_MAP()
 
-// TODO: Adapter1
-// TODO: Adapter2
+	// IDXGIAdapter
+	STDMETHODIMP CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Out_ LARGE_INTEGER* pUMDVersion) override;
+	STDMETHODIMP EnumOutputs(_In_ UINT Output, _COM_Outptr_ IDXGIOutput** ppOutput) override;
+	STDMETHODIMP GetDesc(_Out_ DXGI_ADAPTER_DESC* pDesc) override;
+	// IDXGIAdapter1
+	STDMETHODIMP GetDesc1(_Out_ DXGI_ADAPTER_DESC1* pDesc) override;
+};

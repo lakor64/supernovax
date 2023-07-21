@@ -133,6 +133,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="myprivatedata.cpp" />
     <ClCompile Include="test_dxgiobject.cpp" />
+    <ClCompile Include="test_factory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="myprivatedata.h" />

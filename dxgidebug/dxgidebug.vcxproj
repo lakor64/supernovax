@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{7ef62916-c457-467b-9dc5-a1f5ce1a8879}</ProjectGuid>
-    <RootNamespace>dxgi</RootNamespace>
+    <ProjectGuid>{9e4d23ee-7a65-4de1-98a8-e150450e6e79}</ProjectGuid>
+    <RootNamespace>dxgidebug</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -80,7 +80,6 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -97,7 +96,6 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -110,7 +108,6 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -127,38 +124,18 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="dxgi.def" />
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="dxgidebug.cpp" />
+    <ClCompile Include="dxgiinfoqueue.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="guids.cpp" />
-    <ClInclude Include="dxgiadapter.h" />
-    <ClInclude Include="dxgidevice.h" />
-    <ClInclude Include="dxgidevicesubobject.h" />
-    <ClInclude Include="dxgifactory.h" />
-    <ClInclude Include="dxgikeyedmutex.h" />
-    <ClInclude Include="dxgiobject.h" />
-    <ClInclude Include="dxgioutput.h" />
-    <ClInclude Include="dxgiresource.h" />
-    <ClInclude Include="dxgisurface.h" />
-    <ClInclude Include="dxgiswapchain.h" />
-    <ClCompile Include="dllmain.cpp" />
+    <ClInclude Include="dxgidebug.h" />
+    <ClInclude Include="dxgiinfoqueue.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="stdext.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="dxgiadapter.cpp" />
-    <ClCompile Include="dxgidevice.cpp" />
-    <ClCompile Include="dxgifactory.cpp" />
-    <ClCompile Include="dxgikeyedmutex.cpp" />
-    <ClCompile Include="dxgioutput.cpp" />
-    <ClCompile Include="dxgiresource.cpp" />
-    <ClCompile Include="dxgisurface.cpp" />
-    <ClCompile Include="dxgiswapchain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />

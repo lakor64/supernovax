@@ -2,15 +2,20 @@
 
 #include "dxgidevicesubobject.h"
 
-class CDXGIResource : public CDXGIDeviceSubObject, public IDXGIResource
+class ATL_NO_VTABLE CDXGIResource :
+	public DXGIObjRoot,
+	public CDXGIDeviceSubObject<IDXGIResource>
 {
 public:
-	virtual HRESULT WINAPI QueryInterface(_In_ REFIID id, _Inout_ void** ppObj) override;
+	BEGIN_COM_MAP(CDXGIResource)
+		COM_INTERFACE_ENTRY(IDXGIResource)
+		COM_INTERFACE_ENTRY(IDXGIDeviceSubObject)
+		COM_INTERFACE_ENTRY(IDXGIObject)
+	END_COM_MAP()
 
-	HRESULT WINAPI GetEvictionPriority(_Out_ UINT* pEvictionPriority);
-	HRESULT WINAPI GetSharedHandle(_Out_ HANDLE* pSharedHandle);
-	HRESULT WINAPI GetUsage(_Out_ DXGI_USAGE* pUsage);
-	HRESULT WINAPI SetEvictionPriority(_In_ UINT EvictionPriority);
+	// IDXGIResource
+	STDMETHODIMP GetEvictionPriority(_Out_ UINT* pEvictionPriority) override;
+	STDMETHODIMP GetSharedHandle(_Out_ HANDLE* pSharedHandle) override;
+	STDMETHODIMP GetUsage(_Out_ DXGI_USAGE* pUsage) override;
+	STDMETHODIMP SetEvictionPriority(_In_ UINT EvictionPriority) override;
 };
-
-// TODO: Resource1

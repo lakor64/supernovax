@@ -2,14 +2,6 @@
 #include "test.h"
 #include "myprivatedata.h"
 
-#define FUN_ASSERT \
-		printf("function check fail! (hr: %x file: %S line: %llu)\n", hr, __FILEW__, (ULONGLONG)__LINE__); \
-		assert(false); \
-		goto ss;
-
-#define HR_CHECK if (FAILED(hr)) { FUN_ASSERT; }
-#define FUN_CHECK(x) if (!(x)) { FUN_ASSERT; }
-
 static BYTE BPP_DATA[10] = {
 	0x20, 0x20, 0x20, 0x20,
 	0xFD, 0xFD, 0xFD, 0xFD,

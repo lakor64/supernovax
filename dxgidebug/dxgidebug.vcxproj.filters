@@ -15,31 +15,33 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="dxgiinfoqueue.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
-    <ClCompile Include="test_dxgiobject.cpp">
+    <ClCompile Include="dllmain.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
-    <ClCompile Include="myprivatedata.cpp">
-      <Filter>File di origine</Filter>
-    </ClCompile>
-    <ClCompile Include="guids.h">
-      <Filter>File di intestazione</Filter>
-    </ClCompile>
-    <ClCompile Include="test_factory.cpp">
+    <ClCompile Include="dxgidebug.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="dxgiinfoqueue.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
     <ClInclude Include="pch.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="test.h">
+    <ClInclude Include="resource.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="myprivatedata.h">
+    <ClInclude Include="dxgidebug.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>File di risorse</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

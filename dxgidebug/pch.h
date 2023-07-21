@@ -18,11 +18,16 @@
 #include <atlcom.h>
 #include <atlctl.h>
 
+// bugfix of IDXGIInfoQueue::GetMessage
+#ifdef GetMessage
+#undef GetMessage
+#endif
+
 // DXGI
 #include <dxgi.h>
+#include <dxgidebug.h>
 
 // Project
-#include "stdext.h"
 #include "resource.h"
 
 //! ATL Object root typedef

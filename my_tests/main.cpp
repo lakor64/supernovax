@@ -4,6 +4,7 @@
 int main()
 {
 	test_dxgiobject();
+	test_factory();
 
 	return 0;
 }

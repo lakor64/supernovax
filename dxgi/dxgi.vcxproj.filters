@@ -53,18 +53,15 @@
     <ClInclude Include="dxgiswapchain.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="dxgidebug.h">
+    <ClInclude Include="stdext.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="dxgiinfoqueue.h">
+    <ClInclude Include="resource.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dxgifactory.cpp">
-      <Filter>File di origine</Filter>
-    </ClCompile>
-    <ClCompile Include="dxgiobject.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
     <ClCompile Include="dxgiadapter.cpp">
@@ -79,9 +76,6 @@
     <ClCompile Include="dxgikeyedmutex.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
-    <ClCompile Include="dxgidevicesubobject.cpp">
-      <Filter>File di origine</Filter>
-    </ClCompile>
     <ClCompile Include="dxgiresource.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
@@ -91,14 +85,16 @@
     <ClCompile Include="dxgiswapchain.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
-    <ClCompile Include="dxgidebug.cpp">
+    <ClCompile Include="dllmain.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
-    <ClCompile Include="dxgiinfoqueue.cpp">
+    <ClCompile Include="guids.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
-    <ClCompile Include="exports.cpp">
-      <Filter>File di origine</Filter>
-    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc">
+      <Filter>File di risorse</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

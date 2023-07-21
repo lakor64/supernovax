@@ -2,15 +2,23 @@
 
 #include "dxgidevicesubobject.h"
 
-class CDXGISurface : public CDXGIDeviceSubObject, IDXGISurface
+class ATL_NO_VTABLE CDXGISurface :
+	public DXGIObjRoot,
+	public CDXGIDeviceSubObject<IDXGISurface1>
 {
 public:
-	virtual HRESULT WINAPI QueryInterface(_In_ REFIID id, _Inout_ void** ppObj) override;
+	BEGIN_COM_MAP(CDXGISurface)
+		COM_INTERFACE_ENTRY(IDXGISurface1)
+		COM_INTERFACE_ENTRY(IDXGISurface)
+		COM_INTERFACE_ENTRY(IDXGIDeviceSubObject)
+		COM_INTERFACE_ENTRY(IDXGIObject)
+	END_COM_MAP()
 
-	HRESULT WINAPI GetDesc(_Out_ DXGI_SURFACE_DESC* pDesc);
-	HRESULT WINAPI Map(_Out_ DXGI_MAPPED_RECT* pLockedRect, _In_ UINT MapFlags);
-	HRESULT WINAPI Unmap(void);
+	// IDXGISurface
+	STDMETHODIMP GetDesc(_Out_ DXGI_SURFACE_DESC* pDesc) override;
+	STDMETHODIMP Map(_Out_ DXGI_MAPPED_RECT* pLockedRect, _In_ UINT MapFlags) override;
+	STDMETHODIMP Unmap(void) override;
+	// IDXGISurface1
+	STDMETHODIMP GetDC(_In_ BOOL Discard, _Out_ HDC* pHdc) override;
+	STDMETHODIMP ReleaseDC(_In_opt_ RECT* pDirtyRect) override;
 };
-
-// TODO: Surface1
-// TODO: Surface2

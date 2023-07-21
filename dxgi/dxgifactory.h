@@ -2,20 +2,26 @@
 
 #include "dxgiobject.h"
 
-class CDXGIFactory : public CDXGIObject, public IDXGIFactory
+class ATL_NO_VTABLE CDXGIFactory :
+	public DXGIObjRoot,
+	public CDXGIObject<IDXGIFactory1>
 {
 public:
-	// IUnknown
-	virtual HRESULT WINAPI QueryInterface(_In_ REFIID id, _Inout_ void** ppObj) override;
-	// IDXGIObject
-	virtual HRESULT WINAPI GetParent(_In_ REFIID Id, _Out_ void** pParent) override;
-	// IDXGIFactory
-	HRESULT WINAPI CreateSoftwareAdapter(_In_ HMODULE Module, _Out_ IDXGIAdapter** ppAdapter);
-	HRESULT WINAPI CreateSwapChain(_In_ const IUnknown* pDevice, _In_ const DXGI_SWAP_CHAIN_DESC* pDesc, _Out_ IDXGISwapChain** ppSwapChain);
-	HRESULT WINAPI EnumAdapters(_In_ UINT Adapter, _Out_ IDXGIAdapter** ppAdapter);
-	HRESULT WINAPI GetWindowAssocation(_Out_ HWND* pWindowHandle);
-	HRESULT WINAPI MakeWindowAssociation(_In_ HWND WindowHandle, _In_ UINT Flags);
-};
+	BEGIN_COM_MAP(CDXGIFactory)
+		COM_INTERFACE_ENTRY(IDXGIFactory1)
+		COM_INTERFACE_ENTRY(IDXGIFactory)
+		COM_INTERFACE_ENTRY(IDXGIObject)
+	END_COM_MAP()
 
-// TODO: Factory1
-// TODO: Factory2
+	// IDXGIFactory
+	STDMETHODIMP CreateSoftwareAdapter(_In_ HMODULE Module, _COM_Outptr_ IDXGIAdapter** ppAdapter) override;
+	STDMETHODIMP CreateSwapChain(_In_ IUnknown* pDevice, _In_ DXGI_SWAP_CHAIN_DESC* pDesc, _COM_Outptr_ IDXGISwapChain** ppSwapChain) override;
+	STDMETHODIMP EnumAdapters(_In_ UINT Adapter, _COM_Outptr_ IDXGIAdapter** ppAdapter) override;
+	STDMETHODIMP GetWindowAssociation(_Out_ HWND* pWindowHandle) override;
+	STDMETHODIMP MakeWindowAssociation(_In_ HWND WindowHandle, _In_ UINT Flags) override;
+	// IDXGIFactory1
+	STDMETHODIMP EnumAdapters1(_In_ UINT Adapter, _COM_Outptr_ IDXGIAdapter1** ppAdapter) override;
+	STDMETHODIMP_(BOOL) IsCurrent(void) override;
+	// Custom
+	STDMETHODIMP Initialize(void);
+};
