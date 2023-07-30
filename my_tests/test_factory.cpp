@@ -8,7 +8,6 @@ void test_factory(void)
 	IDXGIFactory1* pFactory3 = NULL;
 	IDXGIFactory* pFactory4 = NULL;
 	IDXGIAdapter* pAdapter = NULL;
-	DXGI_SWAP_CHAIN_DESC desc;
 
 	HRESULT hr = CreateDXGIFactory(IID_MyFakeData, (void**) & pFactory);
 	FUN_CHECK(hr == E_NOINTERFACE);

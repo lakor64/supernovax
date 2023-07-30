@@ -1,3 +1,10 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure
+ * COPYRIGHT:   See COPYING in the top level directory
+ * PURPOSE:     Render device
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ */
+
 #pragma once
 
 #include "dxgiobject.h"
@@ -8,9 +15,9 @@ class ATL_NO_VTABLE CDXGIDevice :
 {
 public:
 	BEGIN_COM_MAP(CDXGIDevice)
-		COM_INTERFACE_ENTRY(IDXGIDevice1)
-		COM_INTERFACE_ENTRY(IDXGIDevice)
-		COM_INTERFACE_ENTRY(IDXGIObject)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIDevice1, IDXGIDevice1)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIDevice, IDXGIDevice)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIObject, IDXGIObject)
 	END_COM_MAP()
 
 	// IDXGIDevice	

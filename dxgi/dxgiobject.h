@@ -1,128 +1,214 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure
+ * COPYRIGHT:   See COPYING in the top level directory
+ * PURPOSE:     Basic DXGI object
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ */
+
 #pragma once
 
-#include <unordered_map>
+#include <vector>
 
+/** Manages the private data of a DXGIObject */
 struct DXGIPrivateData
 {
-	LPVOID pData;
+	/**
+		NULL -> there is no RAW data
+		Valid and isCOM == false -> RAW data
+		Valid and isCOM == true -> A IUnknown** pointer
+		Note that IUnknown** pointer value CAN BE NULL, this does not mean that the private data is invalid
+	*/
+	union
+	{
+		LPVOID raw;
+		IUnknown** com;
+	} pData;
+
+	/** Size of the private data */
 	UINT nSize;
+
+	/** True if it's a COM object */
 	bool isCOM;
 
-	DXGIPrivateData() : pData(nullptr), nSize(0), isCOM(false) {}
-	~DXGIPrivateData() {
-		if (pData)
-		{
-			if (isCOM)
-				((IUnknown*)pData)->Release();
-			else
-				free(pData);
+	/** GUID identificator */
+	GUID Guid;
 
-			pData = nullptr;
+	DXGIPrivateData() : nSize(0), isCOM(false)
+	{
+		pData.raw = nullptr;
+	}
+
+	~DXGIPrivateData() = default;
+
+	void Release()
+	{
+		if (pData.raw)
+		{
+			if (isCOM && *pData.com)
+				(*pData.com)->Release();
+
+			free(pData.raw);
+			pData.raw = nullptr;
 			nSize = 0;
 		}
 	}
-	bool Set(IUnknown* pUnknown)
-	{
-		pData = pUnknown;
-		nSize = sizeof(pUnknown);
-		isCOM = true;
-		pUnknown->AddRef();
-		return true;
-	}
 
-	bool Set(LPCVOID pData, UINT nSize)
+	/** Sets custom data */
+	bool Set(GUID guid, LPCVOID pData, UINT nSize, bool com)
 	{
+		Release();
+
+		Guid = guid;
 		this->nSize = nSize;
-		isCOM = false;
+		isCOM = com;
 
-		this->pData = malloc(nSize);
+		this->pData.raw = malloc(nSize);
 
-		if (!this->pData)
+		if (!this->pData.raw)
 			return false;
 
-		memcpy_s(this->pData, nSize, pData, nSize);
+		memcpy(this->pData.raw, pData, nSize);
+
+		if (com && (*this->pData.com))
+			(*this->pData.com)->AddRef();
+
 		return true;
 	}
 };
 
+/** template DXGI object */
 template <typename T>
 class ATL_NO_VTABLE CDXGIObject : 
-	public virtual T
+	public T
 {
 public:
-	STDMETHODIMP SetPrivateData(_In_ REFGUID Name, _In_ UINT DataSize, _In_opt_ const void* pDataSize) override
+	using PrivateDataMap = std::vector<DXGIPrivateData>;
+
+	STDMETHODIMP SetPrivateData(_In_ REFGUID Name, _In_ UINT DataSize, _In_opt_ const void* pData) override
 	{
-		if (!pDataSize)
-		{
-			return DeletePD(Name);
-		}
-
-		FreeCOMPD(Name);
-
-		DXGIPrivateData data;
-		if (!data.Set(pDataSize, DataSize))
-			return E_OUTOFMEMORY;
-
-		m_mData.insert_or_assign(Name, data);
-		return S_OK;
+		return SetPrivateDataReal(Name, DataSize, pData, false);
 	}
 
 	STDMETHODIMP GetPrivateData(_In_ REFGUID Name, _Inout_ UINT* DataSize, _Out_ void* pData) override
 	{
-		auto it = m_mData.find(Name);
-		if (it == m_mData.end())
-			return DXGI_ERROR_NOT_FOUND;
+		auto it = m_vData.begin();
 
-		if (*DataSize < it->second.nSize)
-			return DXGI_ERROR_MORE_DATA;
+		for (; it != m_vData.end(); it++)
+		{
+			if (IsEqualGUID(it->Guid, Name))
+			{
+				if (*DataSize < it->nSize)
+				{
+					*DataSize = it->nSize;
+					return DXGI_ERROR_MORE_DATA;
+				}
 
-		memcpy_s(pData, *DataSize, it->second.pData, it->second.nSize);
+				*DataSize = it->nSize;
 
-		if (it->second.isCOM)
-			((IUnknown*)it->second.pData)->AddRef();
+				if (pData)
+				{
+					memcpy(pData, it->pData.raw, it->nSize);
 
-		return S_OK;
+					if (it->isCOM && *it->pData.com)
+					{
+						(*it->pData.com)->AddRef();
+					}
+				}
+
+				return S_OK;
+			}
+		}
+
+		*DataSize = 0;
+		return DXGI_ERROR_NOT_FOUND;
 	}
 
-	virtual STDMETHODIMP GetParent(_In_ REFIID Id, _Out_ void** pParent) override
+	STDMETHODIMP GetParent(_In_ REFIID Id, _Out_ void** pParent) override
 	{
-		return E_NOTIMPL;
+		if (!m_pParent)
+			return E_NOINTERFACE;
+
+		if (IsEqualIID(IID_IUnknown, Id) || IsEqualIID(IID_IDXGIObject, Id) || IsEqualIID(IID_IDXGIDeviceSubObject, Id)) // block invalid types
+			return DXGI_ERROR_NOT_FOUND;
+
+		auto hr = m_pParent->QueryInterface(Id, pParent);
+		if (FAILED(hr))
+			return hr;
+
+		return S_OK;
 	}
 
 	STDMETHODIMP SetPrivateDataInterface(_In_ REFGUID Name, _In_opt_ const IUnknown* pUnknown) override
 	{
-		return SetPrivateData(Name, sizeof(pUnknown), pUnknown);
+		return SetPrivateDataReal(Name, sizeof(pUnknown), &pUnknown, true);
 	}
 
 protected:
-	ULONG m_uRef;
-	std::unordered_map<GUID, DXGIPrivateData> m_mData;
-
-private:
-	STDMETHODIMP DeletePD(_In_ REFGUID Name)
+	CDXGIObject() : m_pParent(nullptr) {}
+	~CDXGIObject()
 	{
-		auto it = m_mData.find(Name);
-		if (it == m_mData.end())
-			return S_OK;
-
-		if (it->second.isCOM)
+		for (auto it = m_vData.begin(); it != m_vData.end(); it++)
 		{
-			((IUnknown*)it->second.pData)->Release();
+			it->Release();
 		}
 
-		m_mData.erase(it);
+		m_pParent = nullptr;
+		m_vData.clear();
+	}
+
+	/** Parent of this object */
+	IUnknown* m_pParent;
+
+private:
+	STDMETHODIMP SetPrivateDataReal(_In_ REFGUID Name, _In_ UINT DataSize, _In_opt_ const void* pData, _In_ bool com)
+	{
+		if (!pData)
+			return DeletePD(Name);
+
+		auto p = FindPD(Name);
+		if (p == m_vData.end())
+		{
+			DXGIPrivateData data;
+			if (!data.Set(Name, pData, DataSize, com))
+				return E_OUTOFMEMORY;
+
+			m_vData.push_back(data);
+		}
+		else
+			p->Set(Name, pData, DataSize, com);
+
 		return S_OK;
 	}
 
-	inline void FreeCOMPD(_In_ REFGUID Name)
+	/** Delete private data */
+	STDMETHODIMP DeletePD(_In_ REFGUID Name)
 	{
-		auto it = m_mData.find(Name);
-		if (it != m_mData.end())
+		for (auto it = m_vData.begin(); it != m_vData.end(); it++)
 		{
-			if (it->second.isCOM)
+			if (IsEqualGUID(Name, it->Guid))
 			{
-				((IUnknown*)it->second.pData)->Release();
+				it->Release();
+				m_vData.erase(it);
+				break;
 			}
 		}
+
+		return S_OK;
 	}
+
+	/** Find private data */
+	inline PrivateDataMap::iterator FindPD(_In_ REFGUID Name)
+	{
+		auto it = m_vData.begin();
+		for (; it != m_vData.end(); it++)
+		{
+			if (IsEqualGUID(Name, it->Guid))
+				break;
+		}
+
+		return it;
+	}
+
+	/** Private data container */
+	PrivateDataMap m_vData;
 };

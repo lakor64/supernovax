@@ -30,6 +30,15 @@
     <ClCompile Include="test_factory.cpp">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="test_adapter.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="test_output.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="guids.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">

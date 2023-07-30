@@ -1,3 +1,10 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure Debug layer
+ * COPYRIGHT:   See COPYING in the top level directory
+ * PURPOSE:     Info queue
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ */
+ 
 #pragma once
 
 class ATL_NO_VTABLE CDXGIInfoQueue :
@@ -6,7 +13,7 @@ class ATL_NO_VTABLE CDXGIInfoQueue :
 {
 public:
 	BEGIN_COM_MAP(CDXGIInfoQueue)
-		COM_INTERFACE_ENTRY(IDXGIInfoQueue)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIInfoQueue, IDXGIInfoQueue)
 	END_COM_MAP()
 
 	// IDXGIInfoQueue

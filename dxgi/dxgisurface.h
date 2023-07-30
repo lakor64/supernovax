@@ -1,3 +1,10 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure
+ * COPYRIGHT:   See COPYING in the top level directory
+ * PURPOSE:     Render surface
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ */
+
 #pragma once
 
 #include "dxgidevicesubobject.h"
@@ -8,10 +15,10 @@ class ATL_NO_VTABLE CDXGISurface :
 {
 public:
 	BEGIN_COM_MAP(CDXGISurface)
-		COM_INTERFACE_ENTRY(IDXGISurface1)
-		COM_INTERFACE_ENTRY(IDXGISurface)
-		COM_INTERFACE_ENTRY(IDXGIDeviceSubObject)
-		COM_INTERFACE_ENTRY(IDXGIObject)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGISurface1, IDXGISurface1)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGISurface, IDXGISurface)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIDeviceSubObject, IDXGIDeviceSubObject)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIObject, IDXGIObject)
 	END_COM_MAP()
 
 	// IDXGISurface

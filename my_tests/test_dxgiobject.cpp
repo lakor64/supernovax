@@ -78,6 +78,7 @@ void test_dxgiobject(void)
 	nDataSize = 0;
 	hr = pFactory->GetPrivateData(IID_MyFakeData, &nDataSize, &pData2);
 	FUN_CHECK(hr == DXGI_ERROR_MORE_DATA);
+	FUN_CHECK(nDataSize == sizeof(pData2));
 
 	nDataSize = sizeof(pData2);
 	hr = pFactory->GetPrivateData(IID_MyFakeData, &nDataSize, &pData2);

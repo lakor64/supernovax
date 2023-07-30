@@ -1,3 +1,10 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure
+ * COPYRIGHT:   See COPYING in the top level directory
+ * PURPOSE:     GPU resource
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ */
+
 #pragma once
 
 #include "dxgidevicesubobject.h"
@@ -8,9 +15,9 @@ class ATL_NO_VTABLE CDXGIResource :
 {
 public:
 	BEGIN_COM_MAP(CDXGIResource)
-		COM_INTERFACE_ENTRY(IDXGIResource)
-		COM_INTERFACE_ENTRY(IDXGIDeviceSubObject)
-		COM_INTERFACE_ENTRY(IDXGIObject)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIResource, IDXGIResource)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIDeviceSubObject, IDXGIDeviceSubObject)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIObject, IDXGIObject)
 	END_COM_MAP()
 
 	// IDXGIResource

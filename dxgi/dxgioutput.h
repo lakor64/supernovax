@@ -1,3 +1,10 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure
+ * COPYRIGHT:   See COPYING in the top level directory
+ * PURPOSE:     Monitor output
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ */
+
 #pragma once
 
 #include "dxgiobject.h"
@@ -8,8 +15,8 @@ class ATL_NO_VTABLE CDXGIOutput :
 {
 public:
 	BEGIN_COM_MAP(CDXGIOutput)
-		COM_INTERFACE_ENTRY(IDXGIOutput)
-		COM_INTERFACE_ENTRY(IDXGIObject)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIOutput, IDXGIOutput)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIObject, IDXGIObject)
 	END_COM_MAP()
 
 	// IDXGIOutput
@@ -25,4 +32,6 @@ public:
 	STDMETHODIMP SetGammaControl(_In_ const DXGI_GAMMA_CONTROL* pArray) override;
 	STDMETHODIMP TakeOwnership(_In_ IUnknown* pDevice, _In_ BOOL Exclusive) override;
 	STDMETHODIMP WaitForVBlank(void) override;
+
+	STDMETHODIMP_(bool) Initialize(IDXGIAdapter1* parent);
 };

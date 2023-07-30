@@ -1,11 +1,71 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure
+ * COPYRIGHT:   See COPYING in the top level directory
+ * PURPOSE:     DLL entrypoint
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ */
+
 #include "pch.h"
+#include "dllmain.h"
 #include "dxgifactory.h"
 
-class CATLDXGIModule : public ATL::CAtlDllModuleT< CATLDXGIModule >
+BOOL WINAPI CATLDXGIModule::DllMain(_In_ DWORD dwReason, _In_opt_ LPVOID lpReserved)
 {
-public:
+	switch (dwReason)
+	{
+	case DLL_PROCESS_DETACH:
+		MyTerm();
+		break;
 
-};
+	case DLL_PROCESS_ATTACH:
+		return MyInit();
+	default:
+		break;
+	}
+
+	return TRUE;
+}
+
+BOOL CATLDXGIModule::MyInit()
+{
+	hGdi = LoadLibraryW(L"gdi32.dll");
+	if (!hGdi)
+		return FALSE;
+
+	hNtDll = LoadLibraryW(L"ntdll.dll");
+	if (!hNtDll)
+		return FALSE;
+
+	fnc1 = (D3DKMTOpenAdapterFromGdiDisplayName)GetProcAddress(hGdi, "D3DKMTOpenAdapterFromGdiDisplayName");
+
+	if (!fnc1)
+		return FALSE; // gdi32.dll is NOT from Vista+
+
+#if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8
+	fnc2 = (D3DKMTEnumAdapters2)GetProcAddress(hGdi, "D3DKMTEnumAdapters2"); // Win8+
+#endif
+
+	fnc3 = (RtlNtStatusToDosError_)GetProcAddress(hNtDll, "RtlNtStatusToDosError");
+	if (!fnc3)
+		return FALSE;
+
+	fnc4 = (D3DKMTQueryAdapterInfo)GetProcAddress(hGdi, "D3DKMTQueryAdapterInfo");
+	if (!fnc4)
+		return FALSE;
+
+	return TRUE;
+}
+
+void CATLDXGIModule::MyTerm()
+{
+	if (hGdi)
+		FreeLibrary(hGdi);
+	if (hNtDll)
+		FreeLibrary(hNtDll);
+
+	hNtDll = nullptr;
+	hGdi = nullptr;
+}
 
 //! Global ATL module
 CATLDXGIModule _AtlModule;
@@ -30,9 +90,9 @@ extern "C"
 		if (!ppFactory)
 			return DXGI_ERROR_INVALID_CALL;
 
-		*ppFactory = NULL;
+		*ppFactory = nullptr;
 
-		if (!IsEqualIID(riid, IID_IDXGIFactory) || !IsEqualIID(riid, IID_IDXGIFactory1))
+		if (!IsEqualIID(riid, IID_IDXGIFactory) && !IsEqualIID(riid, IID_IDXGIFactory1))
 			return E_NOINTERFACE;
 
 		ATL::CComObject<CDXGIFactory>* factory;
@@ -44,14 +104,19 @@ extern "C"
 		hr = factory->Initialize();
 
 		if (FAILED(hr))
+		{
+			delete factory;
 			return hr;
+		}
 
 		hr = factory->QueryInterface(riid, ppFactory);
 
 		if (FAILED(hr))
+		{
+			delete factory;
 			return hr;
+		}
 
-		factory->AddRef();
 		return S_OK;
 	}
 

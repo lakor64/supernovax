@@ -1,3 +1,10 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure Debug layer
+ * COPYRIGHT:   See COPYING in the top level directory
+ * PURPOSE:     DLL entrypoint
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ */
+ 
 #include "pch.h"
 
 class CATLDXGIDebugModule : public ATL::CAtlDllModuleT<CATLDXGIDebugModule>
@@ -21,6 +28,11 @@ extern "C"
 	BOOL WINAPI DllMain(_In_ HINSTANCE hInstance, _In_ DWORD dwReason, _In_opt_ LPVOID lpReserved)
 	{
 		hInstance;
-		return _AtlModule.DllMain(dwReason, lpReserved);
+
+#ifdef __REACTOS__
+		return TRUE;
+#else
+		return _AtlModule.DllMain(dwReason, lpReserved); // ReactOS...
+#endif
 	}
 }
