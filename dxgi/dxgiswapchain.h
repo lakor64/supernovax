@@ -11,10 +11,22 @@
 
 class ATL_NO_VTABLE CDXGISwapChain :
 	public DXGIObjRoot,
-	public CDXGIDeviceSubObject<IDXGISwapChain>
+	public CDXGIDeviceSubObject<DXGISwapChainType>
 {
 public:
 	BEGIN_COM_MAP(CDXGISwapChain)
+#if DXGI_VERSION >= 5
+		COM_INTERFACE_ENTRY_IID(IID_IDXGISwapChain4, IDXGISwapChain4)
+#endif
+#if DXGI_VERSION >= 4
+		COM_INTERFACE_ENTRY_IID(IID_IDXGISwapChain3, IDXGISwapChain3)
+#endif
+#if DXGI_VERSION >= 3
+		COM_INTERFACE_ENTRY_IID(IID_IDXGISwapChain2, IDXGISwapChain2)
+#endif
+#if DXGI_VERSION >= 2
+		COM_INTERFACE_ENTRY_IID(IID_IDXGISwapChain1, IDXGISwapChain1)
+#endif
 		COM_INTERFACE_ENTRY_IID(IID_IDXGISwapChain, IDXGISwapChain)
 		COM_INTERFACE_ENTRY_IID(IID_IDXGIDeviceSubObject, IDXGIDeviceSubObject)
 		COM_INTERFACE_ENTRY_IID(IID_IDXGIObject, IDXGIObject)

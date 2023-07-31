@@ -18,6 +18,9 @@ public:
 	// IDXGIDeviceSubObject
 	STDMETHODIMP GetDevice(_In_ REFIID riid, _Out_ void** ppDevice) override
 	{
+		if (!ppDevice)
+			return DXGI_ERROR_INVALID_CALL;
+
 		return E_NOTIMPL;
 	}
 };

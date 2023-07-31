@@ -6,7 +6,7 @@
 		assert(false); \
 		goto ss;
 
-#define HR_CHECK if (FAILED(hr)) { FUN_ASSERT; }
+#define HR_CHECK if (!SUCCEEDED(hr)) { FUN_ASSERT; }
 #define FUN_CHECK(x) if (!(x)) { FUN_ASSERT; }
 
 void test_dxgiobject(void);

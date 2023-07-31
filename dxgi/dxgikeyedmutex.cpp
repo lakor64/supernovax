@@ -7,3 +7,13 @@
 
 #include "pch.h"
 #include "dxgikeyedmutex.h"
+
+STDMETHODIMP CDXGIKeyedMutex::AcquireSync(_In_ UINT64 Key, _In_ DWORD dwMilliseconds)
+{
+	return E_NOTIMPL;
+}
+
+STDMETHODIMP CDXGIKeyedMutex::ReleaseSync(_In_ UINT64 Key)
+{
+	return E_NOTIMPL;
+}

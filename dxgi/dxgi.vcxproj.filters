@@ -74,7 +74,10 @@
     <ClInclude Include="impcb.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="dxgiadapterdesc.h">
+    <ClInclude Include="dxgitypes.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
@@ -107,6 +110,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="guids.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

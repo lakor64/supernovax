@@ -9,14 +9,31 @@
 #include "dxgifactory.h"
 #include "dxgiadapter.h"
 #include "dllmain.h"
+#include "utils.h"
 
 STDMETHODIMP CDXGIFactory::CreateSoftwareAdapter(_In_ HMODULE Module, _Out_ IDXGIAdapter** ppAdapter)
 {
+	if (!ppAdapter)
+		return DXGI_ERROR_INVALID_CALL;
+
+	*ppAdapter = nullptr;
+
+	if (!Module)
+		return DXGI_ERROR_INVALID_CALL;
+
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP CDXGIFactory::CreateSwapChain(_In_ IUnknown* pDevice, _In_ DXGI_SWAP_CHAIN_DESC* pDesc, _Out_ IDXGISwapChain** ppSwapChain)
 {
+	if (!ppSwapChain)
+		return DXGI_ERROR_INVALID_CALL;
+
+	*ppSwapChain = nullptr;
+
+	if (!pDevice || !pDesc)
+		return DXGI_ERROR_INVALID_CALL;
+
 	return E_NOTIMPL;
 }
 
@@ -60,14 +77,27 @@ STDMETHODIMP CDXGIFactory::EnumAdapters(_In_ UINT Adapter, _COM_Outptr_ IDXGIAda
 
 STDMETHODIMP CDXGIFactory::GetWindowAssociation(_Out_ HWND* pWindowHandle)
 {
+	if (!pWindowHandle)
+		return DXGI_ERROR_INVALID_CALL;
+
+	if (IsInSession0())
+		return DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
+
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP CDXGIFactory::MakeWindowAssociation(_In_ HWND WindowHandle, _In_ UINT Flags)
 {
+	if (!WindowHandle)
+		return DXGI_ERROR_INVALID_CALL;
+
+	if (IsInSession0())
+		return DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
+
 	return E_NOTIMPL;
 }
 
+#if DXGI_VERSION >= 1
 STDMETHODIMP CDXGIFactory::EnumAdapters1(_In_ UINT Adapter, _Out_ IDXGIAdapter1** ppAdapter)
 {
 	return EnumAdaptersReal(Adapter, IID_IDXGIAdapter1, (void**)ppAdapter);
@@ -77,30 +107,12 @@ STDMETHODIMP_(BOOL) CDXGIFactory::IsCurrent(void)
 {
 	return FALSE;
 }
+#endif
 
 STDMETHODIMP CDXGIFactory::Initialize(void)
 {
-	HRESULT hr;
-
-#if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8
-	// Compatibily for Windows 7 or lesser gdi32.dll
-	if (_AtlModule.GetEnumAdapters() != nullptr)
-		hr = RunWin8AdapterEnumerator();
-	else
-		hr = RunGdiAdapterEnumator();
-#else
-	hr = RunGdiAdapterEnumator();
-#endif
-
-	return hr;
+	return RunGdiAdapterEnumator();
 }
-
-#if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8
-STDMETHODIMP CDXGIFactory::RunWin8AdapterEnumerator()
-{
-	return E_NOTIMPL;
-}
-#endif
 
 STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 {
@@ -108,7 +120,7 @@ STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 	NTSTATUS err;
 	HRESULT hr;
 
-	for (; ids < UINT_MAX; ids++) // attempt to enumate ALL adapters
+	for (; ids < MAX_ENUM_ADAPTERS; ids++) // attempt to enumate ALL adapters
 	{
 		DISPLAY_DEVICEW dd = { 0 };
 		dd.cb = sizeof(dd);
@@ -123,9 +135,30 @@ STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 		err = _AtlModule.GetOpenAdapterFromGdi()(&gdi);
 
 		if (FAILED(err))
-			break;
+			break; // might not have an adapter on this device, exit
 
-		// TODO: Check if LUIDs are the same and skip...
+		bool skipThis = false;
+
+		for (auto it = m_vAdapters.begin(); it != m_vAdapters.end(); it++)
+		{
+			if (IsEqualLUID(gdi.AdapterLuid, it->AdapterLuid))
+			{
+				// fill the new monitor info and skip adapter enumeration
+
+				hr = FillAdapterDisplayDesc(*it, gdi.DeviceName, gdi.VidPnSourceId);
+				if (FAILED(hr))
+					return hr;
+
+				skipThis = true;
+				break;
+			}
+		}
+
+		if (skipThis)
+		{
+			CloseKMTAdapter(gdi.hAdapter);
+			continue;
+		}
 
 		DXGIAdapterDesc desc;
 		desc.Handle = gdi.hAdapter;
@@ -133,7 +166,22 @@ STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 		
 		hr = GetRemainingDesc(desc);
 		if (FAILED(hr))
+		{
+			CloseKMTAdapter(gdi.hAdapter);
 			return hr;
+		}
+
+		hr = FillAdapterDisplayDesc(desc, gdi.DeviceName, gdi.VidPnSourceId);
+		if (FAILED(hr))
+		{
+			CloseKMTAdapter(gdi.hAdapter);
+			return hr;
+		}
+
+		// TODO: Should we parse this from GDI?
+		desc.DeviceId = 0;
+		desc.VendorId = 0;
+		desc.Revision = 0;
 
 		m_vAdapters.push_back(desc);
 	}
@@ -170,18 +218,8 @@ STDMETHODIMP CDXGIFactory::GetRemainingDesc(DXGIAdapterDesc& desc)
 	if (NT_ERROR(s))
 		return _AtlModule.GetNtStatusToDosError()(s);
 
-	auto as = wcslen(reg.AdapterString);
 
-	if (as >= 128)
-	{
-		wcsncpy(desc.Description, reg.AdapterString, 127);
-		desc.Description[127] = L'\0';
-	}
-	else
-	{
-		wcsncpy(desc.Description, reg.AdapterString, as);
-		desc.Description[as] = L'\0';
-	}
+	WcsMaxCpy(reg.AdapterString, desc.Description, 127);
 
 	desc.Flags = DXGI_ADAPTER_FLAG_NONE;
 
@@ -200,10 +238,27 @@ STDMETHODIMP CDXGIFactory::GetRemainingDesc(DXGIAdapterDesc& desc)
 	}
 #endif
 
-	// TODO
-	desc.DeviceId = 0;
-	desc.Revision = 0;
-	desc.VendorId = 0;
+	return S_OK;
+}
 
+STDMETHODIMP CDXGIFactory::FillAdapterDisplayDesc(DXGIAdapterDesc& desc, wchar_t* DisplayName, D3DDDI_VIDEO_PRESENT_SOURCE_ID vidpn)
+{
+	DXGIOutputDesc odsc;
+
+	WcsMaxCpy(DisplayName, odsc.DeviceName, 31);
+
+	odsc.Handle = desc.Handle;
+	odsc.VidPn = vidpn;
+
+	// TODO
+	odsc.AttachedToDesktop = FALSE;
+	odsc.Rotation = DXGI_MODE_ROTATION_UNSPECIFIED;
+	odsc.Monitor = nullptr;
+	odsc.DesktopCoordinates.left = 0;
+	odsc.DesktopCoordinates.top = 0;
+	odsc.DesktopCoordinates.right = 0;
+	odsc.DesktopCoordinates.bottom = 0;
+
+	desc.Outputs.push_back(odsc);
 	return S_OK;
 }

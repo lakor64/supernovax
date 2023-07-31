@@ -7,16 +7,152 @@
 
 #include "pch.h"
 #include "dxgiadapter.h"
+#include "dxgioutput.h"
+#include "utils.h"
+
+CDXGIAdapter::CDXGIAdapter()
+{
+	memset(&m_desc, 0, sizeof(m_desc));
+}
+
+CDXGIAdapter::~CDXGIAdapter()
+{
+	// close previously opened handle
+	CloseKMTAdapter(m_desc.Handle);
+}
 
 STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Out_ LARGE_INTEGER* pUMDVersion)
 {
-	pUMDVersion->QuadPart = 0;
-	return S_OK; // TODO!
+	// this function checks if the UMD driver supports the specified interface
+
+	if (!pUMDVersion)
+		return DXGI_ERROR_INVALID_CALL;
+
+	UINT startVer = KMTUMDVERSION_DX9; // IDXGIDevice (if UMD is supported at all)
+	auto isD3d10 = IsEqualIID(IID_ID3D10Device, InterfaceName);
+
+	if (isD3d10)
+		startVer = KMTUMDVERSION_DX10; // ID3D10Device (if we support DX10 or greater)
+
+	else if (!IsEqualIID(IID_IDXGIDevice, InterfaceName))
+		return DXGI_ERROR_UNSUPPORTED;
+
+	D3DKMT_QUERYADAPTERINFO info;
+	D3DKMT_UMDFILENAMEINFO umdFile;
+	info.hAdapter = m_desc.Handle;
+	info.PrivateDriverDataSize = sizeof(umdFile);
+	info.Type = KMTQAITYPE_UMDRIVERNAME;
+	info.pPrivateDriverData = &umdFile;
+
+	for (; startVer < NUM_KMTUMDVERSIONS; startVer++)
+	{
+		// try to find an UMD module that supports the provided version
+		// apperently (needs confirmation): some drivers can implement only DXVA2 and fail when it attempts to call DX9 version or similar
+
+		umdFile.Version = (KMTUMDVERSION)startVer;
+		auto err = _AtlModule.GetNtStatusToDosError()(_AtlModule.GetQueryAdapterInfo()(&info));
+
+		if (SUCCEEDED(err))
+			break;
+		else if (err != E_INVALIDARG)
+		{
+			if (isD3d10)
+				return err; // we do not have a d3d10 compatible driver
+
+			// fallback to gdi32.dll if we don't have a D3D9 compatible driver
+			// this is because that we might be running in XDDM mode
+			GetModuleFileNameW(_AtlModule.GetGdi32(), umdFile.UmdFileName, MAX_PATH);
+		}
+	}
+
+#if 0 // uncomment this code when IDXGIDevice works!
+	if (isD3d10)
+	{
+		// we have an UMD driver that claims to DirectX 10
+		// let's see if we can actually create a D3D10 device.
+		// In case we can NOT create a device with D3D10, we consider that the don't support D3D10
+
+		auto d3d = LoadLibraryW(L"d3d10.dll");
+		if (!d3d)
+			return DXGI_ERROR_UNSUPPORTED;
+
+		auto d3d10cv = (D3D10CreateDevice_)GetProcAddress(d3d, "D3D10CreateDevice");
+
+		if (!d3d10cv)
+			return DXGI_ERROR_UNSUPPORTED;
+
+		ID3D10Device* pDev;
+		auto hr = d3d10cv(this, D3D10_DRIVER_TYPE_HARDWARE, nullptr, 0, D3D10_SDK_VERSION, &pDev);
+
+		if (FAILED(hr))
+			return DXGI_ERROR_UNSUPPORTED;
+
+		pDev->Release();
+	}
+#endif
+
+	auto sz = GetFileVersionInfoSizeW(umdFile.UmdFileName, nullptr);
+
+	auto pb = new byte[sz];
+
+	if (!pb)
+		return E_OUTOFMEMORY;
+
+	if (!GetFileVersionInfoW(umdFile.UmdFileName, 0, sz, pb))
+	{
+		delete[] pb;
+		return DXGI_ERROR_NOT_FOUND;
+	}
+
+	VS_FIXEDFILEINFO* ver;
+	UINT len = sz;
+	if (!VerQueryValueW(pb, L"\\", (LPVOID*)&ver, &len))
+	{
+		delete[] pb;
+		return DXGI_ERROR_NOT_FOUND;
+	}
+
+	pUMDVersion->HighPart = ver->dwFileVersionMS;
+	pUMDVersion->LowPart = ver->dwFileVersionLS;
+	delete[] pb;
+
+	return S_OK;
 }
 
 STDMETHODIMP CDXGIAdapter::EnumOutputs(_In_ UINT Output, _COM_Outptr_ IDXGIOutput** ppOutput)
 {
-	return E_NOTIMPL;
+	if (!ppOutput)
+		return DXGI_ERROR_INVALID_CALL;
+
+	if (IsInSession0())
+		return DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
+
+	*ppOutput = nullptr;
+
+	if (Output >= (UINT)m_desc.Outputs.size())
+		return DXGI_ERROR_NOT_FOUND;
+
+	ATL::CComObject<CDXGIOutput>* op;
+	HRESULT hr = ATL::CComObject<CDXGIOutput>::CreateInstance(&op);
+
+	if (FAILED(hr))
+		return hr;
+
+	hr = op->Initialize(this, m_desc.Outputs[Output]);
+	if (FAILED(hr))
+	{
+		delete op;
+		return hr;
+	}
+
+	hr = op->QueryInterface(IID_IDXGIOutput, (void**)ppOutput);
+	if (FAILED(hr))
+	{
+		delete op;
+		return hr;
+	}
+
+	return S_OK;
 }
 
 STDMETHODIMP CDXGIAdapter::GetDesc(_Out_ DXGI_ADAPTER_DESC* pDesc)

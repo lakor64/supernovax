@@ -36,21 +36,29 @@ BOOL CATLDXGIModule::MyInit()
 	if (!hNtDll)
 		return FALSE;
 
-	fnc1 = (D3DKMTOpenAdapterFromGdiDisplayName)GetProcAddress(hGdi, "D3DKMTOpenAdapterFromGdiDisplayName");
+	fnc1 = (D3DKMTOpenAdapterFromGdiDisplayName_)GetProcAddress(hGdi, "D3DKMTOpenAdapterFromGdiDisplayName");
 
 	if (!fnc1)
 		return FALSE; // gdi32.dll is NOT from Vista+
 
 #if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8
-	fnc2 = (D3DKMTEnumAdapters2)GetProcAddress(hGdi, "D3DKMTEnumAdapters2"); // Win8+
+	fnc2 = (D3DKMTEnumAdapters2_)GetProcAddress(hGdi, "D3DKMTEnumAdapters2"); // Win8+
 #endif
 
 	fnc3 = (RtlNtStatusToDosError_)GetProcAddress(hNtDll, "RtlNtStatusToDosError");
 	if (!fnc3)
 		return FALSE;
 
-	fnc4 = (D3DKMTQueryAdapterInfo)GetProcAddress(hGdi, "D3DKMTQueryAdapterInfo");
+	fnc4 = (D3DKMTQueryAdapterInfo_)GetProcAddress(hGdi, "D3DKMTQueryAdapterInfo");
 	if (!fnc4)
+		return FALSE;
+
+	fnc5 = (D3DKMTCloseAdapter_)GetProcAddress(hGdi, "D3DKMTCloseAdapter");
+	if (!fnc5)
+		return FALSE;
+
+	fnc6 = (D3DKMTGetDisplayModeList_)GetProcAddress(hGdi, "D3DKMTGetDisplayModeList");
+	if (!fnc6)
 		return FALSE;
 
 	return TRUE;
@@ -85,15 +93,12 @@ extern "C"
 		return _AtlModule.DllMain(dwReason, lpReserved);
 	}
 
-	HRESULT WINAPI CreateDXGIFactory1(REFIID riid, _COM_Outptr_ void** ppFactory)
+	static HRESULT WINAPI CreateDXGIFactoryReal(REFIID riid, _COM_Outptr_ void** ppFactory)
 	{
 		if (!ppFactory)
 			return DXGI_ERROR_INVALID_CALL;
 
 		*ppFactory = nullptr;
-
-		if (!IsEqualIID(riid, IID_IDXGIFactory) && !IsEqualIID(riid, IID_IDXGIFactory1))
-			return E_NOINTERFACE;
 
 		ATL::CComObject<CDXGIFactory>* factory;
 		HRESULT hr = ATL::CComObject<CDXGIFactory>::CreateInstance(&factory);
@@ -120,11 +125,25 @@ extern "C"
 		return S_OK;
 	}
 
+	HRESULT WINAPI CreateDXGIFactory2(UINT Flags, REFIID riid, _COM_Outptr_ void** ppFactory)
+	{
+		// STUB! We do NOT support dxgidebug.dll at the current time
+		return CreateDXGIFactory1(riid, ppFactory);
+	}
+
+	HRESULT WINAPI CreateDXGIFactory1(REFIID riid, _COM_Outptr_ void** ppFactory)
+	{
+		if (!IsEqualIID(riid, IID_IDXGIFactory) && !IsEqualIID(riid, IID_IDXGIFactory1))
+			return E_NOINTERFACE;
+
+		return CreateDXGIFactoryReal(riid, ppFactory);
+	}
+
 	HRESULT WINAPI CreateDXGIFactory(REFIID riid, _COM_Outptr_ void** ppFactory)
 	{
 		if (!IsEqualIID(riid, IID_IDXGIFactory))
 			return E_NOINTERFACE;
 
-		return CreateDXGIFactory1(riid, ppFactory);
+		return CreateDXGIFactoryReal(riid, ppFactory);
 	}
 }

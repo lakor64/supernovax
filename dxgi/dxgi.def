@@ -11,7 +11,7 @@ EXPORTS
 	;UpdateHMDEmulationStatus
 	CreateDXGIFactory
 	CreateDXGIFactory1
-	;CreateDXGIFactory2
+	CreateDXGIFactory2
 	;DXGID3D10CreateDevice
 	;DXGID3D10CreateLayeredDevice
 	;DXGID3D10RegisterLayers

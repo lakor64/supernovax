@@ -11,10 +11,13 @@
 
 class ATL_NO_VTABLE CDXGIResource :
 	public DXGIObjRoot,
-	public CDXGIDeviceSubObject<IDXGIResource>
+	public CDXGIDeviceSubObject<DXGIResourceType>
 {
 public:
 	BEGIN_COM_MAP(CDXGIResource)
+#if DXGI_VERSION >= 2
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIResource1, IDXGIResource1)
+#endif
 		COM_INTERFACE_ENTRY_IID(IID_IDXGIResource, IDXGIResource)
 		COM_INTERFACE_ENTRY_IID(IID_IDXGIDeviceSubObject, IDXGIDeviceSubObject)
 		COM_INTERFACE_ENTRY_IID(IID_IDXGIObject, IDXGIObject)

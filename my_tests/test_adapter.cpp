@@ -17,16 +17,14 @@ void test_adapter(void)
 
 	pAdapter->CheckInterfaceSupport(__uuidof(IDXGIDevice), &v);
 	HR_CHECK;
-	printf("Interface IDXGIDevice: %x\n", v.QuadPart);
+	printf("Interface IDXGIDevice: %u %u\n", v.HighPart, v.LowPart);
 
 	hr = pAdapter->CheckInterfaceSupport(__uuidof(ID3D10Device), &v);
 	HR_CHECK;
-	printf("Interface ID3D10Device: %x\n", v.QuadPart);
+	printf("Interface ID3D10Device: %u %u\n", v.HighPart, v.LowPart);
 
-#if 0 // TODO
 	hr = pAdapter->CheckInterfaceSupport(__uuidof(ID3D11Device), &v);
 	FUN_CHECK(hr == DXGI_ERROR_UNSUPPORTED);
-#endif
 
 	hr = pAdapter->GetDesc(&desc);
 	HR_CHECK;

@@ -8,15 +8,33 @@
 #pragma once
 
 #include "dxgiobject.h"
-#include "dxgiadapterdesc.h"
 
 class ATL_NO_VTABLE CDXGIFactory :
 	public DXGIObjRoot,
-	public CDXGIObject<IDXGIFactory1>
+	public CDXGIObject<DXGIFactoryType>
 {
 public:
 	BEGIN_COM_MAP(CDXGIFactory)
+
+#if DXGI_VERSION >= 6
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIFactory7, IDXGIFactory7)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIFactory6, IDXGIFactory6)
+#endif
+#if DXGI_VERSION >= 5
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIFactory5, IDXGIFactory5)
+#endif
+#if DXGI_VERSION >= 4
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIFactory4, IDXGIFactory4)
+#endif
+#if DXGI_VERSION >= 3
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIFactory3, IDXGIFactory3)
+#endif
+#if DXGI_VERSION >= 2
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIFactory2, IDXGIFactory2)
+#endif
+#if DXGI_VERSION >= 1
 		COM_INTERFACE_ENTRY_IID(IID_IDXGIFactory1, IDXGIFactory1)
+#endif
 		COM_INTERFACE_ENTRY_IID(IID_IDXGIFactory, IDXGIFactory)
 		COM_INTERFACE_ENTRY_IID(IID_IDXGIObject, IDXGIObject)
 	END_COM_MAP()
@@ -30,9 +48,11 @@ public:
 	STDMETHODIMP EnumAdapters(_In_ UINT Adapter, _COM_Outptr_ IDXGIAdapter** ppAdapter) override;
 	STDMETHODIMP GetWindowAssociation(_Out_ HWND* pWindowHandle) override;
 	STDMETHODIMP MakeWindowAssociation(_In_ HWND WindowHandle, _In_ UINT Flags) override;
+#if DXGI_VERSION >= 1
 	// IDXGIFactory1
 	STDMETHODIMP EnumAdapters1(_In_ UINT Adapter, _COM_Outptr_ IDXGIAdapter1** ppAdapter) override;
 	STDMETHODIMP_(BOOL) IsCurrent(void) override;
+#endif
 	// Custom
 	STDMETHODIMP Initialize(void);
 
@@ -42,14 +62,12 @@ private:
 
 	STDMETHODIMP EnumAdaptersReal(_In_ UINT Adapter, _In_ REFIID Iid, _Out_ void** ppAdapter);
 
-#if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8
-	/** Enumerate adapters by using Windows8 D3DKMT function */
-	STDMETHODIMP RunWin8AdapterEnumerator();
-#endif
-
 	/** Enumerate adapters by using Windows Vista GDI function */
 	STDMETHODIMP RunGdiAdapterEnumator();
 
 	/** Gets all the remaining info of the adapter */
 	STDMETHODIMP GetRemainingDesc(DXGIAdapterDesc& desc);
+
+	/** Fills the display info of an adapter */
+	STDMETHODIMP FillAdapterDisplayDesc(DXGIAdapterDesc& desc, wchar_t* DisplayName, D3DDDI_VIDEO_PRESENT_SOURCE_ID vidpn);
 };
