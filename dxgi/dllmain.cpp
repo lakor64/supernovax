@@ -61,6 +61,8 @@ BOOL CATLDXGIModule::MyInit()
 	if (!fnc6)
 		return FALSE;
 
+	fnc7 = (D3DKMTWaitForVerticalBlankEvent_)GetProcAddress(hGdi, "D3DKMTWaitForVerticalBlankEvent");
+
 	return TRUE;
 }
 

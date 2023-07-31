@@ -21,6 +21,8 @@ typedef NTSTATUS(NTAPI* D3DKMTCloseAdapter_)(_In_ const D3DKMT_CLOSEADAPTER* clo
 
 typedef NTSTATUS(NTAPI* D3DKMTGetDisplayModeList_)(_In_ D3DKMT_GETDISPLAYMODELIST* dmList);
 
-typedef HRESULT(NTAPI* D3D110CreateDevice_)(_In_opt_ IDXGIAdapter*, _In_ D3D_DRIVER_TYPE, _In_opt_ HMODULE, _In_ UINT, _In_opt_ const D3D_FEATURE_LEVEL*, _In_ UINT FeatureLevels, _In_ UINT SDKVersion, _Out_opt_ ID3D11Device*, _Out_opt_ D3D_FEATURE_LEVEL*, _Out_opt_ ID3D11DeviceContext*);
+typedef HRESULT(NTAPI* D3D11CreateDevice_)(_In_opt_ IDXGIAdapter*, _In_ D3D_DRIVER_TYPE, _In_opt_ HMODULE, _In_ UINT, _In_opt_ const D3D_FEATURE_LEVEL*, _In_ UINT FeatureLevels, _In_ UINT SDKVersion, _Out_opt_ ID3D11Device*, _Out_opt_ D3D_FEATURE_LEVEL*, _Out_opt_ ID3D11DeviceContext*);
 
 typedef HRESULT(NTAPI* D3D10CreateDevice_)(_In_opt_ IDXGIAdapter*, _In_ D3D10_DRIVER_TYPE, _In_ HMODULE, _In_ UINT, _In_ UINT, _Out_ ID3D10Device**);
+
+typedef NTSTATUS (NTAPI* D3DKMTWaitForVerticalBlankEvent_)(_In_ const D3DKMT_WAITFORVERTICALBLANKEVENT*);

@@ -38,7 +38,8 @@ int main()
 	HR_CHECK;
 
 	FreeLibrary(xd);
-
+	// It is expected to crash after FreeLibrary!
+	
 	hr = adp->EnumOutputs(0, &opt);
 	HR_CHECK;
 

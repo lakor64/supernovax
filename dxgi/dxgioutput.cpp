@@ -106,7 +106,7 @@ STDMETHODIMP CDXGIOutput::GetDisplayModeList(_In_ DXGI_FORMAT EnumFormat, _In_ U
 				pDesc[iteSize].RefreshRate.Numerator = y->RefreshRate.Numerator;
 				pDesc[iteSize].RefreshRate.Denominator = y->RefreshRate.Denominator;
 				pDesc[iteSize].ScanlineOrdering = (DXGI_MODE_SCANLINE_ORDER)y->ScanLineOrdering;
-				pDesc[iteSize].Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // TODO
+				pDesc[iteSize].Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // TODO: figure out how to handle/read scaling
 				pDesc[iteSize].Format = EnumFormat;
 
 				iteSize++;
@@ -181,7 +181,12 @@ STDMETHODIMP CDXGIOutput::TakeOwnership(_In_ IUnknown* pDevice, _In_ BOOL Exclus
 
 STDMETHODIMP CDXGIOutput::WaitForVBlank(void)
 {
-	return E_NOTIMPL;
+	D3DKMT_WAITFORVERTICALBLANKEVENT v;
+	v.hAdapter = m_desc.Handle;
+	v.VidPnSourceId = m_desc.VidPn;
+	v.hDevice = NULL;
+
+	return _AtlModule.GetNtStatusToDosError()(_AtlModule.GetWaitForVBlank()(&v));
 }
 
 STDMETHODIMP CDXGIOutput::Initialize(CDXGIAdapter* adapter, DXGIOutputDescBasic& dsc)
@@ -199,6 +204,17 @@ STDMETHODIMP_(bool) CDXGIOutput::CheckIfDDIFormatIsOk(D3DKMT_DISPLAYMODE* ddi, D
 		return false;
 
 	if (!ddi->Flags.ValidatedAgainstMonitorCaps)
+		return false;
+
+	if (ddi->DisplayOrientation != D3DDDI_ROTATION_IDENTITY)
+		return false;
+
+	// for some reason I don't see 59hz refresh in DXGI
+	if (ddi->RefreshRate.Denominator != 1)
+		return false;
+
+	// note: I don't know if this is ok!
+	if (ddi->DisplayFixedOutput != 0)
 		return false;
 
 	// TODO: DXGI_ENUM_MODES_INTERLACED

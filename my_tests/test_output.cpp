@@ -142,6 +142,9 @@ void test_output(void)
 
 	delete[] dx;
 
+	hr = pOutput->WaitForVBlank();
+	HR_CHECK;
+
 ss:
 	if (pOutput)
 		pOutput->Release();

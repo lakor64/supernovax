@@ -40,6 +40,8 @@ public:
 	/** Gets GDI32.DLL */
 	HMODULE GetGdi32() const { return hGdi; }
 
+	D3DKMTWaitForVerticalBlankEvent_ GetWaitForVBlank() const { return fnc7; }
+
 private:
 	/** GDI32.DLL */
 	HMODULE hGdi;
@@ -54,6 +56,7 @@ private:
 	D3DKMTQueryAdapterInfo_ fnc4;
 	D3DKMTCloseAdapter_ fnc5;
 	D3DKMTGetDisplayModeList_ fnc6;
+	D3DKMTWaitForVerticalBlankEvent_ fnc7;
 };
 
 /** Global ATL module export */
