@@ -14,4 +14,3 @@ void test_factory(void);
 void test_adapter(void);
 void test_output(void);
 void test_parent(void);
-
