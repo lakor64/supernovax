@@ -102,12 +102,24 @@
 #define DXGIOutputDescType DXGI_OUTPUT_DESC1
 #endif
 
+struct DXGIOutputDescBasic
+{
+	/** device name */
+	WCHAR DeviceName[32];
+	/** associated adapter handle */
+	D3DKMT_HANDLE Handle;
+	/** display handle */
+	D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPn;
+};
+
 struct DXGIOutputDesc : public DXGIOutputDescType
 {
 	/** associated adapter handle */
 	D3DKMT_HANDLE Handle;
 	/** display handle */
 	D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPn;
+	/** has been enumerated */
+	bool IsValid;
 };
 
 /** Structure that holds adapter info */
@@ -116,6 +128,9 @@ struct DXGIAdapterDesc : public DXGIAdapterDescType
 	/** kernel handle */
 	D3DKMT_HANDLE Handle;
 
-	/** output descriptors */
-	std::vector<DXGIOutputDesc> Outputs;
+	/** has been enumerated */
+	bool IsValid;
+
+	/** outputs */
+	std::vector<DXGIOutputDescBasic> Outputs;
 };

@@ -47,6 +47,8 @@ public:
 	STDMETHODIMP Initialize(IDXGIFactory1* parent, const DXGIAdapterDesc& desc);
 
 private:
+	STDMETHODIMP_(void) GetAdapterDesc();
+
 	/** adapter descriptor */
 	DXGIAdapterDesc m_desc;
 

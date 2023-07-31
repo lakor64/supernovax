@@ -64,10 +64,4 @@ private:
 
 	/** Enumerate adapters by using Windows Vista GDI function */
 	STDMETHODIMP RunGdiAdapterEnumator();
-
-	/** Gets all the remaining info of the adapter */
-	STDMETHODIMP GetRemainingDesc(DXGIAdapterDesc& desc);
-
-	/** Fills the display info of an adapter */
-	STDMETHODIMP FillAdapterDisplayDesc(DXGIAdapterDesc& desc, wchar_t* DisplayName, D3DDDI_VIDEO_PRESENT_SOURCE_ID vidpn);
 };

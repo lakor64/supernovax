@@ -37,7 +37,7 @@ public:
 		COM_INTERFACE_ENTRY_IID(IID_IDXGIObject, IDXGIObject)
 	END_COM_MAP()
 
-	CDXGIOutput() = default;
+	CDXGIOutput();
 	~CDXGIOutput() = default;
 
 	// IDXGIOutput
@@ -54,10 +54,11 @@ public:
 	STDMETHODIMP TakeOwnership(_In_ IUnknown* pDevice, _In_ BOOL Exclusive) override;
 	STDMETHODIMP WaitForVBlank(void) override;
 	// custom
-	STDMETHODIMP Initialize(CDXGIAdapter* parent, DXGIOutputDesc& dsc);
+	STDMETHODIMP Initialize(CDXGIAdapter* parent, DXGIOutputDescBasic& dsc);
 
 private:
 	STDMETHODIMP_(bool) CheckIfDDIFormatIsOk(D3DKMT_DISPLAYMODE* ddi, DXGI_FORMAT fmt, UINT flags);
+	STDMETHODIMP_(void) GetOutputDesc();
 
 	DXGIOutputDesc m_desc;
 };

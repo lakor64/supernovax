@@ -160,6 +160,9 @@ STDMETHODIMP CDXGIAdapter::GetDesc(_Out_ DXGI_ADAPTER_DESC* pDesc)
 	if (!pDesc)
 		return DXGI_ERROR_INVALID_CALL;
 
+	if (!m_desc.IsValid)
+		GetAdapterDesc();
+
 	pDesc->AdapterLuid = m_desc.AdapterLuid;
 	pDesc->DedicatedSystemMemory = m_desc.DedicatedSystemMemory;
 	pDesc->DedicatedVideoMemory = m_desc.DedicatedVideoMemory;
@@ -177,6 +180,9 @@ STDMETHODIMP CDXGIAdapter::GetDesc1(_Out_ DXGI_ADAPTER_DESC1* pDesc)
 {
 	if (!pDesc)
 		return DXGI_ERROR_INVALID_CALL;
+
+	if (!m_desc.IsValid)
+		GetAdapterDesc();
 
 	pDesc->AdapterLuid = m_desc.AdapterLuid;
 	pDesc->DedicatedSystemMemory = m_desc.DedicatedSystemMemory;
@@ -197,4 +203,56 @@ STDMETHODIMP CDXGIAdapter::Initialize(IDXGIFactory1* parent, const DXGIAdapterDe
 	m_pParent = parent;
 	m_desc = desc;
 	return S_OK;
+}
+
+STDMETHODIMP_(void) CDXGIAdapter::GetAdapterDesc()
+{
+	D3DKMT_QUERYADAPTERINFO qa;
+	D3DKMT_SEGMENTSIZEINFO segInfo;
+
+	qa.hAdapter = m_desc.Handle;
+	qa.Type = KMTQAITYPE_GETSEGMENTSIZE;
+	qa.PrivateDriverDataSize = sizeof(segInfo);
+	qa.pPrivateDriverData = &segInfo;
+
+	NTSTATUS s = _AtlModule.GetQueryAdapterInfo()(&qa);
+
+	if (NT_ERROR(s))
+		return;
+
+	m_desc.DedicatedSystemMemory = segInfo.DedicatedSystemMemorySize;
+	m_desc.DedicatedVideoMemory = segInfo.DedicatedVideoMemorySize;
+	m_desc.SharedSystemMemory = segInfo.SharedSystemMemorySize;
+
+	D3DKMT_ADAPTERREGISTRYINFO reg;
+	qa.Type = KMTQAITYPE_ADAPTERREGISTRYINFO;
+	qa.PrivateDriverDataSize = sizeof(reg);
+	qa.pPrivateDriverData = &reg;
+
+	s = _AtlModule.GetQueryAdapterInfo()(&qa);
+
+	if (NT_ERROR(s))
+		return;
+
+
+	WcsMaxCpy(reg.AdapterString, m_desc.Description, 127);
+
+	m_desc.Flags = DXGI_ADAPTER_FLAG_NONE;
+
+#if _WIN32_WINNT > 0x601 && DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8 
+	// Windows 8 SDK
+	D3DKMT_ADAPTERTYPE at;
+	qa.Type = KMTQAITYPE_ADAPTERTYPE;
+	qa.PrivateDriverDataSize = sizeof(at);
+	qa.pPrivateDriverData = &at;
+
+	s = _AtlModule.GetQueryAdapterInfo()(&qa);
+
+	if (SUCCEEDED(s))
+	{
+		m_desc.Flags |= at.SoftwareDevice ? DXGI_ADAPTER_FLAG_SOFTWARE : DXGI_ADAPTER_FLAG_NONE;
+	}
+#endif
+
+	m_desc.IsValid = true;
 }

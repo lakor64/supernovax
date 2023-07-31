@@ -118,7 +118,6 @@ STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 {
 	DWORD ids = 0;
 	NTSTATUS err;
-	HRESULT hr;
 
 	for (; ids < MAX_ENUM_ADAPTERS; ids++) // attempt to enumate ALL adapters
 	{
@@ -145,10 +144,12 @@ STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 			{
 				// fill the new monitor info and skip adapter enumeration
 
-				hr = FillAdapterDisplayDesc(*it, gdi.DeviceName, gdi.VidPnSourceId);
-				if (FAILED(hr))
-					return hr;
+				DXGIOutputDescBasic b;
+				b.Handle = gdi.hAdapter;
+				b.VidPn = gdi.VidPnSourceId;
+				WcsMaxCpy(gdi.DeviceName, b.DeviceName, 31);
 
+				it->Outputs.push_back(b);
 				skipThis = true;
 				break;
 			}
@@ -161,104 +162,86 @@ STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 		}
 
 		DXGIAdapterDesc desc;
+		memset(&desc, 0, sizeof(desc));
+
 		desc.Handle = gdi.hAdapter;
 		desc.AdapterLuid = gdi.AdapterLuid;
-		
-		hr = GetRemainingDesc(desc);
-		if (FAILED(hr))
-		{
-			CloseKMTAdapter(gdi.hAdapter);
-			return hr;
-		}
+		WcsMaxCpy(dd.DeviceName, desc.Description, 127);
 
-		hr = FillAdapterDisplayDesc(desc, gdi.DeviceName, gdi.VidPnSourceId);
-		if (FAILED(hr))
-		{
-			CloseKMTAdapter(gdi.hAdapter);
-			return hr;
-		}
+		DXGIOutputDescBasic b;
+		b.Handle = gdi.hAdapter;
+		b.VidPn = gdi.VidPnSourceId;
+		WcsMaxCpy(gdi.DeviceName, b.DeviceName, 31);
 
-		// TODO: Should we parse this from GDI?
+		desc.Outputs.push_back(b);
+
 		desc.DeviceId = 0;
 		desc.VendorId = 0;
 		desc.Revision = 0;
+		desc.SubSysId = 0;
+
+		wchar_t tmp[128] = { '0', 'x', '\0' };
+
+		// Format is: PCI/VEN_#####&DEV_#####&SUBSYS_######&REV_###
+
+		/*
+			THIS CODE IS HORRIBLE, PLEASE REFACTOR AND MODIFY THIS
+			INTO SOMETHING THAT ACTUALLY MAKES SENSE!!!!
+		*/
+
+		auto x = wcschr(dd.DeviceID + 8, L'&');
+		auto z = wcslen(dd.DeviceID);
+		int i;
+
+		if (x)
+		{
+			wcsncpy(tmp + 2, dd.DeviceID + 8, x - dd.DeviceID - 8);
+			
+			if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
+				desc.VendorId = (UINT)i;
+
+			auto y = wcschr(x + 5, L'&');
+			if (y)
+			{
+				wcsncpy(tmp + 2, x + 5, y - x - 5);
+				if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
+					desc.DeviceId = (UINT)i;
+
+				x = wcschr(y + 8, L'&');
+				if (x)
+				{
+					wcsncpy(tmp + 2, y + 8, x - y - 8);
+					if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
+						desc.SubSysId = (UINT)i;
+					
+					wcsncpy(tmp + 2, x + 5, z - (x - dd.DeviceID) - 5);
+					tmp[z - (x - dd.DeviceID) - 5 + 2] = L'\0';
+					if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
+						desc.Revision = (UINT)i;
+				}
+				else
+				{
+					wcsncpy(tmp + 2, y + 8, z - (y - dd.DeviceID) - 8);
+					if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
+						desc.SubSysId = (UINT)i;
+				}
+			}
+			else
+			{
+				wcsncpy(tmp + 2, x + 5, z - (x - dd.DeviceID) - 5);
+				if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
+					desc.DeviceId = (UINT)i;
+			}
+		}
+		else
+		{
+			wcsncpy(tmp + 2, dd.DeviceID + 8, z - 8);
+			if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
+				desc.VendorId = (UINT)i;
+		}
 
 		m_vAdapters.push_back(desc);
 	}
 
-	return S_OK;
-}
-
-STDMETHODIMP CDXGIFactory::GetRemainingDesc(DXGIAdapterDesc& desc)
-{
-	D3DKMT_QUERYADAPTERINFO qa;
-	D3DKMT_SEGMENTSIZEINFO segInfo;
-
-	qa.hAdapter = desc.Handle;
-	qa.Type = KMTQAITYPE_GETSEGMENTSIZE;
-	qa.PrivateDriverDataSize = sizeof(segInfo);
-	qa.pPrivateDriverData = &segInfo;
-
-	NTSTATUS s = _AtlModule.GetQueryAdapterInfo()(&qa);
-
-	if (NT_ERROR(s))
-		return _AtlModule.GetNtStatusToDosError()(s);
-
-	desc.DedicatedSystemMemory = segInfo.DedicatedSystemMemorySize;
-	desc.DedicatedVideoMemory = segInfo.DedicatedVideoMemorySize;
-	desc.SharedSystemMemory = segInfo.SharedSystemMemorySize;
-
-	D3DKMT_ADAPTERREGISTRYINFO reg;
-	qa.Type = KMTQAITYPE_ADAPTERREGISTRYINFO;
-	qa.PrivateDriverDataSize = sizeof(reg);
-	qa.pPrivateDriverData = &reg;
-
-	s = _AtlModule.GetQueryAdapterInfo()(&qa);
-
-	if (NT_ERROR(s))
-		return _AtlModule.GetNtStatusToDosError()(s);
-
-
-	WcsMaxCpy(reg.AdapterString, desc.Description, 127);
-
-	desc.Flags = DXGI_ADAPTER_FLAG_NONE;
-
-#if _WIN32_WINNT > 0x601 && DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8 
-	// Windows 8 SDK
-	D3DKMT_ADAPTERTYPE at;
-	qa.Type = KMTQAITYPE_ADAPTERTYPE;
-	qa.PrivateDriverDataSize = sizeof(at);
-	qa.pPrivateDriverData = &at;
-
-	s = _AtlModule.GetQueryAdapterInfo()(&qa);
-
-	if (SUCCEEDED(s))
-	{
-		desc.Flags |= at.SoftwareDevice ? DXGI_ADAPTER_FLAG_SOFTWARE : DXGI_ADAPTER_FLAG_NONE;
-	}
-#endif
-
-	return S_OK;
-}
-
-STDMETHODIMP CDXGIFactory::FillAdapterDisplayDesc(DXGIAdapterDesc& desc, wchar_t* DisplayName, D3DDDI_VIDEO_PRESENT_SOURCE_ID vidpn)
-{
-	DXGIOutputDesc odsc;
-
-	WcsMaxCpy(DisplayName, odsc.DeviceName, 31);
-
-	odsc.Handle = desc.Handle;
-	odsc.VidPn = vidpn;
-
-	// TODO
-	odsc.AttachedToDesktop = FALSE;
-	odsc.Rotation = DXGI_MODE_ROTATION_UNSPECIFIED;
-	odsc.Monitor = nullptr;
-	odsc.DesktopCoordinates.left = 0;
-	odsc.DesktopCoordinates.top = 0;
-	odsc.DesktopCoordinates.right = 0;
-	odsc.DesktopCoordinates.bottom = 0;
-
-	desc.Outputs.push_back(odsc);
 	return S_OK;
 }

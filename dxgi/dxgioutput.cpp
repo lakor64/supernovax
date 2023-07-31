@@ -10,6 +10,11 @@
 #include "dxgiadapter.h"
 #include "utils.h"
 
+CDXGIOutput::CDXGIOutput()
+{
+	memset(&m_desc, 0, sizeof(m_desc));
+}
+
 STDMETHODIMP CDXGIOutput::FindClosestMatchingMode(_In_ const DXGI_MODE_DESC* pModeToMatch, _Out_ DXGI_MODE_DESC* pClosestMatch, _In_opt_ IUnknown* pConcernedDevice)
 {
 	if (!pModeToMatch || !pClosestMatch)
@@ -22,6 +27,9 @@ STDMETHODIMP CDXGIOutput::GetDesc(_Out_ DXGI_OUTPUT_DESC* pDesc)
 {
 	if (!pDesc)
 		return DXGI_ERROR_INVALID_CALL;
+
+	if (!m_desc.IsValid)
+		GetOutputDesc();
 
 	pDesc->AttachedToDesktop = m_desc.AttachedToDesktop;
 	pDesc->DesktopCoordinates = m_desc.DesktopCoordinates;
@@ -176,16 +184,21 @@ STDMETHODIMP CDXGIOutput::WaitForVBlank(void)
 	return E_NOTIMPL;
 }
 
-STDMETHODIMP CDXGIOutput::Initialize(CDXGIAdapter* adapter, DXGIOutputDesc& dsc)
+STDMETHODIMP CDXGIOutput::Initialize(CDXGIAdapter* adapter, DXGIOutputDescBasic& dsc)
 {
 	m_pParent = adapter;
-	m_desc = dsc;
+	m_desc.Handle = dsc.Handle;
+	m_desc.VidPn = dsc.VidPn;
+	memcpy(m_desc.DeviceName, dsc.DeviceName, sizeof(dsc.DeviceName));
 	return S_OK;
 }
 
 STDMETHODIMP_(bool) CDXGIOutput::CheckIfDDIFormatIsOk(D3DKMT_DISPLAYMODE* ddi, DXGI_FORMAT fmt, UINT flags)
 {
 	if (ddi->Format != DXGI_MFMapDXGIFormatToDX9Format(fmt))
+		return false;
+
+	if (!ddi->Flags.ValidatedAgainstMonitorCaps)
 		return false;
 
 	// TODO: DXGI_ENUM_MODES_INTERLACED
@@ -199,4 +212,55 @@ STDMETHODIMP_(bool) CDXGIOutput::CheckIfDDIFormatIsOk(D3DKMT_DISPLAYMODE* ddi, D
 #endif
 
 	return true;
+}
+
+static BOOL CALLBACK EnumOutput(HMONITOR hm, HDC hdc, LPRECT rect, LPARAM user)
+{
+	DXGIOutputDesc* pDesc = (DXGIOutputDesc*)user;
+	MONITORINFOEXW mi;
+	mi.cbSize = sizeof(mi);
+
+	if (GetMonitorInfoW(hm, &mi))
+	{
+		if (wcscmp(mi.szDevice, pDesc->DeviceName) == 0)
+		{
+			pDesc->DesktopCoordinates = mi.rcMonitor;
+			pDesc->Monitor = hm;
+			pDesc->AttachedToDesktop = FALSE;
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+STDMETHODIMP_(void) CDXGIOutput::GetOutputDesc()
+{
+	EnumDisplayMonitors(nullptr, nullptr, EnumOutput, (LPARAM)&m_desc);
+	DEVMODEW dm;
+
+	if (EnumDisplaySettingsW(m_desc.DeviceName, ENUM_CURRENT_SETTINGS, &dm))
+	{
+		if (dm.dmFields & DM_DISPLAYORIENTATION)
+		{
+			switch (dm.dmDisplayOrientation)
+			{
+			case DMDO_90:
+				m_desc.Rotation = DXGI_MODE_ROTATION_ROTATE90;
+				break;
+			case DMDO_180:
+				m_desc.Rotation = DXGI_MODE_ROTATION_ROTATE180;
+				break;
+			case DMDO_270:
+				m_desc.Rotation = DXGI_MODE_ROTATION_ROTATE270;
+				break;
+
+			default:
+				m_desc.Rotation = DXGI_MODE_ROTATION_IDENTITY;
+				break;
+			}
+		}
+	}
+
+	m_desc.IsValid = true;
 }
