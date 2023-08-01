@@ -3,7 +3,7 @@
 
 #define FUN_ASSERT \
 		printf("function check fail! (hr: %x file: %S line: %llu)\n", hr, __FILEW__, (ULONGLONG)__LINE__); \
-		assert(false); \
+		_CrtDbgBreak(); \
 		goto ss;
 
 #define HR_CHECK if (!SUCCEEDED(hr)) { FUN_ASSERT; }

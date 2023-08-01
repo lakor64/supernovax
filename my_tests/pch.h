@@ -7,6 +7,7 @@
 #include <dxgi.h>
 #include <stdio.h>
 #include <assert.h>
+#include <crtdbg.h>
 
 // self
 #include "guids.h"

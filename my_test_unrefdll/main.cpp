@@ -17,7 +17,7 @@ DEFINE_GUID2(IID_IDXGIFactory, 0x7b7166ec, 0x21c7, 0x44ae, 0xb2, 0x1a, 0xc9, 0xa
 
 typedef HRESULT(WINAPI* CreateDXGIFactory_)(REFIID, void**);
 
-int main()
+int main_0()
 {
 	IDXGIFactory* pFactory = nullptr;
 	IDXGIAdapter* adp = nullptr;
@@ -58,4 +58,42 @@ ss:
 		pFactory->Release();
 
 	return 0;
+}
+
+int main_1()
+{
+	IDXGIFactory* pFactory = nullptr;
+	IDXGIAdapter* adp = nullptr;
+	IDXGIOutput* opt = nullptr;
+	HRESULT hr = S_OK;
+	CreateDXGIFactory_ f;
+	auto xd = LoadLibraryW(L"dxgi.dll");
+	FUN_CHECK(xd != nullptr);
+
+	f = (CreateDXGIFactory_)GetProcAddress(xd, "CreateDXGIFactory");
+	FUN_CHECK(f != nullptr);
+
+	hr = f(IID_IDXGIFactory, (void**)&pFactory);
+	HR_CHECK;
+
+
+	hr = pFactory->EnumAdapters(0, &adp);
+	HR_CHECK;
+
+	pFactory->Release();
+
+	hr = adp->EnumOutputs(0, &opt);
+	HR_CHECK;
+
+	adp->Release();
+ss:
+
+
+	return 0;
+}
+
+int main()
+{
+	return main_1();
+
 }

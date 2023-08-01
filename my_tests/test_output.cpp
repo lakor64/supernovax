@@ -50,6 +50,7 @@ void test_output(void)
 	IDXGIAdapter* pAdapter = NULL;
 	IDXGIOutput* pOutput = NULL;
 	DXGI_OUTPUT_DESC desc;
+	DXGI_FRAME_STATISTICS fs;
 
 	HRESULT hr = CreateDXGIFactory(IID_IDXGIFactory, (void**)&pFactory);
 	HR_CHECK;
@@ -144,6 +145,19 @@ void test_output(void)
 
 	hr = pOutput->WaitForVBlank();
 	HR_CHECK;
+
+	hr = pOutput->GetFrameStatistics(&fs);
+	FUN_CHECK(hr == DXGI_ERROR_INVALID_CALL);
+
+	printf(
+		"DXGI_STATISTICS:\n"
+		"\tPresent count: %u\n"
+		"\tPresent refresh count: %u\n"
+		"\tSync GPU time: %u\n"
+		"\tSync QPC time: %u\n"
+		"\tSync refresh count: %u\n",
+		fs.PresentCount, fs.PresentRefreshCount,
+		fs.SyncGPUTime, fs.SyncQPCTime, fs.SyncRefreshCount);
 
 ss:
 	if (pOutput)
