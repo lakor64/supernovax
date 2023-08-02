@@ -49,7 +49,6 @@ private:
 #if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8
 	D3DKMTEnumAdapters2_ fnc2;
 #endif
-	RtlNtStatusToDosError_ fnc3;
 	D3DKMTQueryAdapterInfo_ fnc4;
 	D3DKMTCloseAdapter_ fnc5;
 	D3DKMTGetDisplayModeList_ fnc6;

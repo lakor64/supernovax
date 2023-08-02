@@ -125,7 +125,7 @@ extern "C"
 	HRESULT WINAPI CreateDXGIFactory2(UINT Flags, REFIID riid, _COM_Outptr_ void** ppFactory)
 	{
 #if DXGI_VERSION >= 2
-		if (!IsEqualIID(riid, IID_IDXGIFactory) && !IsEqualIID(riid, IID_IDXGIFactory1) || !IsEqualIID(riid, IID_IDXGIFactory2))
+		if (!IsEqualIID(riid, IID_IDXGIFactory) && !IsEqualIID(riid, IID_IDXGIFactory1) && !IsEqualIID(riid, IID_IDXGIFactory2))
 			return E_NOINTERFACE;
 
 		return CreateDXGIFactoryReal(riid, ppFactory);

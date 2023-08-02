@@ -62,9 +62,6 @@
     <ClInclude Include="dxgi_internal_h.h">
       <Filter>MIDL</Filter>
     </ClInclude>
-    <ClInclude Include="lockedobject.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dxgifactory.cpp">

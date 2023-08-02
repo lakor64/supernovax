@@ -12,7 +12,8 @@
 
 CDXGIAdapter::CDXGIAdapter()
 {
-	memset(&m_desc, 0, sizeof(m_desc));
+	m_desc.Handle = NULL;
+	m_desc.IsValid = false;
 }
 
 CDXGIAdapter::~CDXGIAdapter()
@@ -201,9 +202,9 @@ STDMETHODIMP_(void) CDXGIAdapter::GetAdapterDesc()
 	if (NT_ERROR(s))
 		return;
 
-	m_desc.DedicatedSystemMemory = segInfo.DedicatedSystemMemorySize;
-	m_desc.DedicatedVideoMemory = segInfo.DedicatedVideoMemorySize;
-	m_desc.SharedSystemMemory = segInfo.SharedSystemMemorySize;
+	m_desc.DedicatedSystemMemory = (SIZE_T)segInfo.DedicatedSystemMemorySize;
+	m_desc.DedicatedVideoMemory = (SIZE_T)segInfo.DedicatedVideoMemorySize;
+	m_desc.SharedSystemMemory = (SIZE_T)segInfo.SharedSystemMemorySize;
 
 	D3DKMT_ADAPTERREGISTRYINFO reg;
 	qa.Type = KMTQAITYPE_ADAPTERREGISTRYINFO;

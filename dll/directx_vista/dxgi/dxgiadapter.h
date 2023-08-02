@@ -8,12 +8,10 @@
 #pragma once
 
 #include "dxgiobject.h"
-#include "lockedobject.h"
 
 class ATL_NO_VTABLE CDXGIAdapter : 
 	public DXGIObjRoot,
 	public CDXGIObject<DXGIAdapterType>,
-	public CLockedObjectChild,
 	public DXGIAdapterInternalType
 {
 public:

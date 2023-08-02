@@ -173,8 +173,8 @@ STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 		}
 
 		DXGIAdapterDesc desc;
-		memset(&desc, 0, sizeof(desc));
 
+		desc.IsValid = false;
 		desc.Handle = gdi.hAdapter;
 		desc.AdapterLuid = gdi.AdapterLuid;
 		WcsMaxCpy(dd.DeviceName, desc.Description, 127);

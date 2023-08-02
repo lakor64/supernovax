@@ -1,6 +1,6 @@
 @ stdcall CreateDXGIFactory(ptr ptr)
 @ stdcall CreateDXGIFactory1(ptr ptr)
-@ stdcall -version=0x601+ CreateDXGIFactory2(ptr ptr)
+@ stdcall -version=0x601+ CreateDXGIFactory2(long ptr ptr)
 @ stub PIXBeginCapture
 @ stub PIXEndCapture
 @ stub PIXGetCaptureState

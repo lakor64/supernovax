@@ -27,7 +27,7 @@
 #define DXGKDDI_INTERFACE_VERSION DXGKDDI_INTERFACE_VERSION_WIN7
 #define DXGI_VERSION 2
 #else
-#define DXGKDDI_INTERFACE_VERSION VERSION_WDDM_REACTOS
+#define DXGKDDI_INTERFACE_VERSION DXGKDDI_INTERFACE_VERSION_VISTA
 #define DXGI_VERSION 0
 #endif
 
@@ -40,11 +40,20 @@
 #include <atlcom.h>
 #undef STATUS_NO_MEMORY
 
+// Windows
+#include <winuser.h>
+#include <wingdi.h>
+#include <shlwapi.h>
+
+// NDK
 #ifndef __REACTOS__
 #include <winternl.h>
 #else
 #define NTOS_MODE_USER
 #include <ndk/umtypes.h>
+// I don't want to know or investigate...
+extern "C" BOOL WINAPI EnumDisplaySettingsExW(_In_opt_ LPCWSTR, _In_ DWORD, _Inout_ LPDEVMODEW, _In_ DWORD);
+extern "C" BOOL WINAPI EnumDisplayDevicesW(_In_opt_ LPCWSTR, _In_ DWORD, _Inout_ PDISPLAY_DEVICEW, _In_ DWORD);
 #endif
 
 // DXGI
@@ -73,6 +82,7 @@
 #include <dxgi1_6.h>
 #endif
 
+// DXGI DDK (the warning fixes some issues in the old ReactOS LongHorn branch, to be tested if they are still throwed)
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4200)
@@ -107,4 +117,10 @@ using DXGIObjRoot = ATL::CComObjectRootEx<ATL::CComMultiThreadModelNoCS>;
 // Project
 #include "impcb.h"
 #include "dxgitypes.h"
+
+#ifdef __REACTOS__
+#include "dxgi_internal.h"
+#else
 #include "dxgi_internal_h.h"
+#endif
+

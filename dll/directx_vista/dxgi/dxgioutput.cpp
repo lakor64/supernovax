@@ -257,7 +257,7 @@ static BOOL CALLBACK EnumOutput(HMONITOR hm, HDC hdc, LPRECT rect, LPARAM user)
 	MONITORINFOEXW mi;
 	mi.cbSize = sizeof(mi);
 
-	if (GetMonitorInfoW(hm, &mi))
+	if (GetMonitorInfoW(hm, (LPMONITORINFO) & mi))
 	{
 		if (wcscmp(mi.szDevice, pDesc->DeviceName) == 0)
 		{
@@ -279,7 +279,7 @@ STDMETHODIMP_(void) CDXGIOutput::GetOutputDesc()
 	EnumDisplayMonitors(nullptr, nullptr, EnumOutput, (LPARAM)&m_desc);
 	DEVMODEW dm;
 
-	if (EnumDisplaySettingsW(m_desc.DeviceName, ENUM_CURRENT_SETTINGS, &dm))
+	if (EnumDisplaySettingsExW(m_desc.DeviceName, ENUM_CURRENT_SETTINGS, &dm, EDS_ROTATEDMODE))
 	{
 		if (dm.dmFields & DM_DISPLAYORIENTATION)
 		{
