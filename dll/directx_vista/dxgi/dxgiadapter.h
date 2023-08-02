@@ -57,8 +57,8 @@ public:
 #endif
 #if DXGI_VERSION >= 2
 	// IDXGIAdapterInternal2
-	STDMETHODIMP LoadUMD(_In_ UINT ver, _Out_ HINSTANCE* inst) override;
-	STDMETHODIMP InstanceTrunks(_In_ UINT ver, _In_ UINT* unk, _In_ UINT unk2, _Out_ void* unk3) override;
+	STDMETHODIMP LoadUMD(_In_ KMTUMDVERSION Version, _Out_ HINSTANCE* hUMD) override;
+	STDMETHODIMP InstanceTrunks(_In_ DXGI_THUNKS_VERSION Version, _In_ UINT* unk, _In_ UINT unk2, _Out_ void* unk3) override;
 	STDMETHODIMP RetireUsage(_In_ UINT v) override;
 	STDMETHODIMP SetAdapterCapabilities(_In_ void* cap) override;
 	STDMETHODIMP GetAdapterCapabilities(_Inout_ void* cap) override;

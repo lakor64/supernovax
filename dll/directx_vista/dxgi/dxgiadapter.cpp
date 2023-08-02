@@ -9,6 +9,7 @@
 #include "dxgiadapter.h"
 #include "dxgioutput.h"
 #include "utils.h"
+#include "dxgithunks.h"
 
 CDXGIAdapter::CDXGIAdapter()
 {
@@ -64,7 +65,7 @@ STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Ou
 		}
 	}
 
-#if 0 // TODO: UNCOMMENT THIS WHEN WE CAN ACTUALLY CREATE A DX10 DEVICE
+#if 1 // TODO: UNCOMMENT THIS WHEN WE CAN ACTUALLY CREATE A DX10 DEVICE
 	if (isD3d10)
 	{
 		// we have an UMD driver that claims to DirectX 10
@@ -296,13 +297,47 @@ STDMETHODIMP CDXGIAdapter::GetDesc2(_Out_ DXGI_ADAPTER_DESC2* pDesc)
 	return S_OK;
 }
 
-STDMETHODIMP CDXGIAdapter::LoadUMD(_In_ UINT ver, _Out_ HINSTANCE* inst)
+STDMETHODIMP CDXGIAdapter::LoadUMD(_In_ KMTUMDVERSION Version, _Out_ HINSTANCE* hDLL)
 {
+	if (!hDLL)
+		return DXGI_ERROR_INVALID_CALL;
+
+	*hDLL = nullptr;
+
+	if (Version == NUM_KMTUMDVERSIONS)
+		return DXGI_ERROR_INVALID_CALL;
+
+	D3DKMT_QUERYADAPTERINFO qa;
+	D3DKMT_UMDFILENAMEINFO um;
+	qa.hAdapter = m_desc.Handle;
+	qa.PrivateDriverDataSize = sizeof(um);
+	qa.pPrivateDriverData = &um;
+	qa.Type = KMTQAITYPE_UMDRIVERNAME;
+	um.Version = Version;
+
+	auto st = _AtlModule.GetQueryAdapterInfo()(&qa);
+	if (NT_ERROR(st))
+		return NtErrorToDxgiError(st);
+
+	auto umd = LoadLibraryW(um.UmdFileName);
+	if (!umd)
+		return GetLastError(); // note: does hit return DXGI errors?
+
+	*hDLL = umd;
 	return S_OK;
 }
 
-STDMETHODIMP CDXGIAdapter::InstanceTrunks(_In_ UINT ver, _In_ UINT* unk, _In_ UINT unk2, _Out_ void* unk3)
+STDMETHODIMP CDXGIAdapter::InstanceTrunks(_In_ DXGI_THUNKS_VERSION Version, _In_ UINT* unk, _In_ UINT unk2, _Out_ void* unk3)
 {
+	if (Version == DXGI_THUNKS_VERSION_NONE)
+		return S_OK;
+
+	if (Version != DXGI_THUNKS_VERSION_3)
+	{
+		// Please report which os used this please!
+		return DXGI_ERROR_UNSUPPORTED;
+	}
+
 	return S_OK;
 }
 

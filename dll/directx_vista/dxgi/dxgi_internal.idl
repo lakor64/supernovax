@@ -1,5 +1,34 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure
+ * COPYRIGHT:   See COPYING in the top level directory
+ * PURPOSE:     Internal structures for DXGI
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ */
+
 import "oaidl.idl";
 import "ocidl.idl";
+
+cpp_quote ("#ifndef _D3DKMTHK_H_")
+typedef enum _KMTUMDVERSION
+{
+	KMTUMDVERSION_DX9 = 0,
+	KMTUMDVERSION_DX10 = 1,
+	KMTUMDVERSION_DX11 = 2,
+	KMTUMDVERSION_DX12 = 3,
+	KMTUMDVERSION_DX12_WSA32 = 4,
+	KMTUMDVERSION_DX12_WSA64 = 5,
+	NUM_KMTUMDVERSIONS = 6
+} KMTUMDVERSION;
+cpp_quote ("#endif")
+
+typedef enum _DXGI_THUNKS_VERSION
+{
+	DXGI_THUNKS_VERSION_NONE = 0,
+	DXGI_THUNKS_VERSION_1 = 1,
+	DXGI_THUNKS_VERSION_2 = 2,
+	DXGI_THUNKS_VERSION_3 = 3,
+	DXGI_THUNKS_VERSION_4 = 4,
+} DXGI_THUNKS_VERSION;
 
 [
 	object,
@@ -33,12 +62,12 @@ interface IDXGIAdapterInternal1 : IDXGIAdapterInternal
 interface IDXGIAdapterInternal2 : IDXGIAdapterInternal1
 {
 	HRESULT LoadUMD(
-		[in] UINT ver, // _KMTUMDVERSION
-		[out] HINSTANCE* inst
+		[in] KMTUMDVERSION Version,
+		[out] HINSTANCE* hUmdDLL
 	);
 
 	HRESULT InstanceTrunks(
-		[in] UINT ver, // DXGI_TRUNKS_VERSION
+		[in] DXGI_THUNKS_VERSION ver,
 		[in] UINT* unk,
 		[in] UINT unk2,
 		[out] void* unk3
@@ -49,11 +78,11 @@ interface IDXGIAdapterInternal2 : IDXGIAdapterInternal1
 	);
 
 	HRESULT SetAdapterCapabilities(
-		[in] void* cap // DXGI_ADAPTER_CAPABILITIES
+		[in] void* Capabilities // DXGI_ADAPTER_CAPABILITIES
 	);
 
 	HRESULT GetAdapterCapabilities(
-		[in][out] void* cap // DXGI_ADAPTER_CAPABILITIES
+		[in][out] void* Capabilities // DXGI_ADAPTER_CAPABILITIES
 	);
 
 	BOOL IsWARP(void);
