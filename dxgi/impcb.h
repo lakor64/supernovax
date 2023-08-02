@@ -26,3 +26,5 @@ typedef HRESULT(NTAPI* D3D11CreateDevice_)(_In_opt_ IDXGIAdapter*, _In_ D3D_DRIV
 typedef HRESULT(NTAPI* D3D10CreateDevice_)(_In_opt_ IDXGIAdapter*, _In_ D3D10_DRIVER_TYPE, _In_ HMODULE, _In_ UINT, _In_ UINT, _Out_ ID3D10Device**);
 
 typedef NTSTATUS (NTAPI* D3DKMTWaitForVerticalBlankEvent_)(_In_ const D3DKMT_WAITFORVERTICALBLANKEVENT*);
+
+typedef NTSTATUS(NTAPI* D3DKMTGetDeviceState_)(_Inout_ D3DKMT_GETDEVICESTATE*);

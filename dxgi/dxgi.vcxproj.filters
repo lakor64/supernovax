@@ -115,6 +115,9 @@
     <ClCompile Include="utils.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="d3dkmtstubs.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">

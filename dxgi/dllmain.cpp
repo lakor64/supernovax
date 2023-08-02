@@ -32,10 +32,6 @@ BOOL CATLDXGIModule::MyInit()
 	if (!hGdi)
 		return FALSE;
 
-	hNtDll = LoadLibraryW(L"ntdll.dll");
-	if (!hNtDll)
-		return FALSE;
-
 	fnc1 = (D3DKMTOpenAdapterFromGdiDisplayName_)GetProcAddress(hGdi, "D3DKMTOpenAdapterFromGdiDisplayName");
 
 	if (!fnc1)
@@ -44,10 +40,6 @@ BOOL CATLDXGIModule::MyInit()
 #if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8
 	fnc2 = (D3DKMTEnumAdapters2_)GetProcAddress(hGdi, "D3DKMTEnumAdapters2"); // Win8+
 #endif
-
-	fnc3 = (RtlNtStatusToDosError_)GetProcAddress(hNtDll, "RtlNtStatusToDosError");
-	if (!fnc3)
-		return FALSE;
 
 	fnc4 = (D3DKMTQueryAdapterInfo_)GetProcAddress(hGdi, "D3DKMTQueryAdapterInfo");
 	if (!fnc4)
@@ -62,6 +54,12 @@ BOOL CATLDXGIModule::MyInit()
 		return FALSE;
 
 	fnc7 = (D3DKMTWaitForVerticalBlankEvent_)GetProcAddress(hGdi, "D3DKMTWaitForVerticalBlankEvent");
+	if (!fnc7)
+		return FALSE;
+
+	fnc8 = (D3DKMTGetDeviceState_)GetProcAddress(hGdi, "D3DKMTGetDeviceState");
+	if (!fnc8)
+		return FALSE;
 
 	return TRUE;
 }
@@ -70,10 +68,7 @@ void CATLDXGIModule::MyTerm()
 {
 	if (hGdi)
 		FreeLibrary(hGdi);
-	if (hNtDll)
-		FreeLibrary(hNtDll);
 
-	hNtDll = nullptr;
 	hGdi = nullptr;
 }
 
@@ -147,5 +142,34 @@ extern "C"
 			return E_NOINTERFACE;
 
 		return CreateDXGIFactoryReal(riid, ppFactory);
+	}
+
+	HRESULT WINAPI DXGID3D10CreateDevice(_In_ HMODULE hD3d10, _In_ IDXGIFactory* pFactory, _In_ IDXGIAdapter* pAdapter,
+		_In_ UINT Flags, _In_ const D3D_FEATURE_LEVEL* pLevels, _In_ UINT levelsCount, _COM_Outptr_ void** device)
+	{
+#ifdef PFF_PROJ_DEBUG
+		printf("DXGID3D10CreateDevice: %#x %p %p %#x %p %u %p\n", hD3d10, pFactory, pAdapter, Flags, pLevels, levelsCount, device);
+		_CrtDbgBreak();
+#endif
+		return DXGI_ERROR_UNSUPPORTED;
+	}
+
+	HRESULT WINAPI DXGID3D10RegisterLayers(const void* pLayers, _In_ UINT nLayerCount)
+	{
+#ifdef PFF_PROJ_DEBUG
+		printf("DXGID3D10RegisterLayers: %p %u\n", pLayers, nLayerCount);
+		_CrtDbgBreak();
+#endif
+		return DXGI_ERROR_UNSUPPORTED;
+	}
+
+
+	HRESULT WINAPI DXGIGetDebugInterface1(UINT flags, REFIID iid, void** debug)
+	{
+#ifdef PFF_PROJ_DEBUG
+		printf("flags %#x, debug %p.\n", flags, debug);
+		_CrtDbgBreak();
+#endif
+		return DXGI_ERROR_UNSUPPORTED;
 	}
 }

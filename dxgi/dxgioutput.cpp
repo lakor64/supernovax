@@ -54,12 +54,12 @@ STDMETHODIMP CDXGIOutput::GetDisplayModeList(_In_ DXGI_FORMAT EnumFormat, _In_ U
 
 	auto status = _AtlModule.GetDisplayModeList()(&dml);
 	if (NT_ERROR(status))
-		return _AtlModule.GetNtStatusToDosError()(status);
+		return NtErrorToDxgiError(status);
 
 	dml.pModeList = (D3DKMT_DISPLAYMODE*)new byte[dml.ModeCount * 0x2C]; // wait for header fix...
 	status = _AtlModule.GetDisplayModeList()(&dml);
 	if (NT_ERROR(status))
-		return _AtlModule.GetNtStatusToDosError()(status);
+		return NtErrorToDxgiError(status);
 
 	auto iteSize = 0U;
 
@@ -131,7 +131,24 @@ STDMETHODIMP CDXGIOutput::GetFrameStatistics(_Out_ DXGI_FRAME_STATISTICS* pStats
 	if (!pStats)
 		return DXGI_ERROR_INVALID_CALL;
 
-	return E_NOTIMPL;
+	D3DKMT_GETDEVICESTATE ds;
+	ds.StateType = D3DKMT_DEVICESTATE_PRESENT;
+	ds.hDevice = m_desc.Handle;
+	ds.PresentState.VidPnSourceId = m_desc.VidPn;
+
+	auto status = _AtlModule.GetDeviceState()(&ds);
+	if (NT_ERROR(status))
+		return NtErrorToDxgiError(status);
+
+	auto es = ds.PresentState.PresentStats;
+
+	pStats->PresentCount = es.PresentCount;
+	pStats->PresentRefreshCount = es.PresentRefreshCount;
+	pStats->SyncRefreshCount = es.SyncRefreshCount;
+	pStats->SyncGPUTime = es.SyncGPUTime;
+	pStats->SyncQPCTime = es.SyncQPCTime;
+
+	return S_OK;
 }
 
 STDMETHODIMP CDXGIOutput::GetGammaControl(_Out_ DXGI_GAMMA_CONTROL* pArray)
@@ -186,12 +203,17 @@ STDMETHODIMP CDXGIOutput::WaitForVBlank(void)
 	v.VidPnSourceId = m_desc.VidPn;
 	v.hDevice = NULL;
 
-	return _AtlModule.GetNtStatusToDosError()(_AtlModule.GetWaitForVBlank()(&v));
+	return NtErrorToDxgiError(_AtlModule.GetWaitForVBlank()(&v));
 }
 
 STDMETHODIMP CDXGIOutput::Initialize(CDXGIAdapter* adapter, DXGIOutputDescBasic& dsc)
 {
-	m_pParent = adapter;
+	SetParent(adapter);
+
+#ifdef PFF_PROJ_DEBUG
+	printf("CDXGIOutput->Initialize this:%p handle:%u vidpn:%u\n", this, dsc.Handle, dsc.VidPn);
+#endif
+
 	m_desc.Handle = dsc.Handle;
 	m_desc.VidPn = dsc.VidPn;
 	memcpy(m_desc.DeviceName, dsc.DeviceName, sizeof(dsc.DeviceName));
@@ -242,7 +264,10 @@ static BOOL CALLBACK EnumOutput(HMONITOR hm, HDC hdc, LPRECT rect, LPARAM user)
 		{
 			pDesc->DesktopCoordinates = mi.rcMonitor;
 			pDesc->Monitor = hm;
-			pDesc->AttachedToDesktop = FALSE;
+
+			// note: this is true because dxgifactory only enum active devices, may be false for remove devices...
+			pDesc->AttachedToDesktop = TRUE;
+
 			return FALSE;
 		}
 	}

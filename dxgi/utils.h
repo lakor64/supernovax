@@ -44,3 +44,5 @@ inline void WcsMaxCpy(const wchar_t* src, wchar_t* dst, size_t max)
 
 extern DXGI_FORMAT WINAPI DXGI_MFMapDX9FormatToDXGIFormat(D3DDDIFORMAT format);
 extern D3DDDIFORMAT WINAPI DXGI_MFMapDXGIFormatToDX9Format(DXGI_FORMAT dxgi_format);
+
+extern HRESULT WINAPI NtErrorToDxgiError(NTSTATUS status);

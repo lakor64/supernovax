@@ -203,3 +203,20 @@ DXGI_FORMAT WINAPI DXGI_MFMapDX9FormatToDXGIFormat(D3DDDIFORMAT format)
         return DXGI_FORMAT_UNKNOWN;
     }
 }
+
+// NOTE: based on guesses, investigate properly!
+HRESULT WINAPI NtErrorToDxgiError(NTSTATUS status)
+{
+    if (NT_SUCCESS(status))
+        return S_OK;
+
+    switch (status)
+    {
+    case STATUS_INVALID_PARAMETER:
+        return DXGI_ERROR_INVALID_CALL;
+    default:
+        break;
+    }
+
+    return DXGI_ERROR_DRIVER_INTERNAL_ERROR;
+}

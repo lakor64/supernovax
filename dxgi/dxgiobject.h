@@ -152,8 +152,20 @@ protected:
 			it->Release();
 		}
 
+		if (m_pParent)
+			m_pParent->Release();
+
 		m_pParent = nullptr;
 		m_vData.clear();
+	}
+
+	STDMETHODIMP_(void) SetParent(IUnknown* pParent)
+	{
+		if (m_pParent)
+			m_pParent->Release();
+
+		pParent->AddRef();
+		m_pParent = pParent;
 	}
 
 	/** Parent of this object */

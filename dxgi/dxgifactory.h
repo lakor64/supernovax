@@ -40,7 +40,7 @@ public:
 	END_COM_MAP()
 
 	CDXGIFactory() = default;
-	~CDXGIFactory() = default;
+	~CDXGIFactory();
 
 	// IDXGIFactory
 	STDMETHODIMP CreateSoftwareAdapter(_In_ HMODULE Module, _COM_Outptr_ IDXGIAdapter** ppAdapter) override;

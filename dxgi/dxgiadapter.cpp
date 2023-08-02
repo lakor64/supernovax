@@ -17,8 +17,6 @@ CDXGIAdapter::CDXGIAdapter()
 
 CDXGIAdapter::~CDXGIAdapter()
 {
-	// close previously opened handle
-	CloseKMTAdapter(m_desc.Handle);
 }
 
 STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Out_ LARGE_INTEGER* pUMDVersion)
@@ -50,7 +48,7 @@ STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Ou
 		// apperently (needs confirmation): some drivers can implement only DXVA2 and fail when it attempts to call DX9 version or similar
 
 		umdFile.Version = (KMTUMDVERSION)startVer;
-		auto err = _AtlModule.GetNtStatusToDosError()(_AtlModule.GetQueryAdapterInfo()(&info));
+		auto err = NtErrorToDxgiError(_AtlModule.GetQueryAdapterInfo()(&info));
 
 		if (SUCCEEDED(err))
 			break;
@@ -65,7 +63,7 @@ STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Ou
 		}
 	}
 
-#if 0 // uncomment this code when IDXGIDevice works!
+#if 1 // uncomment this code when IDXGIDevice works!
 	if (isD3d10)
 	{
 		// we have an UMD driver that claims to DirectX 10
@@ -200,7 +198,7 @@ STDMETHODIMP CDXGIAdapter::GetDesc1(_Out_ DXGI_ADAPTER_DESC1* pDesc)
 
 STDMETHODIMP CDXGIAdapter::Initialize(IDXGIFactory1* parent, const DXGIAdapterDesc& desc)
 {
-	m_pParent = parent;
+	SetParent(parent); // keep the reference of self alive...
 	m_desc = desc;
 	return S_OK;
 }

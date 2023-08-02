@@ -1,20 +1,65 @@
 LIBRARY dxgi
 EXPORTS
-	;ApplyCompatResolutionQuirking
-	;CompatString
-	;CompatValue
-	;DXGIDumpJournal
-	;PIXBeginCapture
-	;PIXEndCapture
-	;PIXGetCaptureState
-	;SetAppCompatStringPointer
-	;UpdateHMDEmulationStatus
+	; Factory
 	CreateDXGIFactory
 	CreateDXGIFactory1
 	CreateDXGIFactory2
-	;DXGID3D10CreateDevice
-	;DXGID3D10CreateLayeredDevice
-	;DXGID3D10RegisterLayers
-	;DXGIDeclareAdapterRemovalSupport
-	;DXGIGetDebugInterface1
+	; PIX debugger (Win10)
+	;PIXBeginCapture
+	;PIXEndCapture
+	;PIXGetCaptureState
+	; Common
+	;DXGIDumpJournal
 	;DXGIReportAdapterConfiguration
+	; Win10 exports
+	;SetAppCompatStringPointer
+	;ApplyCompatResolutionQuirking
+	;CompatString
+	;CompatValue
+	;UpdateHMDEmulationStatus
+	; D3D10
+	DXGID3D10CreateDevice
+	;DXGID3D10CreateLayeredDevice
+	;DXGID3D10GetLayeredDeviceSize
+	DXGID3D10RegisterLayers
+	; Win10
+	;DXGIDeclareAdapterRemovalSupport
+	DXGIGetDebugInterface1
+	; Win7
+	;OpenAdapter10
+	;OpenAdapter10_2
+	; Win7 D3DKMT
+	D3DKMTCloseAdapter
+	D3DKMTCreateAllocation
+	D3DKMTCreateContext
+	D3DKMTCreateDevice
+	D3DKMTCreateSyncrhonizationObject
+	D3DKMTDestroyAllocation
+	D3DKMTDestroyContext
+	D3DKMTDestroyDevice
+	D3DKMTDestroySynchronizationObject
+	D3DKMTEscape
+	D3DKMTGetContextSchedulingPriority
+	D3DKMTGetDeviceState
+	D3DKMTGetDisplayModeList
+	D3DKMTGetMultisampleMethodList
+	D3DKMTGetRuntimeData
+	D3DKMTGetSharedPrimaryHandle
+	D3DKMTLock
+	D3DKMTOpenAdapterFromHdc
+	D3DKMTOpenResource
+	D3DKMTPresent
+	D3DKMTQueryAdapterInfo
+	D3DKMTQueryAllocationResidency
+	D3DKMTQueryResourceInfo
+	D3DKMTRender
+	D3DKMTSetAllocationPriority
+	D3DKMTSetContextSchedulingPriority
+	D3DKMTSetDisplayMode
+	D3DKMTSetDisplayPrivateDriverFormat
+	D3DKMTSetGammaRamp
+	D3DKMTSetVidPnSourceOwner
+	D3DKMTSignalSynchronizationObject
+	D3DKMTUnlock
+	D3DKMTWaitForSynchronizationObject
+	D3DKMTWaitForVerticalBlankEvent

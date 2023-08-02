@@ -11,6 +11,23 @@
 #include "dllmain.h"
 #include "utils.h"
 
+CDXGIFactory::~CDXGIFactory()
+{
+	D3DKMT_CLOSEADAPTER ca;
+	for (auto it = m_vAdapters.begin(); it != m_vAdapters.end(); it++)
+	{
+		for (auto it2 = it->Outputs.begin(); it2 != it->Outputs.end(); it2++)
+		{
+#ifdef PFF_PROJ_DEBUG
+			printf("CDXGIFactory->CloseAdapter this:%p handle:%u\n", this, it->Handle);
+#endif
+
+			ca.hAdapter = it2->Handle;
+			_AtlModule.GetCloseAdapter()(&ca);
+		}
+	}
+}
+
 STDMETHODIMP CDXGIFactory::CreateSoftwareAdapter(_In_ HMODULE Module, _Out_ IDXGIAdapter** ppAdapter)
 {
 	if (!ppAdapter)
@@ -127,6 +144,9 @@ STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 		if (!EnumDisplayDevicesW(nullptr, ids, &dd, 0))
 			break; // found the last device
 
+		if (!(dd.StateFlags & DISPLAY_DEVICE_ACTIVE))
+			continue; // skip devices that are NOT active, tested via dxgi behavour
+
 		D3DKMT_OPENADAPTERFROMGDIDISPLAYNAME gdi = { 0 };
 
 		memcpy(gdi.DeviceName, dd.DeviceName, sizeof(dd.DeviceName));
@@ -135,6 +155,10 @@ STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 
 		if (FAILED(err))
 			break; // might not have an adapter on this device, exit
+
+#ifdef PFF_PROJ_DEBUG
+		printf("CDXGIFactory->OpenAdapter this:%p handle:%u vidpn:%u\n", this, gdi.hAdapter, gdi.VidPnSourceId);
+#endif
 
 		bool skipThis = false;
 
@@ -157,7 +181,6 @@ STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 
 		if (skipThis)
 		{
-			CloseKMTAdapter(gdi.hAdapter);
 			continue;
 		}
 

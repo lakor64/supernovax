@@ -108,7 +108,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS;PFF_PROJ_DEBUG</PreprocessorDefinitions>
       <ConformanceMode>false</ConformanceMode>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <AdditionalIncludeDirectories>psdk;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -144,6 +144,7 @@
     <None Include="dxgi.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="d3dkmtstubs.cpp" />
     <ClCompile Include="guids.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClInclude Include="dllmain.h" />
