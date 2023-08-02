@@ -14,11 +14,11 @@ struct DXGI_THUNKS_V1
 	void* D3DKMTLock;
 	void* D3DKMTUnlock;
 	void* D3DKMTEscape;
-	void* D3DKMTWaitForSynchronizationObjec;
+	void* D3DKMTWaitForSynchronizationObject;
 	void* D3DKMTSignalSynchronizationObject;
 	void* D3DKMTSetDisplayMode;
 	void* D3DKMTGetDeviceState;
-	void* d3dkmt9;
+	void* D3DKMTCreateAllocation;
 	void* D3DKMTQueryResourceInfo;
 	void* D3DKMTOpenResource;
 	void* D3DKMTDestroyAllocation;
@@ -118,16 +118,17 @@ struct DXGI_THUNKS_V4 : public DXGI_THUNKS_V3
 	void* D3DKMTGetAllocationPriority;
 };
 
-constexpr const char* DXGI_THUNKS_NAMES_V1[] = {
+constexpr auto DXGI_THUNKS_NAMES_V1_LENGTH = 27;
+constexpr const char* DXGI_THUNKS_NAMES_V1[DXGI_THUNKS_NAMES_V1_LENGTH] = {
 	"D3DKMTRender",
 	"D3DKMTLock",
 	"D3DKMTUnlock",
 	"D3DKMTEscape",
-	"D3DKMTWaitForSynchronizationObjec",
+	"D3DKMTWaitForSynchronizationObject",
 	"D3DKMTSignalSynchronizationObject",
 	"D3DKMTSetDisplayMode",
 	"D3DKMTGetDeviceState",
-	nullptr,
+	"D3DKMTCreateAllocation",
 	"D3DKMTQueryResourceInfo",
 	"D3DKMTOpenResource",
 	"D3DKMTDestroyAllocation",
@@ -148,7 +149,37 @@ constexpr const char* DXGI_THUNKS_NAMES_V1[] = {
 	"D3DKMTSetQueuedLimit",
 };
 
-constexpr const char* DXGI_THUNKS_NAMES_V2[] = {
+constexpr auto DXGI_THUNKS_NAMES_V2_LENGTH = 12 + DXGI_THUNKS_NAMES_V1_LENGTH;
+constexpr const char* DXGI_THUNKS_NAMES_V2[DXGI_THUNKS_NAMES_V2_LENGTH] = {
+	// V1
+	"D3DKMTRender",
+	"D3DKMTLock",
+	"D3DKMTUnlock",
+	"D3DKMTEscape",
+	"D3DKMTWaitForSynchronizationObject",
+	"D3DKMTSignalSynchronizationObject",
+	"D3DKMTSetDisplayMode",
+	"D3DKMTGetDeviceState",
+	"D3DKMTCreateAllocation",
+	"D3DKMTQueryResourceInfo",
+	"D3DKMTOpenResource",
+	"D3DKMTDestroyAllocation",
+	"D3DKMTSetAllocationPriority",
+	"D3DKMTQueryAllocationResidency",
+	"D3DKMTCreateDevice",
+	"D3DKMTDestroyDevice",
+	"D3DKMTPresent",
+	"D3DKMTSetContextSchedulingPriority",
+	"D3DKMTGetContextSchedulingPriority",
+	"D3DKMTCreateContext",
+	"D3DKMTDestroyContext",
+	"D3DKMTCreateSynchronizationObject",
+	"D3DKMTDestroySynchronizationObject",
+	"D3DKMTSetDisplayPrivateDriverFormat",
+	"D3DKMTQueryAdapterInfo",
+	"D3DKMTGetMultisampleMethodList",
+	"D3DKMTSetQueuedLimit",
+	// V2
 	"D3DKMTCreateAllocation2",
 	"D3DKMTOpenResource2",
 	"D3DKMTCreateKeyedMutex",
@@ -163,7 +194,50 @@ constexpr const char* DXGI_THUNKS_NAMES_V2[] = {
 	"D3DKMTConfigureSharedResource",
 };
 
-constexpr const char* DXGI_THUNKS_NAMES_V3[] = {
+constexpr auto DXGI_THUNKS_NAMES_V3_LENGTH = 18 + DXGI_THUNKS_NAMES_V2_LENGTH;
+constexpr const char* DXGI_THUNKS_NAMES_V3[DXGI_THUNKS_NAMES_V3_LENGTH] = {
+	// V1
+	"D3DKMTRender",
+	"D3DKMTLock",
+	"D3DKMTUnlock",
+	"D3DKMTEscape",
+	"D3DKMTWaitForSynchronizationObject",
+	"D3DKMTSignalSynchronizationObject",
+	"D3DKMTSetDisplayMode",
+	"D3DKMTGetDeviceState",
+	"D3DKMTCreateAllocation",
+	"D3DKMTQueryResourceInfo",
+	"D3DKMTOpenResource",
+	"D3DKMTDestroyAllocation",
+	"D3DKMTSetAllocationPriority",
+	"D3DKMTQueryAllocationResidency",
+	"D3DKMTCreateDevice",
+	"D3DKMTDestroyDevice",
+	"D3DKMTPresent",
+	"D3DKMTSetContextSchedulingPriority",
+	"D3DKMTGetContextSchedulingPriority",
+	"D3DKMTCreateContext",
+	"D3DKMTDestroyContext",
+	"D3DKMTCreateSynchronizationObject",
+	"D3DKMTDestroySynchronizationObject",
+	"D3DKMTSetDisplayPrivateDriverFormat",
+	"D3DKMTQueryAdapterInfo",
+	"D3DKMTGetMultisampleMethodList",
+	"D3DKMTSetQueuedLimit",
+	// V2
+	"D3DKMTCreateAllocation2",
+	"D3DKMTOpenResource2",
+	"D3DKMTCreateKeyedMutex",
+	"D3DKMTOpenKeyedMutex",
+	"D3DKMTDestroyKeyedMutex",
+	"D3DKMTAcquireKeyedMutex",
+	"D3DKMTReleaseKeyedMutex",
+	"D3DKMTCreateSynchronizationObject2",
+	"D3DKMTOpenSynchronizationObject",
+	"D3DKMTWaitForSynchronizationObject2",
+	"D3DKMTSignalSynchronizationObject2",
+	"D3DKMTConfigureSharedResource",
+	// V3
 	"D3DKMTOfferAllocations",
 	"D3DKMTReclaimAllocations",
 	"D3DKMTCreateKeyedMutex2",
@@ -184,7 +258,69 @@ constexpr const char* DXGI_THUNKS_NAMES_V3[] = {
 	"D3DKMTCheckMultiPlaneOverlaySupport",
 };
 
-constexpr const char* DXGI_THUNKS_NAMES_V4[] = {
+constexpr auto DXGI_THUNKS_NAMES_V4_LENGTH = 37 + DXGI_THUNKS_NAMES_V3_LENGTH;
+constexpr const char* DXGI_THUNKS_NAMES_V4[DXGI_THUNKS_NAMES_V4_LENGTH] = {
+	// V1
+	"D3DKMTRender",
+	"D3DKMTLock",
+	"D3DKMTUnlock",
+	"D3DKMTEscape",
+	"D3DKMTWaitForSynchronizationObject",
+	"D3DKMTSignalSynchronizationObject",
+	"D3DKMTSetDisplayMode",
+	"D3DKMTGetDeviceState",
+	"D3DKMTCreateAllocation",
+	"D3DKMTQueryResourceInfo",
+	"D3DKMTOpenResource",
+	"D3DKMTDestroyAllocation",
+	"D3DKMTSetAllocationPriority",
+	"D3DKMTQueryAllocationResidency",
+	"D3DKMTCreateDevice",
+	"D3DKMTDestroyDevice",
+	"D3DKMTPresent",
+	"D3DKMTSetContextSchedulingPriority",
+	"D3DKMTGetContextSchedulingPriority",
+	"D3DKMTCreateContext",
+	"D3DKMTDestroyContext",
+	"D3DKMTCreateSynchronizationObject",
+	"D3DKMTDestroySynchronizationObject",
+	"D3DKMTSetDisplayPrivateDriverFormat",
+	"D3DKMTQueryAdapterInfo",
+	"D3DKMTGetMultisampleMethodList",
+	"D3DKMTSetQueuedLimit",
+	// V2
+	"D3DKMTCreateAllocation2",
+	"D3DKMTOpenResource2",
+	"D3DKMTCreateKeyedMutex",
+	"D3DKMTOpenKeyedMutex",
+	"D3DKMTDestroyKeyedMutex",
+	"D3DKMTAcquireKeyedMutex",
+	"D3DKMTReleaseKeyedMutex",
+	"D3DKMTCreateSynchronizationObject2",
+	"D3DKMTOpenSynchronizationObject",
+	"D3DKMTWaitForSynchronizationObject2",
+	"D3DKMTSignalSynchronizationObject2",
+	"D3DKMTConfigureSharedResource",
+	// V3
+	"D3DKMTOfferAllocations",
+	"D3DKMTReclaimAllocations",
+	"D3DKMTCreateKeyedMutex2",
+	"D3DKMTOpenKeyedMutex2",
+	"D3DKMTAcquireKeyedMutex2",
+	"D3DKMTReleaseKeyedMutex2",
+	"D3DKMTOutputDuplPresent",
+	"D3DKMTQueryResourceInfoFromNtHandle",
+	"D3DKMTShareObjects",
+	"D3DKMTOpenNtHandleFromName",
+	"D3DKMTOpenResourceFromNtHandle",
+	"D3DKMTPinDirectFlipResources",
+	"D3DKMTUnpinDirectFlipResources",
+	"D3DKMTSetContextInProcessSchedulingPriority",
+	"D3DKMTGetContextInProcessSchedulingPriority",
+	"D3DKMTOpenSyncObjectFromNtHandle",
+	"D3DKMTPresentMultiPlaneOverlay",
+	"D3DKMTCheckMultiPlaneOverlaySupport",
+	// V4
 	"D3DKMTMakeResident",
 	"D3DKMTEvict",
 	"D3DKMTWaitForSynchronizationObjectFromCpu",

@@ -24,6 +24,8 @@ public:
 	/** Gets GDI32.DLL */
 	HMODULE GetGdi32() const { return hGdi; }
 
+	DWORD GetGlobalThunkVersion() const { return thunKVer; }
+
 	/** Gets a pointer to D3DKMTOpenAdapterFromGdiDisplayName */
 	D3DKMTOpenAdapterFromGdiDisplayName_ GetOpenAdapterFromGdi() const { return fnc1; }
 #if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8
@@ -44,6 +46,7 @@ public:
 private:
 	/** GDI32.DLL */
 	HMODULE hGdi;
+	DWORD thunKVer;
 
 	D3DKMTOpenAdapterFromGdiDisplayName_ fnc1;
 #if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8
@@ -54,6 +57,7 @@ private:
 	D3DKMTGetDisplayModeList_ fnc6;
 	D3DKMTWaitForVerticalBlankEvent_ fnc7;
 	D3DKMTGetDeviceState_ fnc8;
+	D3DKMTGetThunkVersion_ fnc9;
 };
 
 /** Global ATL module export */

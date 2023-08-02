@@ -61,6 +61,12 @@ BOOL CATLDXGIModule::MyInit()
 	if (!fnc8)
 		return FALSE;
 
+	fnc9 = (D3DKMTGetThunkVersion_)GetProcAddress(hGdi, "D3DKMTGetThunkVersion");
+	if (!fnc9)
+		thunKVer = 1; // fallback to thunk version 1
+	else
+		thunKVer = fnc9();
+
 	return TRUE;
 }
 

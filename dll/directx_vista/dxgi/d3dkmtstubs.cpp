@@ -5,7 +5,12 @@
  * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
  */
 #include "pch.h"
+
+#ifdef HAVE_D3D10UUMDI
 #include <D3d10umddi.h>
+#else
+typedef void D3D10DDIARG_OPENADAPTER;
+#endif
 
 extern "C"
 {

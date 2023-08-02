@@ -21,6 +21,10 @@ typedef enum _KMTUMDVERSION
 } KMTUMDVERSION;
 cpp_quote ("#endif")
 
+cpp_quote ("#ifndef _D3DUKMDT_H_")
+typedef UINT D3DKMT_HANDLE;
+cpp_quote ("#endif")
+
 typedef enum _DXGI_THUNKS_VERSION
 {
 	DXGI_THUNKS_VERSION_NONE = 0,
@@ -66,11 +70,11 @@ interface IDXGIAdapterInternal2 : IDXGIAdapterInternal1
 		[out] HINSTANCE* hUmdDLL
 	);
 
-	HRESULT InstanceTrunks(
-		[in] DXGI_THUNKS_VERSION ver,
-		[in] UINT* unk,
-		[in] UINT unk2,
-		[out] void* unk3
+	HRESULT InstanceThunks(
+		[in] DXGI_THUNKS_VERSION Version,
+		[out] D3DKMT_HANDLE* pHandle,
+		[in] UINT ThunksVer,
+		[in] [out] [optional] void* Thunks
 	);
 
 	HRESULT RetireUsage(

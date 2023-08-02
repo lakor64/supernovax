@@ -42,7 +42,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
@@ -149,6 +149,7 @@
     <ClCompile Include="utils.cpp" />
     <ClInclude Include="dllmain.h" />
     <ClInclude Include="dxgiadapter.h" />
+    <ClInclude Include="dxgithunks.h" />
     <ClInclude Include="dxgitypes.h" />
     <ClInclude Include="dxgidevice.h" />
     <ClInclude Include="dxgidevicesubobject.h" />
@@ -163,6 +164,7 @@
     <ClInclude Include="dxgi_internal_h.h" />
     <ClInclude Include="impcb.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="thunkloader.h" />
     <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>

@@ -277,7 +277,8 @@ static BOOL CALLBACK EnumOutput(HMONITOR hm, HDC hdc, LPRECT rect, LPARAM user)
 STDMETHODIMP_(void) CDXGIOutput::GetOutputDesc()
 {
 	EnumDisplayMonitors(nullptr, nullptr, EnumOutput, (LPARAM)&m_desc);
-	DEVMODEW dm;
+	DEVMODEW dm = { 0 };
+	dm.dmSize = sizeof(dm);
 
 	if (EnumDisplaySettingsExW(m_desc.DeviceName, ENUM_CURRENT_SETTINGS, &dm, EDS_ROTATEDMODE))
 	{

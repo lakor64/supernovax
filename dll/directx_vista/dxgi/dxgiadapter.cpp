@@ -10,6 +10,7 @@
 #include "dxgioutput.h"
 #include "utils.h"
 #include "dxgithunks.h"
+#include "thunkloader.h"
 
 CDXGIAdapter::CDXGIAdapter()
 {
@@ -327,16 +328,83 @@ STDMETHODIMP CDXGIAdapter::LoadUMD(_In_ KMTUMDVERSION Version, _Out_ HINSTANCE* 
 	return S_OK;
 }
 
-STDMETHODIMP CDXGIAdapter::InstanceTrunks(_In_ DXGI_THUNKS_VERSION Version, _In_ UINT* unk, _In_ UINT unk2, _Out_ void* unk3)
+STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_ D3DKMT_HANDLE* Adapter, _In_ UINT ThunkSize, _Out_opt_ void* Thunks)
 {
-	if (Version == DXGI_THUNKS_VERSION_NONE)
-		return S_OK;
+	HRESULT hr = S_OK;
 
-	if (Version != DXGI_THUNKS_VERSION_3)
+	switch (Version)
 	{
-		// Please report which os used this please!
-		return DXGI_ERROR_UNSUPPORTED;
+	default:
+		return E_NOINTERFACE;
+
+	case DXGI_THUNKS_VERSION_NONE:
+		break;
+
+	case DXGI_THUNKS_VERSION_3:
+	{
+		if (!Thunks)
+			break;
+
+		if (ThunkSize != sizeof(DXGI_THUNKS_V3))
+			return E_POINTER;
+
+		*((DWORD*)Thunks) = 3; // NOTE: not that great... v4 is hardcoded in w10
+
+		hr = DXGILoadThunk(_AtlModule.GetGdi32(), (DXGI_THUNKS_V3*)Thunks);
+		break;
 	}
+
+	case DXGI_THUNKS_VERSION_2:
+	{
+		if (!Thunks)
+			break;
+
+		if (ThunkSize != sizeof(DXGI_THUNKS_V2))
+			return E_POINTER;
+
+		*((DWORD*)Thunks) = 2; // NOTE: not that great... v4 is hardcoded in w10
+
+		hr = DXGILoadThunk(_AtlModule.GetGdi32(), (DXGI_THUNKS_V2*)Thunks);
+
+		break;
+	}
+
+	case DXGI_THUNKS_VERSION_1:
+	{
+		if (!Thunks)
+			break;
+
+		if (ThunkSize != sizeof(DXGI_THUNKS_V1))
+			return E_POINTER;
+
+		*((DWORD*)Thunks) = 1; // NOTE: not that great... v4 is hardcoded in w10
+
+		hr = DXGILoadThunk(_AtlModule.GetGdi32(), (DXGI_THUNKS_V1*)Thunks);
+		break;
+	}
+
+	case DXGI_THUNKS_VERSION_4:
+	{
+		if (!Thunks)
+			break;
+
+		if (ThunkSize != sizeof(DXGI_THUNKS_V4))
+			return E_POINTER;
+
+		*((DWORD*)Thunks) = 4; // NOTE: not that great... v4 is hardcoded in w10
+
+		hr = DXGILoadThunk(_AtlModule.GetGdi32(), (DXGI_THUNKS_V4*)Thunks);
+		break;
+	}
+
+
+	}
+
+	if (FAILED(hr))
+		return hr;
+
+	if (Adapter)
+		*Adapter = m_desc.Handle;
 
 	return S_OK;
 }

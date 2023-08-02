@@ -62,6 +62,12 @@
     <ClInclude Include="dxgi_internal_h.h">
       <Filter>MIDL</Filter>
     </ClInclude>
+    <ClInclude Include="dxgithunks.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="thunkloader.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dxgifactory.cpp">
