@@ -1,10 +1,11 @@
 /*
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
- * PURPOSE:     D3DKMT API exports stubs
+ * PURPOSE:     DXGI UMD stub exports
  * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
  */
 #include "pch.h"
+#include <D3d10umddi.h>
 
 extern "C"
 {
@@ -205,7 +206,7 @@ extern "C"
 	}
 
 
-	HRESULT WINAPI OpenAdapter10(void* pOpenData)
+	HRESULT WINAPI OpenAdapter10(D3D10DDIARG_OPENADAPTER* pOpenData)
 	{
 #ifdef PFF_PROJ_DEBUG
 		printf("OpenAdapter10: data %p\n", pOpenData);
@@ -214,7 +215,7 @@ extern "C"
 		return DXGI_ERROR_UNSUPPORTED;
 	}
 
-	HRESULT WINAPI OpenAdapter10_2(void* pOpenData)
+	HRESULT WINAPI OpenAdapter10_2(D3D10DDIARG_OPENADAPTER* pOpenData)
 	{
 #ifdef PFF_PROJ_DEBUG
 		printf("OpenAdapter10_2: data %p\n", pOpenData);
