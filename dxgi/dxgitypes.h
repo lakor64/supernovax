@@ -32,8 +32,8 @@
 #define DXGIDeviceType IDXGIDevice1
 #undef  DXGISurfaceType
 #define DXGISurfaceType IDXGISurface1
-//#undef  DXGIAdapterInternalType
-//#define DXGIAdapterInternalType IDXGIAdapterInternal1
+#undef  DXGIAdapterInternalType
+#define DXGIAdapterInternalType IDXGIAdapterInternal1
 #endif
 
 #if DXGI_VERSION >= 2

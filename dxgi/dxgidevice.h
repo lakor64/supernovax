@@ -28,7 +28,7 @@ public:
 	STDMETHODIMP GetGPUThreadPriority(_Out_ INT* pPriority) override;
 	STDMETHODIMP QueryResourceResidency(_In_ IUnknown* const* ppResources, _Out_ DXGI_RESIDENCY *pResidencyStatus, _In_ UINT NumResources) override;
 	STDMETHODIMP SetGPUThreadPriority(_In_ INT Priority) override;
-#ifdef DXGI_VERSION >= 1
+#if DXGI_VERSION >= 1
 	// IDXGIDevice1
 	STDMETHODIMP GetMaximumFrameLatency(_Out_ UINT* pMaxLatency) override;
 #endif

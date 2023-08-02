@@ -15,23 +15,22 @@ interface IDXGIAdapterInternal : IUnknown
 	);
 }
 
-/*
 [
 	object,
-	local
+	local,
+	uuid(712bd56d-86ff-4b71-91e1-c13b274ff2a2)
 ]
 interface IDXGIAdapterInternal1 : IDXGIAdapterInternal
 {
-	// TODO: discover!
+	// TODO: We don't know the members and differences between this and the 2...
 };
-*/
 
 [
 	object,
 	local,
 	uuid(7abb6563-02bc-47c4-8ef9-acc4795edbcf)
 ]
-interface IDXGIAdapterInternal2 : IDXGIAdapterInternal
+interface IDXGIAdapterInternal2 : IDXGIAdapterInternal1
 {
 	HRESULT LoadUMD(
 		[in] UINT ver, // _KMTUMDVERSION
