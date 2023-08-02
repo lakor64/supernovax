@@ -78,7 +78,7 @@ interface IDXGIAdapterInternal2 : IDXGIAdapterInternal1
 	);
 
 	HRESULT RetireUsage(
-		[in] UINT v
+		[in] D3DKMT_HANDLE Adapter
 	);
 
 	HRESULT SetAdapterCapabilities(

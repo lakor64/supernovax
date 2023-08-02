@@ -66,7 +66,6 @@ STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Ou
 		}
 	}
 
-#if 1 // TODO: UNCOMMENT THIS WHEN WE CAN ACTUALLY CREATE A DX10 DEVICE
 	if (isD3d10)
 	{
 		// we have an UMD driver that claims to DirectX 10
@@ -90,7 +89,6 @@ STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Ou
 
 		pDev->Release();
 	}
-#endif
 
 	auto sz = GetFileVersionInfoSizeW(umdFile.UmdFileName, nullptr);
 
@@ -409,7 +407,7 @@ STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_
 	return S_OK;
 }
 
-STDMETHODIMP CDXGIAdapter::RetireUsage(_In_ UINT v)
+STDMETHODIMP CDXGIAdapter::RetireUsage(_In_ D3DKMT_HANDLE Adapter)
 {
 	return S_OK;
 }

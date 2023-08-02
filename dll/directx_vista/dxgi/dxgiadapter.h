@@ -59,7 +59,7 @@ public:
 	// IDXGIAdapterInternal2
 	STDMETHODIMP LoadUMD(_In_ KMTUMDVERSION Version, _Out_ HINSTANCE* hUMD) override;
 	STDMETHODIMP InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _Out_ D3DKMT_HANDLE* pAdapter, _In_ UINT ThunkSize, _Out_opt_ void* Thunks) override;
-	STDMETHODIMP RetireUsage(_In_ UINT v) override;
+	STDMETHODIMP RetireUsage(_In_ D3DKMT_HANDLE Adapter) override;
 	STDMETHODIMP SetAdapterCapabilities(_In_ void* cap) override;
 	STDMETHODIMP GetAdapterCapabilities(_Inout_ void* cap) override;
 	STDMETHODIMP_(BOOL) IsWARP(void) override;
