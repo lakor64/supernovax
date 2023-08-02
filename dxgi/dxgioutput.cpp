@@ -208,7 +208,7 @@ STDMETHODIMP CDXGIOutput::WaitForVBlank(void)
 
 STDMETHODIMP CDXGIOutput::Initialize(CDXGIAdapter* adapter, DXGIOutputDescBasic& dsc)
 {
-	SetParent(adapter);
+	SetParent((IDXGIAdapter*)adapter);
 
 #ifdef PFF_PROJ_DEBUG
 	printf("CDXGIOutput->Initialize this:%p handle:%u vidpn:%u\n", this, dsc.Handle, dsc.VidPn);
@@ -242,7 +242,7 @@ STDMETHODIMP_(bool) CDXGIOutput::CheckIfDDIFormatIsOk(D3DKMT_DISPLAYMODE* ddi, D
 	// TODO: DXGI_ENUM_MODES_INTERLACED
 	// TODO: DXGI_ENUM_MODES_SCALING
 
-#if (DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8) && (_WIN32_WINNT >= 0x601)
+#if (DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8) && !_WINSDK_7
 	if (ddi->Flags.Stereo && !(flags & DXGI_ENUM_MODES_STEREO))
 		return false;
 
@@ -305,3 +305,25 @@ STDMETHODIMP_(void) CDXGIOutput::GetOutputDesc()
 
 	m_desc.IsValid = true;
 }
+
+#if DXGI_VERSION >= 2
+STDMETHODIMP CDXGIOutput::GetDisplayModeList1(_In_ DXGI_FORMAT EnumFormat, _In_ UINT Flags, _Inout_  UINT* pNumModes, _Out_writes_to_opt_(*pNumModes, *pNumModes)  DXGI_MODE_DESC1* pDesc)
+{
+	return DXGI_ERROR_UNSUPPORTED;
+}
+
+STDMETHODIMP CDXGIOutput::FindClosestMatchingMode1(_In_  const DXGI_MODE_DESC1* pModeToMatch, _Out_  DXGI_MODE_DESC1* pClosestMatch, _In_opt_  IUnknown* pConcernedDevice)
+{
+	return DXGI_ERROR_UNSUPPORTED;
+}
+
+STDMETHODIMP CDXGIOutput::GetDisplaySurfaceData1(_In_  IDXGIResource* pDestination)
+{
+	return DXGI_ERROR_UNSUPPORTED;
+}
+
+STDMETHODIMP CDXGIOutput::DuplicateOutput(_In_ IUnknown* pDevice, _COM_Outptr_  IDXGIOutputDuplication** ppOutputDuplication)
+{
+	return DXGI_ERROR_UNSUPPORTED;
+}
+#endif

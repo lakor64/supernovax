@@ -61,7 +61,7 @@ STDMETHODIMP CDXGIFactory::EnumAdaptersReal(_In_ UINT Adapter, _In_ REFIID Iid, 
 
 	*ppAdapter = nullptr;
 
-	if (Adapter > m_vAdapters.size())
+	if ((Adapter + 1) > m_vAdapters.size())
 		return DXGI_ERROR_NOT_FOUND;
 
 	ATL::CComObject<CDXGIAdapter>* adapter;
@@ -113,18 +113,6 @@ STDMETHODIMP CDXGIFactory::MakeWindowAssociation(_In_ HWND WindowHandle, _In_ UI
 
 	return E_NOTIMPL;
 }
-
-#if DXGI_VERSION >= 1
-STDMETHODIMP CDXGIFactory::EnumAdapters1(_In_ UINT Adapter, _Out_ IDXGIAdapter1** ppAdapter)
-{
-	return EnumAdaptersReal(Adapter, IID_IDXGIAdapter1, (void**)ppAdapter);
-}
-
-STDMETHODIMP_(BOOL) CDXGIFactory::IsCurrent(void)
-{
-	return FALSE;
-}
-#endif
 
 STDMETHODIMP CDXGIFactory::Initialize(void)
 {
@@ -268,3 +256,71 @@ STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 
 	return S_OK;
 }
+
+#if DXGI_VERSION >= 1
+STDMETHODIMP CDXGIFactory::EnumAdapters1(_In_ UINT Adapter, _Out_ IDXGIAdapter1** ppAdapter)
+{
+	return EnumAdaptersReal(Adapter, IID_IDXGIAdapter1, (void**)ppAdapter);
+}
+
+STDMETHODIMP_(BOOL) CDXGIFactory::IsCurrent(void)
+{
+	return FALSE;
+}
+#endif
+
+#if DXGI_VERSION >= 2
+STDMETHODIMP_(BOOL) CDXGIFactory::IsWindowedStereoEnabled(void)
+{
+	return FALSE;
+}
+
+STDMETHODIMP CDXGIFactory::CreateSwapChainForHwnd(_In_ IUnknown* pDevice, _In_ HWND hWnd, _In_ const DXGI_SWAP_CHAIN_DESC1* pDesc, _In_opt_ const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc, _In_opt_ IDXGIOutput* pRestrictToOutput, _COM_Outptr_  IDXGISwapChain1** ppSwapChain)
+{
+	return DXGI_ERROR_UNSUPPORTED;
+}
+
+STDMETHODIMP CDXGIFactory::CreateSwapChainForCoreWindow(_In_ IUnknown* pDevice, _In_ IUnknown* pWindow, _In_ const DXGI_SWAP_CHAIN_DESC1* pDesc, _In_opt_ IDXGIOutput* pRestrictToOutput, _COM_Outptr_ IDXGISwapChain1** ppSwapChain)
+{
+	return DXGI_ERROR_UNSUPPORTED;
+}
+
+STDMETHODIMP CDXGIFactory::GetSharedResourceAdapterLuid(_In_ HANDLE hResource, _Out_ LUID* pLuid)
+{
+	return DXGI_ERROR_UNSUPPORTED;
+}
+
+STDMETHODIMP CDXGIFactory::RegisterStereoStatusWindow(_In_ HWND WindowHandle, _In_ UINT wMsg, _Out_ DWORD* pdwCookie)
+{
+	return DXGI_ERROR_UNSUPPORTED;
+}
+
+STDMETHODIMP CDXGIFactory::RegisterStereoStatusEvent(_In_ HANDLE hEvent, _Out_ DWORD* pdwCookie)
+{
+	return DXGI_ERROR_UNSUPPORTED;
+}
+
+STDMETHODIMP_(void) CDXGIFactory::UnregisterStereoStatus(_In_ DWORD dwCookie)
+{
+
+}
+
+STDMETHODIMP CDXGIFactory::RegisterOcclusionStatusWindow(_In_ HWND WindowHandle, _In_ UINT wMsg, _Out_  DWORD* pdwCookie)
+{
+	return DXGI_ERROR_UNSUPPORTED;
+}
+
+STDMETHODIMP CDXGIFactory::RegisterOcclusionStatusEvent(_In_ HANDLE hEvent, _Out_ DWORD* pdwCookie)
+{
+	return DXGI_ERROR_UNSUPPORTED;
+}
+
+STDMETHODIMP_(void) CDXGIFactory::UnregisterOcclusionStatus(_In_ DWORD dwCookie)
+{
+
+}
+STDMETHODIMP CDXGIFactory::CreateSwapChainForComposition(_In_ IUnknown* pDevice, _In_ const DXGI_SWAP_CHAIN_DESC1* pDesc, _In_opt_ IDXGIOutput* pRestrictToOutput, _COM_Outptr_  IDXGISwapChain1** ppSwapChain)
+{
+	return DXGI_ERROR_UNSUPPORTED;
+}
+#endif

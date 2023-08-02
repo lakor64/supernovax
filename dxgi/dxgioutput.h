@@ -53,6 +53,13 @@ public:
 	STDMETHODIMP SetGammaControl(_In_ const DXGI_GAMMA_CONTROL* pArray) override;
 	STDMETHODIMP TakeOwnership(_In_ IUnknown* pDevice, _In_ BOOL Exclusive) override;
 	STDMETHODIMP WaitForVBlank(void) override;
+#if DXGI_VERSION >= 2
+	STDMETHODIMP GetDisplayModeList1(_In_ DXGI_FORMAT EnumFormat, _In_ UINT Flags, _Inout_  UINT* pNumModes, _Out_writes_to_opt_(*pNumModes, *pNumModes)  DXGI_MODE_DESC1* pDesc) override;
+	STDMETHODIMP FindClosestMatchingMode1(_In_  const DXGI_MODE_DESC1* pModeToMatch, _Out_  DXGI_MODE_DESC1* pClosestMatch, _In_opt_  IUnknown* pConcernedDevice) override;
+	STDMETHODIMP GetDisplaySurfaceData1(_In_  IDXGIResource* pDestination) override;
+	STDMETHODIMP DuplicateOutput(_In_ IUnknown* pDevice, _COM_Outptr_  IDXGIOutputDuplication** ppOutputDuplication) override;
+#endif
+
 	// custom
 	STDMETHODIMP Initialize(CDXGIAdapter* parent, DXGIOutputDescBasic& dsc);
 

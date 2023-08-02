@@ -19,15 +19,15 @@ EXPORTS
 	;UpdateHMDEmulationStatus
 	; D3D10
 	DXGID3D10CreateDevice
-	;DXGID3D10CreateLayeredDevice
-	;DXGID3D10GetLayeredDeviceSize
+	DXGID3D10CreateLayeredDevice
+	DXGID3D10GetLayeredDeviceSize
 	DXGID3D10RegisterLayers
 	; Win10
 	;DXGIDeclareAdapterRemovalSupport
 	DXGIGetDebugInterface1
 	; Win7
-	;OpenAdapter10
-	;OpenAdapter10_2
+	OpenAdapter10
+	OpenAdapter10_2
 	; Win7 D3DKMT
 	D3DKMTCloseAdapter
 	D3DKMTCreateAllocation

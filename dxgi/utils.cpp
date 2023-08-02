@@ -76,33 +76,33 @@ D3DDDIFORMAT WINAPI DXGI_MFMapDXGIFormatToDX9Format(DXGI_FORMAT dxgi_format)
     case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
         return D3DDDIFMT_X8R8G8B8;
 
-#if _WIN32_WINNT >= 0x602
+#if !_WINSDK_7
     case DXGI_FORMAT_AYUV:
-        return MAKEFOURCC('A', 'Y', 'U', 'V');
+        return (D3DDDIFORMAT)MAKEFOURCC('A', 'Y', 'U', 'V');
     case DXGI_FORMAT_Y410:
-        return MAKEFOURCC('Y', '4', '1', '0');
+        return (D3DDDIFORMAT)MAKEFOURCC('Y', '4', '1', '0');
     case DXGI_FORMAT_Y416:
-        return MAKEFOURCC('Y', '4', '1', '6');
+        return (D3DDDIFORMAT)MAKEFOURCC('Y', '4', '1', '6');
     case DXGI_FORMAT_NV12:
-        return MAKEFOURCC('N', 'V', '1', '2');
+        return (D3DDDIFORMAT)MAKEFOURCC('N', 'V', '1', '2');
     case DXGI_FORMAT_P010:
-        return MAKEFOURCC('P', '0', '1', '0');
+        return (D3DDDIFORMAT)MAKEFOURCC('P', '0', '1', '0');
     case DXGI_FORMAT_P016:
-        return MAKEFOURCC('P', '0', '1', '6');
+        return (D3DDDIFORMAT)MAKEFOURCC('P', '0', '1', '6');
     case DXGI_FORMAT_420_OPAQUE:
-        return MAKEFOURCC('4', '2', '0', 'O');
+        return (D3DDDIFORMAT)MAKEFOURCC('4', '2', '0', 'O');
     case DXGI_FORMAT_YUY2:
         return D3DDDIFMT_YUY2;
     case DXGI_FORMAT_Y210:
-        return MAKEFOURCC('Y', '2', '1', '0');
+        return (D3DDDIFORMAT)MAKEFOURCC('Y', '2', '1', '0');
     case DXGI_FORMAT_Y216:
-        return MAKEFOURCC('Y', '2', '1', '6');
+        return (D3DDDIFORMAT)MAKEFOURCC('Y', '2', '1', '6');
     case DXGI_FORMAT_NV11:
-        return MAKEFOURCC('N', 'V', '1', '1');
+        return (D3DDDIFORMAT)MAKEFOURCC('N', 'V', '1', '1');
     case DXGI_FORMAT_AI44:
-        return MAKEFOURCC('A', 'I', '4', '4');
+        return (D3DDDIFORMAT)MAKEFOURCC('A', 'I', '4', '4');
     case DXGI_FORMAT_IA44:
-        return MAKEFOURCC('I', 'A', '4', '4');
+        return (D3DDDIFORMAT)MAKEFOURCC('I', 'A', '4', '4');
     case DXGI_FORMAT_P8:
         return D3DDDIFMT_P8;
     case DXGI_FORMAT_A8P8:
@@ -167,7 +167,7 @@ DXGI_FORMAT WINAPI DXGI_MFMapDX9FormatToDXGIFormat(D3DDDIFORMAT format)
         return DXGI_FORMAT_B8G8R8A8_UNORM;
     case D3DDDIFMT_X8R8G8B8:
         return DXGI_FORMAT_B8G8R8X8_UNORM;
-#if _WIN32_WINNT >= 0x602
+#if !_WINSDK_7
     case MAKEFOURCC('A', 'Y', 'U', 'V'):
         return DXGI_FORMAT_AYUV;
     case MAKEFOURCC('Y', '4', '1', '0'):
@@ -214,6 +214,8 @@ HRESULT WINAPI NtErrorToDxgiError(NTSTATUS status)
     {
     case STATUS_INVALID_PARAMETER:
         return DXGI_ERROR_INVALID_CALL;
+    case STATUS_NOT_SUPPORTED:
+        return DXGI_ERROR_UNSUPPORTED;
     default:
         break;
     }

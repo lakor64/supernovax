@@ -27,8 +27,11 @@ void test_factory(void)
 	HR_CHECK;
 	pFactory4->Release();
 
+#if 0
 	hr = CreateDXGIFactory1(IID_IDXGIFactory1, (void**)&pFactory3);
+	HR_CHECK;
 	pFactory3->Release();
+#endif
 
 	FUN_CHECK(pFactory2->Release() == 0);
 

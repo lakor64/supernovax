@@ -53,6 +53,19 @@ public:
 	STDMETHODIMP EnumAdapters1(_In_ UINT Adapter, _COM_Outptr_ IDXGIAdapter1** ppAdapter) override;
 	STDMETHODIMP_(BOOL) IsCurrent(void) override;
 #endif
+#if DXGI_VERSION >= 2
+	STDMETHODIMP_(BOOL) IsWindowedStereoEnabled(void) override;
+    STDMETHODIMP CreateSwapChainForHwnd(_In_ IUnknown* pDevice, _In_ HWND hWnd, _In_ const DXGI_SWAP_CHAIN_DESC1* pDesc, _In_opt_ const DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pFullscreenDesc, _In_opt_ IDXGIOutput* pRestrictToOutput, _COM_Outptr_  IDXGISwapChain1** ppSwapChain) override;
+    STDMETHODIMP CreateSwapChainForCoreWindow(_In_ IUnknown* pDevice,_In_ IUnknown* pWindow, _In_ const DXGI_SWAP_CHAIN_DESC1* pDesc, _In_opt_ IDXGIOutput* pRestrictToOutput, _COM_Outptr_ IDXGISwapChain1** ppSwapChain) override;
+    STDMETHODIMP GetSharedResourceAdapterLuid(_In_ HANDLE hResource, _Out_ LUID* pLuid) override;
+    STDMETHODIMP RegisterStereoStatusWindow(_In_ HWND WindowHandle, _In_ UINT wMsg, _Out_ DWORD* pdwCookie) override;
+    STDMETHODIMP RegisterStereoStatusEvent(_In_ HANDLE hEvent, _Out_ DWORD* pdwCookie) override;
+    STDMETHODIMP_(void) UnregisterStereoStatus(_In_ DWORD dwCookie) override;
+    STDMETHODIMP RegisterOcclusionStatusWindow(_In_ HWND WindowHandle, _In_ UINT wMsg, _Out_  DWORD* pdwCookie) override;
+    STDMETHODIMP RegisterOcclusionStatusEvent(_In_ HANDLE hEvent, _Out_ DWORD* pdwCookie) override;
+    STDMETHODIMP_(void) UnregisterOcclusionStatus(_In_ DWORD dwCookie) override;
+    STDMETHODIMP CreateSwapChainForComposition(_In_ IUnknown* pDevice, _In_ const DXGI_SWAP_CHAIN_DESC1* pDesc, _In_opt_ IDXGIOutput* pRestrictToOutput, _COM_Outptr_  IDXGISwapChain1** ppSwapChain) override;
+#endif
 	// Custom
 	STDMETHODIMP Initialize(void);
 

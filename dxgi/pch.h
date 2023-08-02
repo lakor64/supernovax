@@ -14,7 +14,7 @@
 #define ATL_NO_ASSERT_ON_DESTROY_NONEXISTENT_WINDOW 1
 
 #ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x600 // Vista+
+#define _WIN32_WINNT 0x601 // Windows 7+
 #endif
 
 #if _WIN32_WINNT >= 0xA00
@@ -22,13 +22,13 @@
 #define DXGI_VERSION 6
 #elif _WIN32_WINNT >= 0x602
 #define DXGKDDI_INTERFACE_VERSION DXGKDDI_INTERFACE_VERSION_WIN8
-#define DXGI_VERSION 2
+#define DXGI_VERSION 3
 #elif _WIN32_WINNT >= 0x601
 #define DXGKDDI_INTERFACE_VERSION DXGKDDI_INTERFACE_VERSION_WIN7
-#define DXGI_VERSION 1
+#define DXGI_VERSION 2
 #else
 #define DXGKDDI_INTERFACE_VERSION VERSION_WDDM_REACTOS
-#define DXGI_VERSION 1
+#define DXGI_VERSION 0
 #endif
 
 #ifdef __GNUC__
@@ -90,9 +90,18 @@
 #define MAX_ENUM_ADAPTERS 16
 #endif
 
+// NTSTATUS
+#ifndef STATUS_SUCCESS
+#define STATUS_SUCCESS 0
+#endif
+#ifndef STATUS_NOT_SUPPORTED
+#define STATUS_NOT_SUPPORTED 0xC00000BB
+#endif
+
 /** ATL Object root typedef */
 using DXGIObjRoot = ATL::CComObjectRootEx<ATL::CComMultiThreadModelNoCS>;
 
 // Project
 #include "impcb.h"
 #include "dxgitypes.h"
+#include "dxgi_internal_h.h"

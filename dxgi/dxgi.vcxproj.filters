@@ -16,11 +16,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="dxgi.def">
-      <Filter>Sources</Filter>
-    </None>
+    <Filter Include="MIDL">
+      <UniqueIdentifier>{d60e1b78-04d7-4d8a-8aae-22f70194836d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="dxgifactory.h">
@@ -80,6 +78,12 @@
     <ClInclude Include="utils.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="dxgi_internal_h.h">
+      <Filter>MIDL</Filter>
+    </ClInclude>
+    <ClInclude Include="lockedobject.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dxgifactory.cpp">
@@ -118,10 +122,26 @@
     <ClCompile Include="d3dkmtstubs.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="dxgi_internal_i.c">
+      <Filter>MIDL</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgi_internal_p.c">
+      <Filter>MIDL</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="dxgi_internal.idl">
+      <Filter>MIDL</Filter>
+    </Midl>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="dxgi.def">
+      <Filter>Sources</Filter>
+    </None>
   </ItemGroup>
 </Project>

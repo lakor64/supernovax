@@ -19,6 +19,7 @@
 #define DXGISurfaceType IDXGISurface
 #define DXGIResourceType IDXGIResource
 #define DXGISwapChainType IDXGISwapChain
+#define DXGIAdapterInternalType IDXGIAdapterInternal
 
 #if DXGI_VERSION >= 1
 #undef  DXGIAdapterDescType
@@ -31,6 +32,8 @@
 #define DXGIDeviceType IDXGIDevice1
 #undef  DXGISurfaceType
 #define DXGISurfaceType IDXGISurface1
+//#undef  DXGIAdapterInternalType
+//#define DXGIAdapterInternalType IDXGIAdapterInternal1
 #endif
 
 #if DXGI_VERSION >= 2
@@ -52,6 +55,8 @@
 #define DXGIResourceType IDXGIResource1
 #undef  DXGISwapChainType
 #define DXGISwapChainType IDXGISwapChain1
+#undef  DXGIAdapterInternalType
+#define DXGIAdapterInternalType IDXGIAdapterInternal2
 #endif
 
 #if DXGI_VERSION >= 3

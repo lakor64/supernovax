@@ -63,7 +63,7 @@ STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Ou
 		}
 	}
 
-#if 1 // uncomment this code when IDXGIDevice works!
+#if 0 // TODO: UNCOMMENT THIS WHEN WE CAN ACTUALLY CREATE A DX10 DEVICE
 	if (isD3d10)
 	{
 		// we have an UMD driver that claims to DirectX 10
@@ -127,7 +127,7 @@ STDMETHODIMP CDXGIAdapter::EnumOutputs(_In_ UINT Output, _COM_Outptr_ IDXGIOutpu
 
 	*ppOutput = nullptr;
 
-	if (Output >= (UINT)m_desc.Outputs.size())
+	if ((Output + 1) >= m_desc.Outputs.size())
 		return DXGI_ERROR_NOT_FOUND;
 
 	ATL::CComObject<CDXGIOutput>* op;
@@ -174,29 +174,12 @@ STDMETHODIMP CDXGIAdapter::GetDesc(_Out_ DXGI_ADAPTER_DESC* pDesc)
 	return S_OK;
 }
 
-STDMETHODIMP CDXGIAdapter::GetDesc1(_Out_ DXGI_ADAPTER_DESC1* pDesc)
+STDMETHODIMP CDXGIAdapter::GetUMDDeviceSize(_In_ UINT unk, _In_ UINT unk2, _In_ UINT unk3)
 {
-	if (!pDesc)
-		return DXGI_ERROR_INVALID_CALL;
-
-	if (!m_desc.IsValid)
-		GetAdapterDesc();
-
-	pDesc->AdapterLuid = m_desc.AdapterLuid;
-	pDesc->DedicatedSystemMemory = m_desc.DedicatedSystemMemory;
-	pDesc->DedicatedVideoMemory = m_desc.DedicatedVideoMemory;
-	pDesc->SharedSystemMemory = m_desc.SharedSystemMemory;
-	wcscpy(pDesc->Description, m_desc.Description);
-	pDesc->DeviceId = m_desc.DeviceId;
-	pDesc->Revision = m_desc.Revision;
-	pDesc->SubSysId = m_desc.SubSysId;
-	pDesc->VendorId = m_desc.VendorId;
-	pDesc->Flags = m_desc.Flags;
-
 	return S_OK;
 }
 
-STDMETHODIMP CDXGIAdapter::Initialize(IDXGIFactory1* parent, const DXGIAdapterDesc& desc)
+STDMETHODIMP CDXGIAdapter::Initialize(IDXGIFactory* parent, const DXGIAdapterDesc& desc)
 {
 	SetParent(parent); // keep the reference of self alive...
 	m_desc = desc;
@@ -235,10 +218,12 @@ STDMETHODIMP_(void) CDXGIAdapter::GetAdapterDesc()
 
 	WcsMaxCpy(reg.AdapterString, m_desc.Description, 127);
 
+	// TODO!
+#if DXGI_VERSION >= 1
 	m_desc.Flags = DXGI_ADAPTER_FLAG_NONE;
+#endif
 
-#if _WIN32_WINNT > 0x601 && DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8 
-	// Windows 8 SDK
+#if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8
 	D3DKMT_ADAPTERTYPE at;
 	qa.Type = KMTQAITYPE_ADAPTERTYPE;
 	qa.PrivateDriverDataSize = sizeof(at);
@@ -250,7 +235,93 @@ STDMETHODIMP_(void) CDXGIAdapter::GetAdapterDesc()
 	{
 		m_desc.Flags |= at.SoftwareDevice ? DXGI_ADAPTER_FLAG_SOFTWARE : DXGI_ADAPTER_FLAG_NONE;
 	}
+
+	// TODO: Use KMTQAITYPE_WDDM_1_2_CAPS to gather GraphicsPreemptionGranularity&&ComputePreemptionGranularity
+
+#elif DXGI_VERSION >= 2
+	m_desc.GraphicsPreemptionGranularity = DXGI_GRAPHICS_PREEMPTION_DMA_BUFFER_BOUNDARY;
+	m_desc.ComputePreemptionGranularity = DXGI_COMPUTE_PREEMPTION_DMA_BUFFER_BOUNDARY;
 #endif
 
 	m_desc.IsValid = true;
 }
+
+#if DXGI_VERSION >= 1
+STDMETHODIMP CDXGIAdapter::GetDesc1(_Out_ DXGI_ADAPTER_DESC1* pDesc)
+{
+	if (!pDesc)
+		return DXGI_ERROR_INVALID_CALL;
+
+	if (!m_desc.IsValid)
+		GetAdapterDesc();
+
+	pDesc->AdapterLuid = m_desc.AdapterLuid;
+	pDesc->DedicatedSystemMemory = m_desc.DedicatedSystemMemory;
+	pDesc->DedicatedVideoMemory = m_desc.DedicatedVideoMemory;
+	pDesc->SharedSystemMemory = m_desc.SharedSystemMemory;
+	wcscpy(pDesc->Description, m_desc.Description);
+	pDesc->DeviceId = m_desc.DeviceId;
+	pDesc->Revision = m_desc.Revision;
+	pDesc->SubSysId = m_desc.SubSysId;
+	pDesc->VendorId = m_desc.VendorId;
+	pDesc->Flags = m_desc.Flags;
+
+	return S_OK;
+}
+#endif
+
+#if DXGI_VERSION >= 2
+STDMETHODIMP CDXGIAdapter::GetDesc2(_Out_ DXGI_ADAPTER_DESC2* pDesc)
+{
+	if (!pDesc)
+		return DXGI_ERROR_INVALID_CALL;
+
+	if (!m_desc.IsValid)
+		GetAdapterDesc();
+
+	pDesc->AdapterLuid = m_desc.AdapterLuid;
+	pDesc->DedicatedSystemMemory = m_desc.DedicatedSystemMemory;
+	pDesc->DedicatedVideoMemory = m_desc.DedicatedVideoMemory;
+	pDesc->SharedSystemMemory = m_desc.SharedSystemMemory;
+	wcscpy(pDesc->Description, m_desc.Description);
+	pDesc->DeviceId = m_desc.DeviceId;
+	pDesc->Revision = m_desc.Revision;
+	pDesc->SubSysId = m_desc.SubSysId;
+	pDesc->VendorId = m_desc.VendorId;
+	pDesc->Flags = m_desc.Flags;
+	pDesc->GraphicsPreemptionGranularity = m_desc.GraphicsPreemptionGranularity;
+	pDesc->ComputePreemptionGranularity = m_desc.ComputePreemptionGranularity;
+
+	return S_OK;
+}
+
+STDMETHODIMP CDXGIAdapter::LoadUMD(_In_ UINT ver, _Out_ HINSTANCE* inst)
+{
+	return S_OK;
+}
+
+STDMETHODIMP CDXGIAdapter::InstanceTrunks(_In_ UINT ver, _In_ UINT* unk, _In_ UINT unk2, _Out_ void* unk3)
+{
+	return S_OK;
+}
+
+STDMETHODIMP CDXGIAdapter::RetireUsage(_In_ UINT v)
+{
+	return S_OK;
+}
+
+STDMETHODIMP CDXGIAdapter::SetAdapterCapabilities(_In_ void* cap)
+{
+	return S_OK;
+}
+
+STDMETHODIMP CDXGIAdapter::GetAdapterCapabilities(_Inout_ void* cap)
+{
+	return S_OK;
+}
+
+STDMETHODIMP_(BOOL) CDXGIAdapter::IsWARP(void)
+{
+	return FALSE;
+}
+#endif

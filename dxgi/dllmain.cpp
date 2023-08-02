@@ -124,8 +124,16 @@ extern "C"
 
 	HRESULT WINAPI CreateDXGIFactory2(UINT Flags, REFIID riid, _COM_Outptr_ void** ppFactory)
 	{
-		// STUB! We do NOT support dxgidebug.dll at the current time
+#if DXGI_VERSION >= 2
+		if (!IsEqualIID(riid, IID_IDXGIFactory) && !IsEqualIID(riid, IID_IDXGIFactory1) || !IsEqualIID(riid, IID_IDXGIFactory2))
+			return E_NOINTERFACE;
+
+		return CreateDXGIFactoryReal(riid, ppFactory);
+#else
+		// DXGI 1.1 doesn't have IDXGIFactory2
 		return CreateDXGIFactory1(riid, ppFactory);
+#endif
+
 	}
 
 	HRESULT WINAPI CreateDXGIFactory1(REFIID riid, _COM_Outptr_ void** ppFactory)
@@ -163,11 +171,46 @@ extern "C"
 		return DXGI_ERROR_UNSUPPORTED;
 	}
 
+	HRESULT WINAPI DXGID3D10CreateLayeredDevice(_In_ IDXGIAdapter* pAdapter, _In_ UINT Flags, void* pUnknown, _In_ REFIID riid, _COM_Outptr_ void** device)
+	{
+#ifdef PFF_PROJ_DEBUG
+		printf("DXGID3D10CreateLayeredDevice: %p %#x %p %p\n", pAdapter, Flags, pUnknown, device);
+		_CrtDbgBreak();
+#endif
+		return DXGI_ERROR_UNSUPPORTED;
+	}
 
 	HRESULT WINAPI DXGIGetDebugInterface1(UINT flags, REFIID iid, void** debug)
 	{
 #ifdef PFF_PROJ_DEBUG
-		printf("flags %#x, debug %p.\n", flags, debug);
+		printf("DXGIGetDebugInterface1: flags %#x, debug %p.\n", flags, debug);
+		_CrtDbgBreak();
+#endif
+		return DXGI_ERROR_UNSUPPORTED;
+	}
+
+	HRESULT WINAPI DXGID3D10GetLayeredDeviceSize(_In_ const void* pLayers, UINT numLayers)
+	{
+#ifdef PFF_PROJ_DEBUG
+		printf("DXGID3D10GetLayeredDeviceSize: layers %p num %u.\n", pLayers, numLayers);
+		_CrtDbgBreak();
+#endif
+		return DXGI_ERROR_UNSUPPORTED;
+	}
+
+	HRESULT WINAPI	OpenAdapter10(void* pOpenData)
+	{
+#ifdef PFF_PROJ_DEBUG
+		printf("OpenAdapter10: data %p\n", pOpenData);
+		_CrtDbgBreak();
+#endif
+		return DXGI_ERROR_UNSUPPORTED;
+	}
+
+	HRESULT WINAPI	OpenAdapter10_2(void* pOpenData)
+	{
+#ifdef PFF_PROJ_DEBUG
+		printf("OpenAdapter10_2: data %p\n", pOpenData);
 		_CrtDbgBreak();
 #endif
 		return DXGI_ERROR_UNSUPPORTED;

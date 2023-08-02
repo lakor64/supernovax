@@ -1,0 +1,61 @@
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	local,
+	uuid(bbfeb1e3-6f00-4ad0-a003-dc3c98c415e8)
+]
+interface IDXGIAdapterInternal : IUnknown
+{
+	HRESULT GetUMDDeviceSize(
+		[in] UINT unk,
+		[in] UINT unk2,
+		[in] UINT unk3
+	);
+}
+
+/*
+[
+	object,
+	local
+]
+interface IDXGIAdapterInternal1 : IDXGIAdapterInternal
+{
+	// TODO: discover!
+};
+*/
+
+[
+	object,
+	local,
+	uuid(7abb6563-02bc-47c4-8ef9-acc4795edbcf)
+]
+interface IDXGIAdapterInternal2 : IDXGIAdapterInternal
+{
+	HRESULT LoadUMD(
+		[in] UINT ver, // _KMTUMDVERSION
+		[out] HINSTANCE* inst
+	);
+
+	HRESULT InstanceTrunks(
+		[in] UINT ver, // DXGI_TRUNKS_VERSION
+		[in] UINT* unk,
+		[in] UINT unk2,
+		[out] void* unk3
+	);
+
+	HRESULT RetireUsage(
+		[in] UINT v
+	);
+
+	HRESULT SetAdapterCapabilities(
+		[in] void* cap // DXGI_ADAPTER_CAPABILITIES
+	);
+
+	HRESULT GetAdapterCapabilities(
+		[in][out] void* cap // DXGI_ADAPTER_CAPABILITIES
+	);
+
+	BOOL IsWARP(void);
+}
