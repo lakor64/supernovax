@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="MIDL">
+      <UniqueIdentifier>{d60e1b78-04d7-4d8a-8aae-22f70194836d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dxgifactory.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgiobject.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgiadapter.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgidevice.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgioutput.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgikeyedmutex.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgidevicesubobject.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgiresource.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgisurface.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgiswapchain.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dllmain.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="impcb.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgitypes.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgi_internal_h.h">
+      <Filter>MIDL</Filter>
+    </ClInclude>
+    <ClInclude Include="lockedobject.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dxgifactory.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgiadapter.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgidevice.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgioutput.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgikeyedmutex.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgiresource.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgisurface.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgiswapchain.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="guids.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="d3dkmtstubs.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgi_internal_i.c">
+      <Filter>MIDL</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgi_internal_p.c">
+      <Filter>MIDL</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="dxgi_internal.idl">
+      <Filter>MIDL</Filter>
+    </Midl>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="dxgi.def">
+      <Filter>Sources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="dxgi.rc">
+      <Filter>Sources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
