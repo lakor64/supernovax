@@ -17,6 +17,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{CEA11DB6
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "run_dxdiag", "modules\run_dxdiag\run_dxdiag.vcxproj", "{425AF694-E4DD-4718-B327-025ABA32F878}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "d3d10_hello_world", "modules\d3d10_hello_world\d3d10_hello_world.vcxproj", "{33FA03C5-C3A4-4C7A-906F-743E3A71BAFD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -73,6 +75,14 @@ Global
 		{425AF694-E4DD-4718-B327-025ABA32F878}.Release|x64.Build.0 = Release|x64
 		{425AF694-E4DD-4718-B327-025ABA32F878}.Release|x86.ActiveCfg = Release|Win32
 		{425AF694-E4DD-4718-B327-025ABA32F878}.Release|x86.Build.0 = Release|Win32
+		{33FA03C5-C3A4-4C7A-906F-743E3A71BAFD}.Debug|x64.ActiveCfg = Debug|x64
+		{33FA03C5-C3A4-4C7A-906F-743E3A71BAFD}.Debug|x64.Build.0 = Debug|x64
+		{33FA03C5-C3A4-4C7A-906F-743E3A71BAFD}.Debug|x86.ActiveCfg = Debug|Win32
+		{33FA03C5-C3A4-4C7A-906F-743E3A71BAFD}.Debug|x86.Build.0 = Debug|Win32
+		{33FA03C5-C3A4-4C7A-906F-743E3A71BAFD}.Release|x64.ActiveCfg = Release|x64
+		{33FA03C5-C3A4-4C7A-906F-743E3A71BAFD}.Release|x64.Build.0 = Release|x64
+		{33FA03C5-C3A4-4C7A-906F-743E3A71BAFD}.Release|x86.ActiveCfg = Release|Win32
+		{33FA03C5-C3A4-4C7A-906F-743E3A71BAFD}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +91,7 @@ Global
 		{C183AFE3-FA7A-442B-A1F4-571F0EDF7E83} = {CEA11DB6-4897-40F6-B324-12010BC49758}
 		{FB702773-280F-4438-A9C2-4E55FEE356AB} = {CEA11DB6-4897-40F6-B324-12010BC49758}
 		{425AF694-E4DD-4718-B327-025ABA32F878} = {CEA11DB6-4897-40F6-B324-12010BC49758}
+		{33FA03C5-C3A4-4C7A-906F-743E3A71BAFD} = {CEA11DB6-4897-40F6-B324-12010BC49758}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BC262596-08B1-4E7A-9A5A-8CB4AB2DFEB0}

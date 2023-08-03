@@ -10,6 +10,7 @@
 #include "dxgiadapter.h"
 #include "dllmain.h"
 #include "utils.h"
+#include "dxgiswapchain.h"
 
 CDXGIFactory::~CDXGIFactory()
 {
@@ -41,6 +42,7 @@ STDMETHODIMP CDXGIFactory::CreateSoftwareAdapter(_In_ HMODULE Module, _Out_ IDXG
 	return E_NOTIMPL;
 }
 
+// pDevice = IDXGIDevice / ID3D12Device / ID3D12CommandQueue
 STDMETHODIMP CDXGIFactory::CreateSwapChain(_In_ IUnknown* pDevice, _In_ DXGI_SWAP_CHAIN_DESC* pDesc, _Out_ IDXGISwapChain** ppSwapChain)
 {
 	if (!ppSwapChain)
@@ -51,7 +53,18 @@ STDMETHODIMP CDXGIFactory::CreateSwapChain(_In_ IUnknown* pDevice, _In_ DXGI_SWA
 	if (!pDevice || !pDesc)
 		return DXGI_ERROR_INVALID_CALL;
 
-	return E_NOTIMPL;
+	ATL::CComObject<CDXGISwapChain>* swapChain;
+	HRESULT hr = ATL::CComObject<CDXGISwapChain>::CreateInstance(&swapChain);
+
+	if (FAILED(hr))
+		return hr;
+
+	hr = swapChain->Initialize(pDevice, pDesc);
+
+	swapChain->AddRef(); // inc ref to 1
+	*ppSwapChain = swapChain;
+
+	return S_OK;
 }
 
 STDMETHODIMP CDXGIFactory::EnumAdaptersReal(_In_ UINT Adapter, _In_ REFIID Iid, _Out_ void** ppAdapter)

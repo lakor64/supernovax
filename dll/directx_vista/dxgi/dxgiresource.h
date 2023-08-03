@@ -28,4 +28,9 @@ public:
 	STDMETHODIMP GetSharedHandle(_Out_ HANDLE* pSharedHandle) override;
 	STDMETHODIMP GetUsage(_Out_ DXGI_USAGE* pUsage) override;
 	STDMETHODIMP SetEvictionPriority(_In_ UINT EvictionPriority) override;
+
+#if DXGI_VERSION >= 2
+	STDMETHODIMP CreateSubresourceSurface(_In_ UINT index, _COM_Outptr_ IDXGISurface2** ppSurface) override;
+	STDMETHODIMP CreateSharedHandle(_In_opt_ const SECURITY_ATTRIBUTES* pAttributes, _In_ DWORD dwAccess, _In_opt_ LPCWSTR lpName, _Out_ HANDLE* pHandle) override;
+#endif
 };

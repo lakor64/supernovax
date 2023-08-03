@@ -45,3 +45,19 @@ STDMETHODIMP CDXGISurface::ReleaseDC(_In_opt_ RECT* pDirtyRect)
 	return E_NOTIMPL;
 }
 #endif
+
+#if DXGI_VERSION >= 2
+STDMETHODIMP CDXGISurface::GetResource(_In_  REFIID riid, _COM_Outptr_ void** ppParentResource, _Out_ UINT* pSubresourceIndex)
+{
+	if (!ppParentResource)
+		return DXGI_ERROR_INVALID_CALL;
+
+	*ppParentResource = nullptr;
+
+	if (!pSubresourceIndex)
+		return DXGI_ERROR_INVALID_CALL;
+
+	return E_NOTIMPL;
+}
+
+#endif

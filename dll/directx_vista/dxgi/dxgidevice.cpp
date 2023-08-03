@@ -53,6 +53,7 @@ STDMETHODIMP CDXGIDevice::SetGPUThreadPriority(_In_ INT Priority)
 	return E_NOTIMPL;
 }
 
+#if DXGI_VERSION >= 1
 // IDXGIDevice1
 STDMETHODIMP CDXGIDevice::GetMaximumFrameLatency(_Out_ UINT* pMaxLatency)
 {
@@ -61,4 +62,4 @@ STDMETHODIMP CDXGIDevice::GetMaximumFrameLatency(_Out_ UINT* pMaxLatency)
 
 	return E_NOTIMPL;
 }
-
+#endif

@@ -36,3 +36,23 @@ STDMETHODIMP CDXGIResource::SetEvictionPriority(_In_ UINT EvictionPriority)
 {
 	return E_NOTIMPL;
 }
+
+STDMETHODIMP CDXGIResource::CreateSubresourceSurface(_In_ UINT index, _COM_Outptr_ IDXGISurface2** ppSurface)
+{
+	if (!ppSurface)
+		return DXGI_ERROR_INVALID_CALL;
+
+	*ppSurface = nullptr;
+
+	return E_NOTIMPL;
+}
+
+STDMETHODIMP CDXGIResource::CreateSharedHandle(_In_opt_ const SECURITY_ATTRIBUTES* pAttributes, _In_ DWORD dwAccess, _In_opt_ LPCWSTR lpName, _Out_ HANDLE* pHandle)
+{
+	if (!pHandle)
+		return DXGI_ERROR_INVALID_CALL;
+
+	*pHandle = nullptr;
+
+	return E_NOTIMPL;
+}

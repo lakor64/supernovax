@@ -35,4 +35,8 @@ public:
 	STDMETHODIMP GetDC(_In_ BOOL Discard, _Out_ HDC* pHdc) override;
 	STDMETHODIMP ReleaseDC(_In_opt_ RECT* pDirtyRect) override;
 #endif
+#if DXGI_VERSION >= 2
+	// IDXGISurface2
+	STDMETHODIMP GetResource(_In_  REFIID riid, _COM_Outptr_ void** ppParentResource, _Out_ UINT* pSubresourceIndex) override;
+#endif
 };

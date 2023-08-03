@@ -56,7 +56,7 @@ STDMETHODIMP CDXGIOutput::GetDisplayModeList(_In_ DXGI_FORMAT EnumFormat, _In_ U
 	if (NT_ERROR(status))
 		return NtErrorToDxgiError(status);
 
-	dml.pModeList = new D3DKMT_DISPLAYMODE[dml.ModeCount]; // wait for header fix...
+	dml.pModeList = new D3DKMT_DISPLAYMODE[dml.ModeCount];
 	status = _AtlModule.GetDisplayModeList()(&dml);
 	if (NT_ERROR(status))
 		return NtErrorToDxgiError(status);
@@ -96,7 +96,7 @@ STDMETHODIMP CDXGIOutput::GetDisplayModeList(_In_ DXGI_FORMAT EnumFormat, _In_ U
 
 		for (auto i = 0U; i < dml.ModeCount; i++)
 		{
-			D3DKMT_DISPLAYMODE* y = (D3DKMT_DISPLAYMODE*)(((byte*)dml.pModeList) + (i * 0x2C)); // wait for header fix...
+			D3DKMT_DISPLAYMODE* y = (D3DKMT_DISPLAYMODE*)&dml.pModeList[i];
 
 			if (CheckIfDDIFormatIsOk(y, EnumFormat, Flags))
 			{

@@ -7,6 +7,7 @@
 
 import "oaidl.idl";
 import "ocidl.idl";
+import "dxgi.idl";
 
 cpp_quote ("#ifndef _D3DKMTHK_H_")
 typedef enum _KMTUMDVERSION
@@ -34,6 +35,49 @@ typedef enum _DXGI_THUNKS_VERSION
 	DXGI_THUNKS_VERSION_4 = 4,
 } DXGI_THUNKS_VERSION;
 
+
+[
+	object,
+	local,
+	uuid(ffffffff-ffff-ffff-ffff-ffffffffffff) // TODO: THIS IS AN INVALID UUID
+]
+interface IUseCounted : IUnknown
+{
+	ULONG UCAddUse(
+		void
+	);
+
+	ULONG UCReleaseUse(
+		void
+	);
+
+	HRESULT UCBreakCyclicReferences(
+		void
+	);
+
+	HRESULT UCEnstablishCyclicReferences(
+		void
+	);
+
+	HRESULT UCDestroy(
+		void
+	);
+};
+
+[
+	object,
+	local,
+	uuid(ffffffff-ffff-ffff-ffff-fffffffffffe) // TODO: THIS IS AN INVALID UUID
+]
+interface IUseCounted2 : IUseCounted
+{
+	HRESULT UCQueryInterface(
+		[in] UINT flags,
+		[in] REFIID riid,
+		[out] void** ppObj
+	);
+};
+
 [
 	object,
 	local,
@@ -51,7 +95,7 @@ interface IDXGIAdapterInternal : IUnknown
 [
 	object,
 	local,
-	uuid(712bd56d-86ff-4b71-91e1-c13b274ff2a2)
+	uuid(712bd56d-86ff-4b71-91e1-c13b274ff2a2) // TODO: verify when we find what export this
 ]
 interface IDXGIAdapterInternal1 : IDXGIAdapterInternal
 {
@@ -61,7 +105,7 @@ interface IDXGIAdapterInternal1 : IDXGIAdapterInternal
 [
 	object,
 	local,
-	uuid(7abb6563-02bc-47c4-8ef9-acc4795edbcf)
+	uuid(7abb6563-02bc-47c4-8ef9-acc4795edbcf) // TODO: Verify again
 ]
 interface IDXGIAdapterInternal2 : IDXGIAdapterInternal1
 {
@@ -90,4 +134,264 @@ interface IDXGIAdapterInternal2 : IDXGIAdapterInternal1
 	);
 
 	BOOL IsWARP(void);
+}
+
+[
+	object,
+	local,
+	uuid(ffffffff-ffff-ffff-ffff-fffffffffffd) // TODO: THIS IS AN INVALID UUID
+]
+interface IDXGISwapChainInternal : IUnknown
+{
+	HRESULT AcquireBuffer(
+		[in] IDXGIResource* Resource,
+		[in] UINT unk
+	);
+
+	HRESULT GetResourceParent(
+		[in] REFIID iid,
+		[out] void** pOut
+	);
+
+	HRESULT GetCurrentCommandQueue(
+		[in] REFIID iid,
+		[out] void** pOut
+	);
+};
+
+
+[
+	object,
+	local,
+	uuid(a2a9f815-4778-40d1-b179-d5d3a1a5f1bc)
+]
+interface IDXGIDebugProducer : IUnknown
+{
+	// TODO
+}
+
+[
+	object,
+	local,
+	uuid(5a92ae4f-81fa-4cac-a1d8-ae479ac581cd)
+]
+interface IDXGIDeviceInternal : IUnknown
+{
+	HRESULT Present(
+		IDXGISurface*,
+		IDXGISurface*,
+		void*,
+		UINT,
+		UINT
+	);
+
+	HRESULT RotateResourceIdentities(
+		IDXGISurface*,
+		const IDXGISurface**,
+		UINT
+	);
+
+	HRESULT GetContextResolver(
+		void**
+	);
+
+	HRESULT CreateSurfaceInternal(
+		IUseCounted*,
+		const DXGI_SURFACE_DESC* pDesc,
+		UINT,
+		UINT,
+		void*,
+		[out] IDXGISurface** pOutput
+	);
+
+	HRESULT Blt(
+		IDXGISurface*,
+		const RECT*,
+		IDXGISurface*,
+		RECT*,
+		UINT64,
+		UINT,
+		UINT
+	);
+
+	HRESULT SetDisplayMode(
+		IDXGISurface*
+	);
+
+	HRESULT GetGammaCaps(
+		DXGI_GAMMA_CONTROL_CAPABILITIES*
+	);
+
+	HRESULT OpenSharedResource(
+		void*,
+		int,
+		REFIID,
+		void**
+	);
+
+	BOOL IsValidScanoutFormat(
+		DXGI_FORMAT Format
+	);
+};
+
+[
+	object,
+	local,
+	uuid(ffffffff-ffff-ffff-ffff-fffffffffffa) // TODO: THIS IS AN INVALID UUID
+]
+interface IDXGIDeviceInternal2 : IDXGIDeviceInternal
+{
+	HRESULT FlushDeletion(
+		IDXGISurface*, 
+		const IDXGISurface**,
+		UINT
+	);
+};
+
+[
+	object,
+	local,
+	uuid(f74ee86f-7270-48e8-9d63-38af75f22d57)
+]
+// this does not inherate from IDXGIDeviceInternal2 because it breaks compatibily in the API
+interface IDXGIDeviceInternal3 : IUnknown
+{
+	HRESULT Present(
+		IDXGIResource*,
+		IDXGIResource*,
+		void*,
+		UINT,
+		UINT
+	);
+
+	HRESULT RotateResourceIdentities(
+		IDXGIResource*,
+		const IDXGIResource**,
+		UINT
+	);
+
+	HRESULT GetContextResolver(
+		void**
+	);
+
+	HRESULT CreateSurfaceInternal(
+		IUseCounted2* SwapChain,
+		IUseCounted2*,
+		void*, //IDXGISwapBufferInternal*
+		const DXGI_SURFACE_DESC* pDesc,
+		UINT,
+		[in] UINT ResourceSize,
+		UINT,
+		UINT,
+		void*,
+		[out] [optional] IDXGIResource** pResourceArray
+	);
+
+	HRESULT Blt(
+		IDXGIResource*,
+		const RECT*,
+		const RECT*,
+		UINT,
+		IDXGIResource*,
+		RECT*,
+		const void*, // SUBRESOURCE_BLT_MAP
+		UINT64,
+		UINT,
+		UINT
+	);
+
+	HRESULT SetDisplayMode(
+		IDXGIResource*
+	);
+
+	HRESULT GetGammaCaps(
+		DXGI_GAMMA_CONTROL_CAPABILITIES*
+	);
+
+	HRESULT OpenSharedResource(
+		void*,
+		int,
+		REFIID,
+		void**
+	);
+
+	BOOL IsValidScanoutFormat(
+		DXGI_FORMAT Format
+	);
+
+	HRESULT FlushDeletion(
+		IDXGIResource*,
+		const IDXGIResource**,
+		UINT,
+		UINT // DXGI_INTERNAL_FLUSH_DELETION_REASON
+	);
+
+	HRESULT GetContentProtection(
+		void
+	);
+
+	HRESULT CreateTrackedFence(
+		UINT64,
+		const SECURITY_ATTRIBUTES*,
+		ULONG,
+		void**, // DXGI_INTENRAL_TRACKED_FENCE
+		void**
+	); 
+	// TODO: vftable claims there are three of this? to verify
+
+	HRESULT Flush(
+		UINT
+	);
+
+	HRESULT AcquireResource(
+		IDXGIResource*
+	);
+
+	HRESULT ReleaseResource(
+		IDXGIResource*
+	);
+
+	HRESULT GetCaps(
+		void
+	);
+
+	HRESULT GetDesc(
+		IDXGIResource*,
+		DXGI_SURFACE_DESC*,
+		UINT*
+	);
+
+	HRESULT Map(
+		IDXGIResource*,
+		UINT,
+		DXGI_MAPPED_RECT*,
+		UINT
+	);
+
+	HRESULT Unmap(
+		IDXGIResource*,
+		UINT
+	);
+
+	HRESULT CheckDirectFlipSupport(
+		UINT,
+		IDXGIResource*,
+		IDXGIResource*,
+		INT*
+	);
+
+	HRESULT GetDeviceRemovedReason(
+		void
+	);
+
+	HRESULT GetFlipExSemaphoreHandle(
+		void
+	);
+
+	HRESULT ValidateGetDisplaySurfaceDataDest(
+		IDXGIDebugProducer*,
+		UINT,  // DXGI_GETDISPLAYSURFACEDATA_VERSION
+		IDXGIResource *
+	);
+	
 }

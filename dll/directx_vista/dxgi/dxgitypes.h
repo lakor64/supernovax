@@ -20,6 +20,7 @@
 #define DXGIResourceType IDXGIResource
 #define DXGISwapChainType IDXGISwapChain
 #define DXGIAdapterInternalType IDXGIAdapterInternal
+#define DXGIUseCountedType IUseCounted
 
 #if DXGI_VERSION >= 1
 #undef  DXGIAdapterDescType
@@ -57,6 +58,8 @@
 #define DXGISwapChainType IDXGISwapChain1
 #undef  DXGIAdapterInternalType
 #define DXGIAdapterInternalType IDXGIAdapterInternal2
+#undef  DXGIUseCountedType
+#define DXGIUseCountedType IUseCounted2
 #endif
 
 #if DXGI_VERSION >= 3
