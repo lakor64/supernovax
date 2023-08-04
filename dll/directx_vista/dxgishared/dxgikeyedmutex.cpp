@@ -5,7 +5,7 @@
  * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
  */
 
-#include "pch.h"
+#include "dxgishared.h"
 #include "dxgikeyedmutex.h"
 
 STDMETHODIMP CDXGIKeyedMutex::AcquireSync(_In_ UINT64 Key, _In_ DWORD dwMilliseconds)

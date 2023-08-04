@@ -5,7 +5,7 @@
  * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
  */
 
-#include "pch.h"
+#include "dxgishared.h"
 #include "dxgiresource.h"
 
 STDMETHODIMP CDXGIResource::GetEvictionPriority(_Out_ UINT* pEvictionPriority)

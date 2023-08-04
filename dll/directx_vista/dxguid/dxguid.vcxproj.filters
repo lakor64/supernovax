@@ -2,5 +2,13 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="guids.cpp" />
+    <ClCompile Include="dxgi_internal_i.c" />
+    <ClCompile Include="dxgi_internal_p.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="dxgi_internal.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dxgi_internal_h.h" />
   </ItemGroup>
 </Project>

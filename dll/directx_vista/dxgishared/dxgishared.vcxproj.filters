@@ -9,14 +9,6 @@
       <UniqueIdentifier>{20ca6d0d-c90e-4e0a-ae40-3b24c6a4d4aa}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="MIDL">
-      <UniqueIdentifier>{2176b62a-769c-4cb1-8b61-acea40d55ea0}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Midl Include="dxgi_internal.idl">
-      <Filter>MIDL</Filter>
-    </Midl>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dxgiresource.cpp">
@@ -29,6 +21,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="dxgikeyedmutex.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgishared.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>
@@ -52,6 +47,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="dxgitypes.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgishared.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>

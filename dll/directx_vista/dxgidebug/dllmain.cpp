@@ -10,8 +10,14 @@
 class CATLDXGIDebugModule : public ATL::CAtlDllModuleT<CATLDXGIDebugModule>
 {
 public:
-
+	/** Custom ATL DllMain */
+	BOOL WINAPI DllMain(_In_ DWORD dwReason, _In_opt_ LPVOID lpReserved);
 };
+
+BOOL WINAPI CATLDXGIDebugModule::DllMain(_In_ DWORD dwReason, _In_opt_ LPVOID lpReserved)
+{
+	return TRUE;
+}
 
 //! Global ATL module
 CATLDXGIDebugModule _AtlModule;
@@ -28,11 +34,6 @@ extern "C"
 	BOOL WINAPI DllMain(_In_ HINSTANCE hInstance, _In_ DWORD dwReason, _In_opt_ LPVOID lpReserved)
 	{
 		hInstance;
-
-#ifdef __REACTOS__
-		return TRUE;
-#else
-		return _AtlModule.DllMain(dwReason, lpReserved); // ReactOS...
-#endif
+		return _AtlModule.DllMain(dwReason, lpReserved);
 	}
 }
