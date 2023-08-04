@@ -1,0 +1,58 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{1fce0a30-523c-4731-9caf-b659e2ff7714}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{20ca6d0d-c90e-4e0a-ae40-3b24c6a4d4aa}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="MIDL">
+      <UniqueIdentifier>{2176b62a-769c-4cb1-8b61-acea40d55ea0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="dxgi_internal.idl">
+      <Filter>MIDL</Filter>
+    </Midl>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dxgiresource.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgisurface.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgidevice.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dxgikeyedmutex.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="dxgiresource.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgisurface.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgidevice.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgidevicesubobject.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgikeyedmutex.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgiobject.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dxgitypes.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
