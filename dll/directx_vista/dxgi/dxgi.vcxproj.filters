@@ -38,9 +38,6 @@
     <ClInclude Include="utils.h">
       <Filter>Headers</Filter>
     </ClInclude>
-    <ClInclude Include="dxgithunks.h">
-      <Filter>Headers</Filter>
-    </ClInclude>
     <ClInclude Include="thunkloader.h">
       <Filter>Headers</Filter>
     </ClInclude>

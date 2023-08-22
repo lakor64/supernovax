@@ -19,10 +19,6 @@ CDXGIFactory::~CDXGIFactory()
 	{
 		for (auto it2 = it->Outputs.begin(); it2 != it->Outputs.end(); it2++)
 		{
-#ifdef PFF_PROJ_DEBUG
-			printf("CDXGIFactory->CloseAdapter this:%p handle:%u\n", this, it->Handle);
-#endif
-
 			ca.hAdapter = it2->Handle;
 			_AtlModule.GetCloseAdapter()(&ca);
 		}
@@ -59,7 +55,7 @@ STDMETHODIMP CDXGIFactory::CreateSwapChain(_In_ IUnknown* pDevice, _In_ DXGI_SWA
 	if (FAILED(hr))
 		return hr;
 
-	hr = swapChain->Initialize(pDevice, pDesc);
+	hr = swapChain->Initialize(this, pDevice, pDesc);
 
 	swapChain->AddRef(); // inc ref to 1
 	*ppSwapChain = swapChain;
@@ -156,10 +152,6 @@ STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 
 		if (FAILED(err))
 			break; // might not have an adapter on this device, exit
-
-#ifdef PFF_PROJ_DEBUG
-		printf("CDXGIFactory->OpenAdapter this:%p handle:%u vidpn:%u\n", this, gdi.hAdapter, gdi.VidPnSourceId);
-#endif
 
 		bool skipThis = false;
 

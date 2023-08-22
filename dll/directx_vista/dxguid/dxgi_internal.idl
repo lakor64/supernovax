@@ -24,7 +24,10 @@ cpp_quote ("#endif")
 
 cpp_quote ("#ifndef _D3DUKMDT_H_")
 typedef UINT D3DKMT_HANDLE;
+typedef UINT D3DDDI_VIDEO_PRESENT_SOURCE_ID;
 cpp_quote ("#endif")
+
+typedef struct _D3DKMT_PRESENT* PD3DKMT_PRESENT;
 
 typedef enum _DXGI_THUNKS_VERSION
 {
@@ -35,6 +38,16 @@ typedef enum _DXGI_THUNKS_VERSION
 	DXGI_THUNKS_VERSION_4 = 4,
 } DXGI_THUNKS_VERSION;
 
+typedef struct _DXGI_PRESENTSURFACE
+{
+	ULONG Version;
+} DXGI_PRESENTSURFACE;
+
+typedef struct _DXGI_ADAPTER_CAPABILITIES
+{
+	// TODO: Discover
+	char unk;
+} DXGI_ADAPTER_CAPABILITIES;
 
 [
 	object,
@@ -126,14 +139,32 @@ interface IDXGIAdapterInternal2 : IDXGIAdapterInternal1
 	);
 
 	HRESULT SetAdapterCapabilities(
-		[in] void* Capabilities // DXGI_ADAPTER_CAPABILITIES
+		[in] DXGI_ADAPTER_CAPABILITIES* Capabilities
 	);
 
 	HRESULT GetAdapterCapabilities(
-		[in][out] void* Capabilities // DXGI_ADAPTER_CAPABILITIES
+		[out] DXGI_ADAPTER_CAPABILITIES* Capabilities
 	);
 
-	BOOL IsWARP(void);
+	BOOL IsWARP(
+		void
+	);
+
+	D3DDDI_VIDEO_PRESENT_SOURCE_ID GetPrimaryVidPnSourceId(
+		void
+	);
+
+	UINT WddmVersion(
+		void
+	);
+
+	BOOL MismatchedVendorLda(
+		void
+	);
+
+	BOOL IsLda(
+		void
+	);
 }
 
 [
@@ -163,11 +194,21 @@ interface IDXGISwapChainInternal : IUnknown
 [
 	object,
 	local,
-	uuid(a2a9f815-4778-40d1-b179-d5d3a1a5f1bc)
+	uuid(9b7e4a00-342c-4106-a19f-4f2704f689f0)
 ]
 interface IDXGIDebugProducer : IUnknown
 {
-	// TODO
+	HRESULT DumpProducer(
+		void
+	);
+
+	HRESULT DumpObject(
+		IUnknown*
+	);
+
+	HRESULT GetSummaryInfoQueueMessageID(
+		int*
+	);
 }
 
 [
@@ -178,11 +219,11 @@ interface IDXGIDebugProducer : IUnknown
 interface IDXGIDeviceInternal : IUnknown
 {
 	HRESULT Present(
-		IDXGISurface*,
-		IDXGISurface*,
-		void*,
-		UINT,
-		UINT
+		[in] IDXGISurface*,
+		[in] /*[optional]*/ IDXGISurface*,
+		[in] PD3DKMT_PRESENT pPresentInfo,
+		[in] UINT,
+		[in] UINT
 	);
 
 	HRESULT RotateResourceIdentities(
@@ -248,18 +289,31 @@ interface IDXGIDeviceInternal2 : IDXGIDeviceInternal
 	);
 };
 
+//#if 0
+/*HRESULT Present(
+	[in] const DXGI_PRESENTSURFACE* pSurfaceInfo,
+	UINT,
+	IDXGIResource*,
+	void*,
+	UINT,
+	UINT,
+	UINT
+);*/
+//#endif
+
 [
 	object,
 	local,
 	uuid(f74ee86f-7270-48e8-9d63-38af75f22d57)
 ]
 // this does not inherate from IDXGIDeviceInternal2 because it breaks compatibily in the API
+// NOTE: this is the WINDOWS 7 VERSION OF THIS INTERNAL DEVICE!
 interface IDXGIDeviceInternal3 : IUnknown
 {
 	HRESULT Present(
+		IDXGIDebugProducer* pDebugProducer,
 		IDXGIResource*,
-		IDXGIResource*,
-		void*,
+		void* pPresent, // D3DKMT_PRESENT
 		UINT,
 		UINT
 	);
@@ -275,25 +329,25 @@ interface IDXGIDeviceInternal3 : IUnknown
 	);
 
 	HRESULT CreateSurfaceInternal(
-		IUseCounted2* SwapChain,
-		IUseCounted2*,
-		void*, //IDXGISwapBufferInternal*
-		const DXGI_SURFACE_DESC* pDesc,
-		UINT,
+		[in] IUseCounted2* SwapChain,
+		[in] /*[optional]*/ IUseCounted2*,
+		[in] /*[optional]*/ void*, //IDXGISwapBufferInternal*
+		[in] const DXGI_SURFACE_DESC* pDesc,
+		[in] UINT TextureArraySize,
 		[in] UINT ResourceSize,
-		UINT,
-		UINT,
-		void*,
+		[in] UINT BindFlags,
+		[in] UINT MiscFlags,
+		/*[optional]*/ void*,
 		[out] [optional] IDXGIResource** pResourceArray
 	);
 
 	HRESULT Blt(
-		IDXGIResource*,
-		const RECT*,
-		const RECT*,
-		UINT,
-		IDXGIResource*,
-		RECT*,
+		[in] IDXGIResource* Src,
+		[in] const RECT*,
+		[in] const RECT* SrcRect,
+		[in] UINT,
+		[in] IDXGIResource* Dest,
+		[in] RECT* DestRect,
 		const void*, // SUBRESOURCE_BLT_MAP
 		UINT64,
 		UINT,
@@ -309,10 +363,10 @@ interface IDXGIDeviceInternal3 : IUnknown
 	);
 
 	HRESULT OpenSharedResource(
-		void*,
-		int,
-		REFIID,
-		void**
+		[in] HANDLE hResource,
+		[in] int,
+		[in] REFIID ResType,
+		[out] void** DXGIResourceOut
 	);
 
 	BOOL IsValidScanoutFormat(
@@ -361,7 +415,7 @@ interface IDXGIDeviceInternal3 : IUnknown
 		UINT*
 	);
 
-	HRESULT Map(
+	HRESULT Map( // this doesn't seem to return an HRESULT! Seems to return an array of 3 pointers!
 		IDXGIResource*,
 		UINT,
 		DXGI_MAPPED_RECT*,
@@ -395,3 +449,42 @@ interface IDXGIDeviceInternal3 : IUnknown
 	);
 	
 }
+
+[
+	local,
+	object,
+	uuid(79d2046c-22ef-451b-9e74-2245d9c760ea)
+]
+interface IDXGIResourceInternal2 : IUnknown // NOTE: is there any IDXGIResourceInternal1 and 0?
+{
+	HRESULT GetDDIHandle(
+		void**
+	);
+
+	HRESULT GetPrimaryDesc(
+		void*,
+		UINT64*
+	);
+
+	BOOL IsDCOutstanding(
+		void
+	);
+
+	void* GetSharedHandleInternal(
+		void
+	);
+
+	HRESULT GetGlobalHandles(
+		void**,
+		void**,
+		void**
+	);
+
+	HRESULT CreateSharedHandleInternal(
+		const SECURITY_ATTRIBUTES* SecAttr,
+		ULONG,
+		const USHORT*,
+		void**
+	);
+
+};

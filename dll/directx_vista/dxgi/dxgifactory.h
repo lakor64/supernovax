@@ -66,6 +66,7 @@ public:
     STDMETHODIMP_(void) UnregisterOcclusionStatus(_In_ DWORD dwCookie) override;
     STDMETHODIMP CreateSwapChainForComposition(_In_ IUnknown* pDevice, _In_ const DXGI_SWAP_CHAIN_DESC1* pDesc, _In_opt_ IDXGIOutput* pRestrictToOutput, _COM_Outptr_  IDXGISwapChain1** ppSwapChain) override;
 #endif
+
 	// Custom
 	STDMETHODIMP Initialize(void);
 

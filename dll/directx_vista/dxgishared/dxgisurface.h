@@ -12,6 +12,7 @@
 class ATL_NO_VTABLE CDXGISurface :
 	public DXGIObjRoot,
 	public CDXGIDeviceSubObject<DXGISurfaceType>
+	//,public IDXGIKeyedMutex
 {
 public:
 	BEGIN_COM_MAP(CDXGISurface)

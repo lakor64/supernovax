@@ -4,9 +4,8 @@
  * PURPOSE:     Shared code main inclusions
  * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
  */
-
-#pragma once
-
+#ifndef __DXGISHARED_H__
+#define __DXGISHARED_H__
 
 #define STRICT 1
 #define _ATL_APARTMENT_THREADED 1
@@ -121,3 +120,4 @@ using DXGIObjRoot = ATL::CComObjectRootEx<ATL::CComMultiThreadModelNoCS>;
 #include "dxgi_internal_h.h"
 #endif
 
+#endif

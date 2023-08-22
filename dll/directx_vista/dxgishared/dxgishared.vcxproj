@@ -284,6 +284,7 @@
     <ClInclude Include="dxgiresource.h" />
     <ClInclude Include="dxgishared.h" />
     <ClInclude Include="dxgisurface.h" />
+    <ClInclude Include="dxgithunks.h" />
     <ClInclude Include="dxgitypes.h" />
   </ItemGroup>
   <ItemGroup>

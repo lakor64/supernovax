@@ -24,7 +24,7 @@ public:
 	/** Gets GDI32.DLL */
 	HMODULE GetGdi32() const { return hGdi; }
 
-	DWORD GetGlobalThunkVersion() const { return thunKVer; }
+	DWORD GetGlobalThunkVersion() const { return 4; /* thunkVer */ }
 
 	/** Gets a pointer to D3DKMTOpenAdapterFromGdiDisplayName */
 	D3DKMTOpenAdapterFromGdiDisplayName_ GetOpenAdapterFromGdi() const { return fnc1; }
@@ -43,10 +43,16 @@ public:
 
 	D3DKMTGetDeviceState_ GetDeviceState() const { return fnc8; }
 
+	DwmDxGetWindowSharedSurface_ GetDwmDxGetWindowSharedSurface() const { return fnc10; }
+
+	DwmDxUpdateWindowSharedSurface_ GetDwmDxUpdateWindowSharedSurface() const { return fnc11; }
+
 private:
 	/** GDI32.DLL */
 	HMODULE hGdi;
-	DWORD thunKVer;
+	/** DWMAPI.DLL */
+	HMODULE hDwm;
+	//DWORD thunKVer;
 
 	D3DKMTOpenAdapterFromGdiDisplayName_ fnc1;
 #if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8
@@ -58,6 +64,8 @@ private:
 	D3DKMTWaitForVerticalBlankEvent_ fnc7;
 	D3DKMTGetDeviceState_ fnc8;
 	D3DKMTGetThunkVersion_ fnc9;
+	DwmDxGetWindowSharedSurface_ fnc10;
+	DwmDxUpdateWindowSharedSurface_ fnc11;
 };
 
 /** Global ATL module export */

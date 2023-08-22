@@ -8,6 +8,7 @@
 #pragma once
 
 #include <dxgishared.h>
+#include <dwmapi.h>
 
 #ifdef __REACTOS__
 extern "C" BOOL WINAPI EnumDisplaySettingsExW(_In_opt_ LPCWSTR, _In_ DWORD, _Inout_ LPDEVMODEW, _In_ DWORD);
@@ -16,4 +17,3 @@ extern "C" BOOL WINAPI EnumDisplayDevicesW(_In_opt_ LPCWSTR, _In_ DWORD, _Inout_
 
 // Project
 #include "impcb.h"
-

@@ -60,9 +60,13 @@ public:
 	STDMETHODIMP LoadUMD(_In_ KMTUMDVERSION Version, _Out_ HINSTANCE* hUMD) override;
 	STDMETHODIMP InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _Out_ D3DKMT_HANDLE* pAdapter, _In_ UINT ThunkSize, _Out_opt_ void* Thunks) override;
 	STDMETHODIMP RetireUsage(_In_ D3DKMT_HANDLE Adapter) override;
-	STDMETHODIMP SetAdapterCapabilities(_In_ void* cap) override;
-	STDMETHODIMP GetAdapterCapabilities(_Inout_ void* cap) override;
+	STDMETHODIMP SetAdapterCapabilities(_In_ DXGI_ADAPTER_CAPABILITIES* cap) override;
+	STDMETHODIMP GetAdapterCapabilities(_Inout_ DXGI_ADAPTER_CAPABILITIES* cap) override;
 	STDMETHODIMP_(BOOL) IsWARP(void) override;
+	STDMETHODIMP_(D3DDDI_VIDEO_PRESENT_SOURCE_ID) GetPrimaryVidPnSourceId(void) override;
+	STDMETHODIMP_(UINT) WddmVersion(void) override;
+	STDMETHODIMP_(BOOL) MismatchedVendorLda(void) override;
+	STDMETHODIMP_(BOOL) IsLda(void) override;
 #endif
 	// custom
 	STDMETHODIMP Initialize(IDXGIFactory* parent, const DXGIAdapterDesc& desc);

@@ -61,11 +61,25 @@ BOOL CATLDXGIModule::MyInit()
 	if (!fnc8)
 		return FALSE;
 
+#if 0
 	fnc9 = (D3DKMTGetThunkVersion_)GetProcAddress(hGdi, "D3DKMTGetThunkVersion");
 	if (!fnc9)
 		thunKVer = 1; // fallback to thunk version 1
 	else
 		thunKVer = fnc9();
+#endif
+
+	hDwm = LoadLibraryW(L"dwmapi.dll");
+	if (!hDwm)
+		return FALSE;
+
+	fnc10 = (DwmDxGetWindowSharedSurface_)GetProcAddress(hDwm, (LPCSTR)100);
+	if (!fnc10)
+		return FALSE;
+
+	fnc11 = (DwmDxUpdateWindowSharedSurface_)GetProcAddress(hDwm, (LPCSTR)101);
+	if (!fnc11)
+		return FALSE;
 
 	return TRUE;
 }
@@ -74,7 +88,10 @@ void CATLDXGIModule::MyTerm()
 {
 	if (hGdi)
 		FreeLibrary(hGdi);
+	if (hDwm)
+		FreeLibrary(hDwm);
 
+	hDwm = nullptr;
 	hGdi = nullptr;
 }
 

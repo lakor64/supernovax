@@ -74,15 +74,21 @@ public:
 #endif
 
 	// Custom
-	STDMETHODIMP Initialize(_In_ IUnknown* pDevice, _In_ DXGI_SWAP_CHAIN_DESC* pDesc);
+	STDMETHODIMP Initialize(_In_ IDXGIFactory* pFactory, _In_ IUnknown* pDevice, _In_ DXGI_SWAP_CHAIN_DESC* pDesc);
 
 
 private:
-	IUnknown* m_pBaseDev;
-	IDXGIDeviceInternal* m_pDevInt;
-	IDXGIDeviceInternal2* m_pDevInt2;
-	IDXGIDeviceInternal3* m_pDevInt3;
-	IDXGISurface* m_pBB;
+	IDXGIDevice* m_pDevice;
+	IDXGIDeviceInternal* m_pDevIntrnl1;
+	IDXGIDeviceInternal2* m_pDevIntrnl2;
+	IDXGIDeviceInternal3* m_pDevIntrnl3;
 
+	IDXGIAdapter* m_pAdapter;
+
+	DXGI_ADAPTER_DESC m_adapterDesc;
 	DXGI_SWAP_CHAIN_DESC m_desc;
+
+	IDXGISurface* m_pBB;
+	IDXGISurface* m_pDX;
+
 };

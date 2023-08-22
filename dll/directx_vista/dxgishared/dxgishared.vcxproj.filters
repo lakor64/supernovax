@@ -52,5 +52,8 @@
     <ClInclude Include="dxgishared.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="dxgithunks.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

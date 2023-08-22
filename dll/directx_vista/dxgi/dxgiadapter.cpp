@@ -412,12 +412,12 @@ STDMETHODIMP CDXGIAdapter::RetireUsage(_In_ D3DKMT_HANDLE Adapter)
 	return S_OK;
 }
 
-STDMETHODIMP CDXGIAdapter::SetAdapterCapabilities(_In_ void* cap)
+STDMETHODIMP CDXGIAdapter::SetAdapterCapabilities(_In_ DXGI_ADAPTER_CAPABILITIES* cap)
 {
 	return S_OK;
 }
 
-STDMETHODIMP CDXGIAdapter::GetAdapterCapabilities(_Inout_ void* cap)
+STDMETHODIMP CDXGIAdapter::GetAdapterCapabilities(_Inout_ DXGI_ADAPTER_CAPABILITIES* cap)
 {
 	return S_OK;
 }
@@ -426,4 +426,25 @@ STDMETHODIMP_(BOOL) CDXGIAdapter::IsWARP(void)
 {
 	return FALSE;
 }
+
+STDMETHODIMP_(D3DDDI_VIDEO_PRESENT_SOURCE_ID) CDXGIAdapter::GetPrimaryVidPnSourceId(void)
+{
+	return 0;
+}
+
+STDMETHODIMP_(UINT) CDXGIAdapter::WddmVersion(void)
+{
+	return 0;
+}
+
+STDMETHODIMP_(BOOL) CDXGIAdapter::MismatchedVendorLda(void)
+{
+	return FALSE;
+}
+
+STDMETHODIMP_(BOOL) CDXGIAdapter::IsLda(void)
+{
+	return FALSE;
+}
+
 #endif
