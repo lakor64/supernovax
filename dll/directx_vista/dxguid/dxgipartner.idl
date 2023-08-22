@@ -1,0 +1,45 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure
+ * COPYRIGHT:   See COPYING in the top level directory
+ * PURPOSE:     DXGI Direct Composition
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ */
+import "oaidl.idl";
+import "ocidl.idl";
+import "dxgi.idl";
+
+[
+	object,
+	local,
+	uuid(ffffffff-ffff-ffff-ffff-ffffffffffeb) // TODO: this UUID is invalid
+]
+interface IDXGIAdapterPartner : IUnknown
+{
+	HRESULT GetAdapterRole(
+
+	);
+};
+
+[
+	object,
+	local,
+	uuid(ffffffff-ffff-ffff-ffff-fffffffffffa) // TODO: this UUID is invalid
+]
+interface IDXGISwapChainPartner : IDXGIDeviceSubObject
+{
+	HRESULT GetCompositionInterface(
+	
+	);
+	
+	HRESULT SetAlphaMode(
+	
+	);
+	
+	HRESULT GetFrameStatisticsPartner(
+	
+	);
+	
+	HRESULT GetLogicalSurfaceHandle(
+	
+	);
+};

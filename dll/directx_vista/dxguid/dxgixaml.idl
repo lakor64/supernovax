@@ -1,0 +1,35 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure
+ * COPYRIGHT:   See COPYING in the top level directory
+ * PURPOSE:     DXGI UWP/Windows 8 apps
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ */
+import "oaidl.idl";
+import "ocidl.idl";
+import "dxgi.idl";
+
+[
+    object,
+    local,
+    uuid(ffffffff-ffff-ffff-ffff-fffffffffffb) // TODO: this UUID is invalid
+]
+interface IDXGISwapChainXAML : IDXGIDeviceSubObject
+{
+
+};
+
+[
+    object,
+    local,
+    uuid(ffffffff-ffff-ffff-ffff-ffffffffffea) // TODO: this UUID is invalid
+]
+interface IDXGIDeviceXAML : IDXGIDeviceSubObject
+{
+    HRESULT SetInProcessGPUPriority(
+
+    );
+
+    HRESULT GetInProcessGPUPriority(
+
+    );
+};

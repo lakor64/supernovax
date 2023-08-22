@@ -113,11 +113,8 @@ using DXGIObjRoot = ATL::CComObjectRootEx<ATL::CComMultiThreadModelNoCS>;
 
 // Project
 #include "dxgitypes.h"
-
-#ifdef __REACTOS__
-#include "dxgi_internal.h"
-#else
-#include "dxgi_internal_h.h"
-#endif
+#include "dxgiternl.h"
+#include "dxgidwm.h"
+#include "dxgipartner.h"
 
 #endif

@@ -118,22 +118,16 @@ STDMETHODIMP CDXGISwapChain::Present(_In_ UINT SyncInterval, _In_ UINT Flags)
 	RECT rc;
 	GetClientRect(m_desc.OutputWindow, &rc);
 
-	// pls is this ok?
-	struct SUBRESOURCE_BLT_MAP_RES
-	{
-		DWORD dstSubId;
-		DWORD srcSubid;
-	};
-
-	struct SUBRESOURCE_BLT_MAP
-	{
-		DWORD subResCount;
-		SUBRESOURCE_BLT_MAP_RES res[2];
-	};
-
-	SUBRESOURCE_BLT_MAP bltMap = { 0 };
+	DXGI_PRESENT_BLT_MAP bltMap;
+	DXGI_PRESENT_BLT_TEST test2[2];
+	test2[0].srcSubid = 0;
+	test2[0].dstSubId = 0;
+	test2[1].srcSubid = 1;
+	test2[1].dstSubId = 1;
+	bltMap.Count = 2;
+	bltMap.Test = test2;
 	
-	hr = m_pDevIntrnl3->Blt((IDXGIResource*)m_pBB, nullptr, nullptr, 0, pDwmSurface, nullptr, &bltMap, updId, 1, 0);
+	hr = m_pDevIntrnl3->Blt((IDXGIResource*)m_pBB, nullptr, nullptr, 0, pDwmSurface, nullptr, &bltMap, updId, 1 << 0, 1);
 	if (FAILED(hr))
 	{
 		pDwmSurface->Release();
@@ -148,6 +142,30 @@ STDMETHODIMP CDXGISwapChain::Present(_In_ UINT SyncInterval, _In_ UINT Flags)
 	}
 
 	pDwmSurface->Release();
+
+#if 0
+	IDXGISurface1* pSrc;
+	auto hr = m_pBB->QueryInterface(&pSrc);
+	if (FAILED(hr))
+		return hr;
+
+	HDC src;
+	hr = pSrc->GetDC(FALSE, &src);
+	if (FAILED(hr))
+		return hr;
+
+	auto dst = GetDC(m_desc.OutputWindow);
+
+	RECT rc;
+	GetClientRect(m_desc.OutputWindow, &rc); // not 100% because we don't take care of borders etc...
+
+	StretchBlt(dst, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, src, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SRCCOPY);
+
+	pSrc->ReleaseDC(nullptr);
+	ReleaseDC(m_desc.OutputWindow, dst);
+
+#endif
+
 	return hr;
 }
 
@@ -344,13 +362,13 @@ STDMETHODIMP CDXGISwapChain::Initialize(_In_ IDXGIFactory* pFactory, _In_ IUnkno
 	DXGI_SURFACE_DESC dsc;
 	dsc.Width = m_desc.BufferDesc.Width;
 	dsc.Height = m_desc.BufferDesc.Height;
-	dsc.Format = m_desc.BufferDesc.Format;
+	dsc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;//m_desc.BufferDesc.Format;
 	dsc.SampleDesc = m_desc.SampleDesc;
 
 	if (m_pDevIntrnl3)
 	{
 		// backbuffer (ID: 0)
-		hr = m_pDevIntrnl3->CreateSurfaceInternal(this, nullptr, nullptr, &dsc, 1, 1, D3D11_BIND_RENDER_TARGET, 0, nullptr, (IDXGIResource**)&m_pBB);
+		hr = m_pDevIntrnl3->CreateSurfaceInternal(this, nullptr, nullptr, &dsc, 1, 1, D3D11_BIND_RENDER_TARGET, D3D11_RESOURCE_MISC_GDI_COMPATIBLE, nullptr, (IDXGIResource**)&m_pBB);
 	}
 #if 0
 	else

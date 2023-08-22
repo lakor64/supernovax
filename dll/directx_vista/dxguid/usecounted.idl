@@ -1,0 +1,50 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure
+ * COPYRIGHT:   See COPYING in the top level directory
+ * PURPOSE:     Use Counted
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ */
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	object,
+	local,
+	uuid(ffffffff-ffff-ffff-ffff-ffffffffffff) // TODO: THIS IS AN INVALID UUID
+]
+interface IUseCounted : IUnknown
+{
+	ULONG UCAddUse(
+		void
+	);
+
+	ULONG UCReleaseUse(
+		void
+	);
+
+	HRESULT UCBreakCyclicReferences(
+		void
+	);
+
+	HRESULT UCEnstablishCyclicReferences(
+		void
+	);
+
+	HRESULT UCDestroy(
+		void
+	);
+};
+
+[
+	object,
+	local,
+	uuid(ffffffff-ffff-ffff-ffff-fffffffffffe) // TODO: THIS IS AN INVALID UUID
+]
+interface IUseCounted2 : IUseCounted
+{
+	HRESULT UCQueryInterface(
+		[in] UINT flags,
+		[in] REFIID riid,
+		[out] void** ppObj
+	);
+};

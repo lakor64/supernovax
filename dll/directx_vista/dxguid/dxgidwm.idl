@@ -1,0 +1,353 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure
+ * COPYRIGHT:   See COPYING in the top level directory
+ * PURPOSE:     DXGI DWM
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * REFERENCE:
+ * - https://shchetinin.blogspot.com/2012/04/dwm-graphics-directx-win8win7.html
+ * - https://stackoverflow.com/questions/24739142/how-to-distort-manipulate-dwm-live-thumbnails-in-windows-8-or-in-any-other-way
+ */
+import "oaidl.idl";
+import "ocidl.idl";
+import "dxgi.idl";
+import "dxgi1_2.idl";
+
+[
+    object,
+    local,
+    uuid(f69f223b-45d3-4aa0-98c8-c40c2b231029)
+]
+interface IDXGISwapChainDWM : IDXGIDeviceSubObject
+{
+    HRESULT Present(
+        [in] UINT SyncInterval,
+        [in] UINT Flags
+    );
+
+    HRESULT GetBuffer(
+        [in] UINT Buffer,
+        [in] REFIID riid,
+        [out] void** ppSurface
+    );
+
+    HRESULT GetDesc(
+        [out] DXGI_SWAP_CHAIN_DESC* pDesc
+    );
+
+    HRESULT ResizeBuffers(
+        [in] UINT BufferCount, 
+        [in] UINT Width,
+        [in] UINT Height,
+        [in] DXGI_FORMAT NewFormat,
+        [in] UINT SwapChainFlags
+    );
+
+    HRESULT ResizeTarget(
+        [in] DXGI_MODE_DESC* pNewTargetParameters
+    );
+
+    HRESULT GetContainingOutput(
+        [out] IDXGIOutput** ppOutput
+    );
+
+    HRESULT GetFrameStatistics(
+        [out] DXGI_FRAME_STATISTICS* pStats
+    );
+
+    HRESULT GetLastPresentCount(
+        [out] UINT* pLastPresentCount
+    );
+
+    HRESULT SetFullscreenState(
+        [in] BOOL Fullscreen,
+        [in] IDXGIOutput* pTarget
+    );
+
+    HRESULT GetFullscreenState(
+        [out] BOOL* pFullscreen,
+        [out] IDXGIOutput** ppTarget
+    );
+}
+
+[
+    object,
+    local,
+    uuid(ffffffff-ffff-ffff-ffff-fffffffffffc) // TODO: this UUID is invalid
+]
+interface IDXGISwapChainDWM1 : IDXGIDeviceSubObject
+{
+    HRESULT Present(
+        [in] UINT SyncInterval,
+        [in] UINT Flags
+    );
+
+    HRESULT GetBuffer(
+        [in] UINT Buffer,
+        [in] REFIID riid,
+        [out] void** ppSurface
+    );
+
+    HRESULT GetDesc(
+        [out] DXGI_SWAP_CHAIN_DESC* pDesc
+    );
+
+    HRESULT ResizeBuffers(
+        [in] UINT BufferCount,
+        [in] UINT Width,
+        [in] UINT Height,
+        [in] DXGI_FORMAT NewFormat,
+        [in] UINT SwapChainFlags
+    );
+
+    HRESULT ResizeTarget(
+        [in] DXGI_MODE_DESC* pNewTargetParameters
+    );
+
+    HRESULT GetContainingOutput(
+        [out] IDXGIOutput** ppOutput
+    );
+
+    HRESULT GetFrameStatistics(
+        [out] DXGI_FRAME_STATISTICS* pStats
+    );
+
+    HRESULT GetLastPresentCount(
+        [out] UINT* pLastPresentCount
+    );
+
+    HRESULT PresentDWM(
+
+    );
+
+    HRESULT GetLogicalSurfaceHandle(
+
+    );
+
+    HRESULT CheckDirectFlipSupport(
+
+    );
+
+    HRESULT GetCompositionSurface(
+
+    );
+
+    HRESULT GetFrameStatisticsDWM(
+
+    );
+
+    HRESULT GetMultiplaneOverlayCaps(
+
+    );
+
+    HRESULT PresentMultiplaneOverlay(
+
+    );
+
+    HRESULT CheckPresentDurationSupport(
+
+    );
+
+    HRESULT SetPrivateFrameDuration(
+
+    );
+
+    HRESULT SetHardwareProtection(
+
+    );
+
+    HRESULT GetHardwareProtection(
+
+    );
+
+    HRESULT SetLatencyHint(
+
+    );
+
+    HRESULT SwapBuffers(
+
+    );
+
+    HRESULT CheckDwmVidPnOvership(
+
+    );
+
+    HRESULT GetCurrentBackBufferIndex(
+
+    );
+
+    HRESULT GetBackBufferImplicitRotationCount(
+
+    );
+
+    HRESULT GetFrontBufferRenderingCapability(
+
+    );
+};
+
+[
+    object,
+    local,
+    uuid(ffffffff-ffff-ffff-ffff-fffffffffffd) // TODO: this UUID is invalid
+]
+/*
+* Is this real?
+*/
+interface IDXGISwapChainDWM8 : IDXGIObject
+{
+    HRESULT GetDevice(
+        [in] REFIID riid,
+        [out] void** ppvObject
+    );
+
+    HRESULT Present(
+        [in] UINT SyncInterval,
+        [in] UINT Flags
+    );
+
+    HRESULT GetBuffer(
+        [in] UINT Buffer,
+        [in] REFIID riid,
+        [out] void** ppSurface
+    );
+
+    HRESULT GetDesc(
+        [out] DXGI_SWAP_CHAIN_DESC* pDesc
+    );
+
+    HRESULT ResizeBuffers(
+        [in] UINT BufferCount,
+        [in] UINT Width,
+        [in] UINT Height,
+        [in] DXGI_FORMAT NewFormat,
+        [in] UINT SwapChainFlags
+    );
+
+    HRESULT ResizeTarget(
+        [in] DXGI_MODE_DESC* pNewTargetParameters
+    );
+
+    HRESULT GetContainingOutput(
+        [out] IDXGIOutput** ppOutput
+    );
+
+    HRESULT GetFrameStatistics(
+        [out] DXGI_FRAME_STATISTICS* pStats
+    );
+
+    HRESULT GetLastPresentCount(
+        [out] UINT* pLastPresentCount
+    );
+
+    // equals to : http://msdn.microsoft.com/en-us/library/windows/desktop/hh446797%28v=vs.85%29.aspx
+    HRESULT Present1( 
+        [in] UINT SyncInterval,
+        [in] UINT Flags,
+        [in] UINT DirtyRectsCount,
+        [in] RECT* pDirtyRects,
+        [in] RECT* pScrollRect,
+        [in] POINT* pScrollOffset
+    );
+
+    HRESULT GetLogicalSurfaceHandle(
+        [out] LPVOID pVoid
+    );
+
+    //
+    //Called by the Desktop Window Manager (DWM) to verify that the user-mode driver supports Direct Flip operations, in which video memory is seamlessly flipped between an application's 
+    //managed primary allocations and the DWM's managed primary allocations.
+    //
+    HRESULT CheckDirectFlipSupport(
+        [in] ULONG,
+        [in] IDXGIResource* pResource,
+        [in] ULONG*
+    );
+
+    HRESULT Present2(
+        [in] UINT SyncInterval,
+        [in] UINT Flags,
+        [in] UINT DirtyRectsCount,
+        [in] RECT* pDirtyRects,
+        [in] RECT* pScrollRect,
+        [in] POINT* pScrollOffset,
+        [in] IDXGIResource* pResource
+    );
+
+    HRESULT GetCompositionSurface(
+        [out] LPVOID* ppVoid
+    );
+}
+
+[
+    object,
+    local,
+    uuid(ffffffff-ffff-ffff-ffff-ffffffffffee) // TODO: this UUID is invalid
+]
+interface IDXGIAdapterDWM : IUnknown
+{
+    HRESULT OpenKernelHandle(
+
+    );
+
+    HRESULT CloseKernelHandle(
+
+    );
+
+    HRESULT EnumOutputs2(
+
+    );
+};
+
+
+[
+    object,
+    local,
+    uuid(713f394e-92ca-47e7-ab81-1159c2791e54)
+]
+interface IDXGIFactoryDWM : IUnknown
+{
+    HRESULT CreateSwapChain(
+        [in] IUnknown* pDevice,
+        [in] DXGI_SWAP_CHAIN_DESC* pDesc,
+        [in] IDXGIOutput* pOutput,
+        [out]IDXGISwapChainDWM **ppSwapChainDWM
+    );
+}
+
+[
+    object,
+    local,
+    uuid(1ddd77aa-9a4a-4cc8-9e55-98c196bafc8f)
+]
+interface IDXGIFactoryDWM8 : IUnknown
+{
+    HRESULT CreateSwapChainDWM(
+        [in] IUnknown* pDevice,
+        [in] DXGI_SWAP_CHAIN_DESC1* pSwapChainDesc1,
+        [in] DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pSwapChainFullScreenDesc1,
+        [in] IDXGIOutput* pOutput,
+        [out] IDXGISwapChainDWM8** ppSwapChainDWM1
+    );
+
+    HRESULT CreateSwapChainDDA(
+        [in] IUnknown* pDevice,
+        [in] DXGI_SWAP_CHAIN_DESC1* pSwapChainDesc1,
+        [in] IDXGIOutput* pOutput,
+        [out] IDXGISwapChainDWM8** ppSwapChainDWM1
+    );
+}
+
+[
+    object,
+    local,
+    uuid(ffffffff-ffff-ffff-ffff-ffffffffffe8) // TODO: this UUID is invalid
+]
+interface IDXGIDeviceDWM : IUnknown
+{
+    HRESULT PinResources(
+
+    );
+
+    HRESULT UnpinResources(
+
+    );
+};

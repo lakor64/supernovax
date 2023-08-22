@@ -12,6 +12,10 @@
 class ATL_NO_VTABLE CDXGISwapChain :
 	public DXGIObjRoot,
 	public CDXGIDeviceSubObject<DXGISwapChainType>,
+#if DXGI_VERSION >= 3
+	public IDXGISwapChainMedia,
+	public IDXGIDecodeSwapChain,
+#endif
 	public DXGIUseCountedType
 {
 public:
@@ -24,6 +28,8 @@ public:
 #endif
 #if DXGI_VERSION >= 3
 		COM_INTERFACE_ENTRY_IID(IID_IDXGISwapChain2, IDXGISwapChain2)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGISwapChainMedia, IDXGISwapChainMedia)
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIDecodeSwapChain, IDXGIDecodeSwapChain)
 #endif
 #if DXGI_VERSION >= 2
 		COM_INTERFACE_ENTRY_IID(IID_IDXGISwapChain1, IDXGISwapChain1)

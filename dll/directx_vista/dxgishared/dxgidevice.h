@@ -13,7 +13,11 @@ class ATL_NO_VTABLE CDXGIDevice :
 	public DXGIObjRoot,
 	public CDXGIObject<DXGIDeviceType>,
 	public IDXGIDebugProducer
-	//, public IDXGIDeviceInternal2
+	//, public IDXGIDeviceInternal3
+	//, public IDXGISwapChainInternal
+	//, public IDXGIDeviceXAML
+	//, public IDXGIDeviceDWM
+	//, public IDXGIDeviceTest
 {
 public:
 	BEGIN_COM_MAP(CDXGIDevice)
