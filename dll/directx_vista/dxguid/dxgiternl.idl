@@ -38,6 +38,21 @@ typedef UINT D3DKMT_HANDLE;
 typedef UINT D3DDDI_VIDEO_PRESENT_SOURCE_ID;
 cpp_quote ("#endif")
 
+cpp_quote ("#ifndef _DXGIDDI_H")
+/*
+* Blt mode rotation
+*/
+typedef enum _DXGI_DDI_MODE_ROTATION {
+	DXGI_DDI_MODE_ROTATION_UNSPECIFIED,
+	DXGI_DDI_MODE_ROTATION_IDENTITY,
+	DXGI_DDI_MODE_ROTATION_ROTATE90,
+	DXGI_DDI_MODE_ROTATION_ROTATE180,
+	DXGI_DDI_MODE_ROTATION_ROTATE270
+} DXGI_DDI_MODE_ROTATION;
+cpp_quote ("#endif")
+
+cpp_quote ("#define DXGI_MAX_SURFACE_RESOURCES 16")
+
 /*
 * Shadow D3DKMT present function type
 */
@@ -83,11 +98,36 @@ typedef struct _DXGI_PRESENTSURFACE
 
 typedef enum _DXGI_DEVICE_PRESENT_FLAGS
 {
-	DXGI_DEVICE_PRESENT_FLAGS_NONE = 0,
-	DXGI_DEVICE_PRESENT_FLAGS_UNKNOWN = 1 << 0,
-	DXGI_DEVICE_PRESENT_FLAGS_UNKNOWN_2 = 1 << 1,
+	DXGI_DEVICE_PRESENT_FLAGS_NONE = 0x0,
+	DXGI_DEVICE_PRESENT_FLAGS_UNKNOWN = 0x1,
+	DXGI_DEVICE_PRESENT_FLAGS_UNKNOWN_2 = 0x2,
 	// as of Windows 7 SP1
 } DXGI_DEVICE_PRESENT_FLAGS;
+
+typedef enum _DXGI_RESOURCE_BIND_FLAGS
+{
+	DXGI_RESOURCE_BIND_NONE						= 0x000000,
+	// if you pass 0x1 or 0x2 the function fails
+	DXGI_RESOURCE_BIND_STAGING					= 0x000003, // cannot work with misc flag 0x8000
+	DXGI_RESOURCE_BIND_SHADER_RESOURCE			= 0x000010,
+	DXGI_RESOURCE_BIND_RENDER_TARGET			= 0x000020,
+	DXGI_RESOURCE_BIND_UNKNOWN					= 0x000040, // does something with the format?
+	DXGI_RESOURCE_BIND_UNKNOWN_2				= 0x000100, // cannot work with misc flag 0x8000
+	DXGI_RESOURCE_BIND_UNORDERED_ACCESS			= 0x000400,
+	DXGI_RESOURCE_BIND_GDI_ACCESS				= 0x100000,
+} DXGI_RESOURCE_BIND_FLAGS;
+
+typedef enum _DXGI_RESOURCE_MISC_FLAGS
+{
+	DXGI_RESOURCE_MISC_FLAG_NONE							= 0x000000,
+	DXGI_RESOURCE_MISC_FLAG_SHARED							= 0x000080,
+	DXGI_RESOURCE_MISC_FLAG_UNKNOWN							= 0x000200, // this is actually 0x08 in D3D11_RESOURCE_MISC_FLAG 
+	DXGI_RESOURCE_MISC_FLAG_UNKNOWN_2						= 0x008000,
+	DXGI_RESOURCE_MISC_RESTRICTED_CONTENT					= 0x010000,
+	DXGI_RESOURCE_MISC_RESTRICT_SHARED_RESOURCE_DRIVE		= 0x040000,
+	DXGI_RESOURCE_MISC_FLAG_SHARED_NTHANDLE					= 0x020000,
+	DXGI_RESOURCE_MISC_FLAG_UNKNOWN_3						= 0x200000, // cannot work with SHARED
+} DXGI_RESOURCE_MISC_FLAGS;
 
 [
 	object,
@@ -482,16 +522,17 @@ interface IDXGIDeviceInternal3 : IUnknown
 	);
 
 	HRESULT CreateSurfaceInternal(
-		[in] IUseCounted2* SwapChain,
-		[in] /*[optional]*/ IUseCounted2*,
-		[in] /*[optional]*/ void*, //IDXGISwapBufferInternal*
+		[in] IUseCounted2*,
+		[in] /*[optional]*/ IUseCounted2* LayeredCount, // ID3D11LayeredUseCounted *
+		[in] /*[optional]*/ void*,
 		[in] const DXGI_SURFACE_DESC* pDesc,
 		[in] UINT TextureArraySize,
+		// max size is 16
 		[in] UINT ResourceSize,
 		[in] UINT BindFlags,
 		[in] UINT MiscFlags,
 		/*[optional]*/ void*,
-		[out][optional] IDXGIResource** pResourceArray
+		[out] IDXGIResource** pResources
 	);
 
 	HRESULT Blt(
@@ -513,8 +554,8 @@ interface IDXGIDeviceInternal3 : IUnknown
 		UINT64,
 		// Present flags
 		UINT Flags, // DXGI_DEVICE_PRESENT_FLAGS
-		// unknown, the values are 1,2,3,4
-		UINT RotationMode, // DXGI_DDI_MODE_ROTATION
+		// Rotation mode
+		UINT RotationMode // DXGI_DDI_MODE_ROTATION
 	);
 
 	HRESULT SetDisplayMode(
@@ -613,3 +654,56 @@ interface IDXGIDeviceInternal3 : IUnknown
 #endif
 }
 
+[
+	object,
+	local,
+	uuid(a8bf320a-6e96-4096-9ac7-d7630fb5d81e)
+]
+// TODO: Is there 1?
+interface IDXGIResourceInternal2 : IUnknown
+{
+	HRESULT GetDDIHandle(
+
+	);
+
+	HRESULT GetPrimaryDesc(
+
+	);
+
+	HRESULT IsDCOutstanding(
+
+	);
+
+	HRESULT GetSharedHandleInternal(
+
+	);
+
+	HRESULT GetGlobalHandles(
+
+	);
+
+	HRESULT CreateSharedHandleInternal(
+
+	);
+};
+
+[
+	object,
+	local,
+	uuid(ffffffff-ffff-ffff-ffff-fffffffffff4) // TODO: this UUID is invalid
+]
+interface IDXGIFactoryInternal : IUnknown
+{
+	HRESULT CloseKernelHandle(
+
+	);
+
+	HRESULT RegisterStereoStatusWinRTDisplayPropertiesCB(
+
+	);
+
+	HRESULT UnregisterStereoStatusWinRTDisplayPropertiesCB(
+
+	);
+
+};

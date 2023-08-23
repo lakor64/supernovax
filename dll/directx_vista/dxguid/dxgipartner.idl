@@ -43,3 +43,19 @@ interface IDXGISwapChainPartner : IDXGIDeviceSubObject
 	
 	);
 };
+
+[
+	object,
+	local,
+	uuid(ffffffff-ffff-ffff-ffff-ffffffffffc3) // TODO: this UUID is invalid
+]
+interface IDXGIFactoryPartner : IDXGIObject
+{
+	HRESULT CreateSwapChainForCompositionSurface(
+		[in] IUnknown* pDevice,
+		void*,
+		[in] DXGI_SWAP_CHAIN_DESC1 pSwapChainDesc1,
+		[in] IDXGIOutput* pOutput,
+		[out] IDXGISwapChain1** ppSwapChain1
+	);
+};

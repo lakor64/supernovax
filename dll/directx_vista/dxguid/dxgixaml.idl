@@ -25,11 +25,11 @@ interface IDXGISwapChainXAML : IDXGIDeviceSubObject
 ]
 interface IDXGIDeviceXAML : IDXGIDeviceSubObject
 {
-    HRESULT SetInProcessGPUPriority(
-
+    void SetInProcessGPUPriority(
+        [in] int Priority
     );
 
-    HRESULT GetInProcessGPUPriority(
-
+    void GetInProcessGPUPriority(
+        [out] int* Priority
     );
 };

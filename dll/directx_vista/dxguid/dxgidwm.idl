@@ -309,7 +309,7 @@ interface IDXGIFactoryDWM : IUnknown
         [in] IUnknown* pDevice,
         [in] DXGI_SWAP_CHAIN_DESC* pDesc,
         [in] IDXGIOutput* pOutput,
-        [out]IDXGISwapChainDWM **ppSwapChainDWM
+        [out]IDXGISwapChainDWM** ppSwapChainDWM
     );
 }
 
@@ -318,21 +318,21 @@ interface IDXGIFactoryDWM : IUnknown
     local,
     uuid(1ddd77aa-9a4a-4cc8-9e55-98c196bafc8f)
 ]
-interface IDXGIFactoryDWM8 : IUnknown
+interface IDXGIFactoryDWM2 : IUnknown
 {
     HRESULT CreateSwapChainDWM(
         [in] IUnknown* pDevice,
         [in] DXGI_SWAP_CHAIN_DESC1* pSwapChainDesc1,
         [in] DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pSwapChainFullScreenDesc1,
         [in] IDXGIOutput* pOutput,
-        [out] IDXGISwapChainDWM8** ppSwapChainDWM1
+        [out] IDXGISwapChainDWM** ppSwapChainDWM
     );
 
     HRESULT CreateSwapChainDDA(
         [in] IUnknown* pDevice,
         [in] DXGI_SWAP_CHAIN_DESC1* pSwapChainDesc1,
         [in] IDXGIOutput* pOutput,
-        [out] IDXGISwapChainDWM8** ppSwapChainDWM1
+        [out] IDXGISwapChainDWM** ppSwapChainDWM
     );
 }
 
