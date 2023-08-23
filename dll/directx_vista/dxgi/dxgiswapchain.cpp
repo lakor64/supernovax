@@ -10,22 +10,18 @@
 #include "dllmain.h"
 
 CDXGISwapChain::CDXGISwapChain()
-	: m_pDevice(nullptr), m_pDevIntrnl1(nullptr), m_pDevIntrnl2(nullptr),
-	m_pDevIntrnl3(nullptr)
-{}
+	: m_pDevice(nullptr), m_pAdapter(nullptr), m_DevVersion(0)
+{
+	m_uInternalDevice.D1 = nullptr;
+}
 
 CDXGISwapChain::~CDXGISwapChain()
 {
-	if (m_pBB)
-		m_pBB->Release();
+	for (auto& buffer : m_vBuffers)
+		buffer->Release();
 
-	if (m_pDevIntrnl3)
-		m_pDevIntrnl3->Release();
-
-	if (m_pDevIntrnl2)
-		m_pDevIntrnl2->Release();
-	else if (m_pDevIntrnl1)
-		m_pDevIntrnl1->Release();
+	if (m_uInternalDevice.D1)
+		m_uInternalDevice.D1->Release();
 
 	if (m_pDevice)
 		m_pDevice->Release();
@@ -39,10 +35,10 @@ STDMETHODIMP CDXGISwapChain::GetBuffer(_In_ UINT Buffer, _In_ REFIID riid, _Out_
 
 	*ppSurface = nullptr;
 
-	if (Buffer > 0)
+	if (Buffer >= m_vBuffers.size())
 		return DXGI_ERROR_NOT_FOUND;
 
-	return m_pBB->QueryInterface(riid, ppSurface);
+	return m_vBuffers.at(Buffer)->QueryInterface(riid, ppSurface);
 }
 
 STDMETHODIMP CDXGISwapChain::GetContainingOutput(_COM_Outptr_ IDXGIOutput** ppOutput) 
@@ -85,7 +81,7 @@ STDMETHODIMP CDXGISwapChain::GetLastPresentCount(_Out_ UINT* pLastPresentCount)
 	return E_NOTIMPL;
 }
 
-STDMETHODIMP CDXGISwapChain::Present(_In_ UINT SyncInterval, _In_ UINT Flags) 
+STDMETHODIMP CDXGISwapChain::Present(_In_ UINT SyncInterval, _In_ UINT Flags)
 {
 #if 0 // IIRC we cannot call this because it's for offline?
 	D3DKMT_PRESENT pp = { 0 };
@@ -103,70 +99,22 @@ STDMETHODIMP CDXGISwapChain::Present(_In_ UINT SyncInterval, _In_ UINT Flags)
 	auto hr = m_pDevInt3->Present((IDXGIDebugProducer*)m_pBB, nullptr, &pp, 0, 0);
 #endif
 
-	DXGI_FORMAT fmt = DXGI_FORMAT_UNKNOWN;
-	UINT64 updId;
-	HANDLE dxSurface;
-	auto hr = _AtlModule.GetDwmDxGetWindowSharedSurface()(m_desc.OutputWindow, m_adapterDesc.AdapterLuid, nullptr, 0, &fmt, &dxSurface, &updId);
-	if (FAILED(hr))
-		return hr;
-
-	IDXGIResource* pDwmSurface;
-	hr = m_pDevIntrnl3->OpenSharedResource(dxSurface, 0, __uuidof(pDwmSurface), (void**)&pDwmSurface);
-	if (FAILED(hr))
-		return hr;
-
-	RECT rc;
-	GetClientRect(m_desc.OutputWindow, &rc);
-
-	DXGI_PRESENT_BLT_MAP bltMap;
-	DXGI_PRESENT_BLT_TEST test2[2];
-	test2[0].srcSubid = 0;
-	test2[0].dstSubId = 0;
-	test2[1].srcSubid = 1;
-	test2[1].dstSubId = 1;
-	bltMap.Count = 2;
-	bltMap.Test = test2;
-	
-	hr = m_pDevIntrnl3->Blt((IDXGIResource*)m_pBB, nullptr, nullptr, 0, pDwmSurface, nullptr, &bltMap, updId, 1 << 0, 1);
-	if (FAILED(hr))
+	//if (m_desc.Windowed)
 	{
-		pDwmSurface->Release();
-		return hr;
+		if (ApiCallback.DwmIsCompositionEnabled)
+		{
+			BOOL haveDwm = FALSE;
+			auto hr = ApiCallback.DwmIsCompositionEnabled(&haveDwm);
+			if (SUCCEEDED(hr) && haveDwm)
+				return PresentToDWM(SyncInterval, Flags);
+		}
+
+		// assume we don't have DWM
+		return PresentToGDI(SyncInterval, Flags);
 	}
 
-	hr = _AtlModule.GetDwmDxUpdateWindowSharedSurface()(m_desc.OutputWindow, updId, 0, nullptr, &rc);
-	if (FAILED(hr))
-	{
-		pDwmSurface->Release();
-		return hr;
-	}
-
-	pDwmSurface->Release();
-
-#if 0
-	IDXGISurface1* pSrc;
-	auto hr = m_pBB->QueryInterface(&pSrc);
-	if (FAILED(hr))
-		return hr;
-
-	HDC src;
-	hr = pSrc->GetDC(FALSE, &src);
-	if (FAILED(hr))
-		return hr;
-
-	auto dst = GetDC(m_desc.OutputWindow);
-
-	RECT rc;
-	GetClientRect(m_desc.OutputWindow, &rc); // not 100% because we don't take care of borders etc...
-
-	StretchBlt(dst, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, src, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, SRCCOPY);
-
-	pSrc->ReleaseDC(nullptr);
-	ReleaseDC(m_desc.OutputWindow, dst);
-
-#endif
-
-	return hr;
+	// full screen presentation (D3DKMTPresent) not supported!
+	//return DXGI_ERROR_UNSUPPORTED;
 }
 
 STDMETHODIMP CDXGISwapChain::ResizeBuffers(_In_ UINT BufferCount, _In_ UINT Width, _In_ UINT Height, _In_ DXGI_FORMAT NewFormat, _In_ UINT SwapChainFlags) 
@@ -326,28 +274,25 @@ STDMETHODIMP CDXGISwapChain::Initialize(_In_ IDXGIFactory* pFactory, _In_ IUnkno
 	if (FAILED(hr))
 		return hr; // cannot fail!
 
-	// TODO: Make the shitty hack for Windows 10 IDXGIDeviceInternal3
-	hr = m_pDevice->QueryInterface(&m_pDevIntrnl3);
+	hr = m_pDevice->QueryInterface(&m_uInternalDevice.D3);
 	if (hr == E_NOINTERFACE)
 	{
-#if 0
 		// Windows 7 RTM
-		hr = m_pDevice->QueryInterface(&m_pDevIntrnl2);
+		hr = m_pDevice->QueryInterface(&m_uInternalDevice.D2);
 		if (FAILED(hr))
 		{
 			// Vista RTM
-			hr = m_pDevice->QueryInterface(&m_pDevIntrnl1);
+			hr = m_pDevice->QueryInterface(&m_uInternalDevice.D1);
 			if (FAILED(hr))
 				return hr;
+
+			m_DevVersion = 1;
 		}
 		else
-		{
-			m_pDevIntrnl1 = m_pDevIntrnl2;
-		}
-#else
-		return E_NOTIMPL;
-#endif
+			m_DevVersion = 2;
 	}
+	else
+		m_DevVersion = 3;
 
 	hr = m_pDevice->GetAdapter(&m_pAdapter);
 	if (FAILED(hr))
@@ -362,25 +307,135 @@ STDMETHODIMP CDXGISwapChain::Initialize(_In_ IDXGIFactory* pFactory, _In_ IUnkno
 	DXGI_SURFACE_DESC dsc;
 	dsc.Width = m_desc.BufferDesc.Width;
 	dsc.Height = m_desc.BufferDesc.Height;
-	dsc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;//m_desc.BufferDesc.Format;
+	dsc.Format = m_desc.BufferDesc.Format;
 	dsc.SampleDesc = m_desc.SampleDesc;
 
-	if (m_pDevIntrnl3)
+	IDXGIResource* pBB = nullptr;
+	if (m_DevVersion == 3)
 	{
-		// backbuffer (ID: 0)
-		hr = m_pDevIntrnl3->CreateSurfaceInternal(this, nullptr, nullptr, &dsc, 1, 1, D3D11_BIND_RENDER_TARGET, D3D11_RESOURCE_MISC_GDI_COMPATIBLE, nullptr, (IDXGIResource**)&m_pBB);
+		/*
+		* Creates the backbuffer (texture id = 0)
+		* We must make this a Render target or we cannot draw inside it from a device
+		*/
+		hr = m_uInternalDevice.D3->CreateSurfaceInternal(this, nullptr, nullptr, &dsc, 1, 1, DXGI_RESOURCE_BIND_RENDER_TARGET, 0, nullptr, &pBB);
 	}
-#if 0
 	else
 	{
 		// TODO: Vista RTM/Windows 7 RTM support
 		return E_NOTIMPL;
-		//hr = m_pDevInt->CreateSurfaceInternal(nullptr, &dsc, 1, 0, nullptr, &m_pBB);
+		//hr = m_pDevInt->CreateSurfaceInternal(nullptr, &dsc, 1, 0, nullptr, &pBB);
 	}
-#endif
 
 	if (FAILED(hr))
 		return hr;
 
+	m_vBuffers.push_back(pBB);
+
+	return S_OK;
+}
+
+STDMETHODIMP CDXGISwapChain::PresentToDWM(_In_ UINT SyncInterval, _In_ UINT Flags)
+{
+	DXGI_FORMAT fmt;
+	UINT64 updId;
+	HANDLE dxSurface;
+	auto& bb = m_vBuffers.at(0);
+
+	auto m = MonitorFromWindow(m_desc.OutputWindow, MONITOR_DEFAULTTONULL);
+
+	auto hr = ApiCallback.DwmDxGetWindowSharedSurface(m_desc.OutputWindow, m_adapterDesc.AdapterLuid, m, DWM_REDIRECTION_FLAG_SUPPORT_PRESENT_TO_GDI_SURFACE | 8, &fmt, &dxSurface, &updId);
+	if (FAILED(hr))
+		return hr;
+
+	IDXGIResource* pDwmSurface;
+	hr = m_uInternalDevice.D3->OpenSharedResource(dxSurface, 1, __uuidof(pDwmSurface), (void**)&pDwmSurface);
+	if (FAILED(hr))
+		return hr;
+
+	DXGI_PRESENT_SUBRESOURCES bltMap;
+	DXGI_PRESENT_SUBRESOURCE test2[2];
+	test2[0].SrcSubresource = 0;
+	test2[0].DstSubresource = 0;
+	test2[1].SrcSubresource = 1;
+	test2[1].DstSubresource = 1;
+	bltMap.Count = 1;
+	bltMap.SubRes = test2;
+
+	// destination rect
+	RECT windowRect;
+	if (!GetWindowRect(m_desc.OutputWindow, &windowRect))
+		return DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
+
+	RECT clientRect;
+	if (!GetClientRect(m_desc.OutputWindow, &clientRect))
+		return DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
+
+	POINT borders;
+	borders.y = (windowRect.bottom - windowRect.top) - clientRect.bottom;
+	borders.x = (windowRect.right - windowRect.left) - clientRect.right;
+
+	// destination rect with border fix applied
+	clientRect.top = borders.y;
+	clientRect.bottom += borders.y;
+	clientRect.left += borders.x;
+	clientRect.right += borders.x;
+
+	hr = m_uInternalDevice.D3->Blt(bb, nullptr, nullptr, 0, pDwmSurface, nullptr, &bltMap, 0, 0, DXGI_DDI_MODE_ROTATION_IDENTITY);
+	if (FAILED(hr))
+	{
+		pDwmSurface->Release();
+		return hr;
+	}
+
+	hr = ApiCallback.DwmDxUpdateWindowSharedSurface(m_desc.OutputWindow, updId, DWM_REDIRECTION_FLAG_SUPPORT_PRESENT_TO_GDI_SURFACE, m, &windowRect);
+	if (FAILED(hr))
+	{
+		pDwmSurface->Release();
+		return hr;
+	}
+
+	pDwmSurface->Release();
+	return S_OK;
+}
+
+STDMETHODIMP CDXGISwapChain::PresentToGDI(_In_ UINT SyncInterval, _In_ UINT Flags)
+{
+	return PresentToDWM(SyncInterval, Flags); // theory!
+
+	auto& bb = m_vBuffers.at(0);
+
+	// doesn't work on Windows Vista RTM!
+
+	IDXGISurface1* bb1;
+	auto hr = bb->QueryInterface(&bb1);
+	if (FAILED(hr))
+		return hr;
+
+	RECT windowRect;
+	if (!GetWindowRect(m_desc.OutputWindow, &windowRect))
+		return DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
+
+	RECT clientRect;
+	if (!GetClientRect(m_desc.OutputWindow, &clientRect))
+		return DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
+
+	POINT borders;
+	borders.y = (windowRect.bottom - windowRect.top) - clientRect.bottom;
+	borders.x = (windowRect.right - windowRect.left) - clientRect.right;
+
+	HDC hdc = nullptr;
+	hdc = GetDC(m_desc.OutputWindow);
+	if (!hdc)
+		return DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
+
+	HDC src = nullptr;
+	hr = bb1->GetDC(FALSE, &src);
+	if (FAILED(hr))
+		return DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
+	
+	StretchBlt(hdc, borders.x, borders.y, clientRect.right + borders.x, clientRect.bottom + borders.y, src, 0, 0, m_desc.BufferDesc.Width, m_desc.BufferDesc.Height, SRCCOPY);
+
+	ReleaseDC(m_desc.OutputWindow, hdc);
+	bb1->ReleaseDC(nullptr);
 	return S_OK;
 }

@@ -76,25 +76,61 @@ public:
     STDMETHODIMP SetRotation(_In_ DXGI_MODE_ROTATION Rotation) override;
     STDMETHODIMP GetRotation(_Out_ DXGI_MODE_ROTATION* pRotation) override;
 	// IUseCounted2
-	STDMETHODIMP UCQueryInterface(UINT flags, REFIID riid, void** ppObj) override;
+	STDMETHODIMP UCQueryInterface(_In_ UINT flags, _In_ REFIID riid, _COM_Outptr_ void** ppObj) override;
 #endif
 
-	// Custom
+	/*!
+	* Initializes the swapchain
+	* @param pFactory Factory pointer
+	* @param pDevice D3D device
+	* @param pDesc Swapchain desc
+	* @return HResult
+	*/
 	STDMETHODIMP Initialize(_In_ IDXGIFactory* pFactory, _In_ IUnknown* pDevice, _In_ DXGI_SWAP_CHAIN_DESC* pDesc);
 
-
 private:
-	IDXGIDevice* m_pDevice;
-	IDXGIDeviceInternal* m_pDevIntrnl1;
-	IDXGIDeviceInternal2* m_pDevIntrnl2;
-	IDXGIDeviceInternal3* m_pDevIntrnl3;
 
+	/*!
+	* Present the current screen to DWM
+	* @param SyncInterval Syncronization interval
+	* @param Flags Present flags
+	*/
+	STDMETHODIMP PresentToDWM(_In_ UINT SyncInterval, _In_ UINT Flags);
+
+	/*!
+	* Present the current screen to GDI
+	* @param SyncInterval Syncronization interval
+	* @param Flags Present flags
+	* @note Selected when DWM is disabled
+	*/
+	STDMETHODIMP PresentToGDI(_In_ UINT SyncInterval, _In_ UINT Flags);
+
+	/* Main d3d device */
+	IDXGIDevice* m_pDevice;
+
+	/* Associated adapter */
 	IDXGIAdapter* m_pAdapter;
 
+	/* Device version */
+	uint8_t m_DevVersion;
+
+	/* Internal device */
+	union
+	{
+		/* Vista RTM internal device */
+		IDXGIDeviceInternal* D1;
+		/* Windows 7 RTM internal device */
+		IDXGIDeviceInternal2* D2;
+		/* Windows 7 SP1+ internal device */
+		IDXGIDeviceInternal3* D3;
+	} m_uInternalDevice;
+
+	/* Associated adapter desc */
 	DXGI_ADAPTER_DESC m_adapterDesc;
+
+	/* Swapchain desc */
 	DXGI_SWAP_CHAIN_DESC m_desc;
 
-	IDXGISurface* m_pBB;
-	IDXGISurface* m_pDX;
-
+	/* Swapchain buffers */
+	std::vector<IDXGIResource*> m_vBuffers;
 };

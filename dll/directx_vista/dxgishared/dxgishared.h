@@ -80,14 +80,7 @@
 #endif
 
 // DXGI DDK (the warning fixes some issues in the old ReactOS LongHorn branch, to be tested if they are still throwed)
-#ifdef _MSC_VER
-#pragma warning(push)
-#pragma warning(disable: 4200)
-#endif
 #include <d3dkmthk.h>
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 
 #ifdef __WINE_D3DKMTHK_H
 #error "Do not use wine d3dkmthk.h"

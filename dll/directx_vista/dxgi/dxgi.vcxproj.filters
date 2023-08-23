@@ -41,6 +41,9 @@
     <ClInclude Include="thunkloader.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="dllcallbacks.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dxgifactory.cpp">

@@ -23,7 +23,7 @@ inline void CloseKMTAdapter(D3DKMT_HANDLE h)
 {
 	D3DKMT_CLOSEADAPTER ad;
 	ad.hAdapter = h;
-	_AtlModule.GetCloseAdapter()(&ad);
+	ApiCallback.D3DKMTCloseAdapter(&ad);
 }
 
 inline void WcsMaxCpy(const wchar_t* src, wchar_t* dst, size_t max)

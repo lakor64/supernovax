@@ -51,7 +51,7 @@ STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Ou
 		// apperently (needs confirmation): some drivers can implement only DXVA2 and fail when it attempts to call DX9 version or similar
 
 		umdFile.Version = (KMTUMDVERSION)startVer;
-		auto err = NtErrorToDxgiError(_AtlModule.GetQueryAdapterInfo()(&info));
+		auto err = NtErrorToDxgiError(ApiCallback.D3DKMTQueryAdapterInfo(&info));
 
 		if (SUCCEEDED(err))
 			break;
@@ -197,7 +197,7 @@ STDMETHODIMP_(void) CDXGIAdapter::GetAdapterDesc()
 	qa.PrivateDriverDataSize = sizeof(segInfo);
 	qa.pPrivateDriverData = &segInfo;
 
-	NTSTATUS s = _AtlModule.GetQueryAdapterInfo()(&qa);
+	NTSTATUS s = ApiCallback.D3DKMTQueryAdapterInfo(&qa);
 
 	if (NT_ERROR(s))
 		return;
@@ -211,7 +211,7 @@ STDMETHODIMP_(void) CDXGIAdapter::GetAdapterDesc()
 	qa.PrivateDriverDataSize = sizeof(reg);
 	qa.pPrivateDriverData = &reg;
 
-	s = _AtlModule.GetQueryAdapterInfo()(&qa);
+	s = ApiCallback.D3DKMTQueryAdapterInfo(&qa);
 
 	if (NT_ERROR(s))
 		return;
@@ -230,7 +230,7 @@ STDMETHODIMP_(void) CDXGIAdapter::GetAdapterDesc()
 	qa.PrivateDriverDataSize = sizeof(at);
 	qa.pPrivateDriverData = &at;
 
-	s = _AtlModule.GetQueryAdapterInfo()(&qa);
+	s = ApiCallback.D3DKMTGetQueryAdapterInfo(&qa);
 
 	if (SUCCEEDED(s))
 	{
@@ -240,6 +240,7 @@ STDMETHODIMP_(void) CDXGIAdapter::GetAdapterDesc()
 	// TODO: Use KMTQAITYPE_WDDM_1_2_CAPS to gather GraphicsPreemptionGranularity&&ComputePreemptionGranularity
 
 #elif DXGI_VERSION >= 2
+	// NOTE: hardcoded because we are not in Windows 8
 	m_desc.GraphicsPreemptionGranularity = DXGI_GRAPHICS_PREEMPTION_DMA_BUFFER_BOUNDARY;
 	m_desc.ComputePreemptionGranularity = DXGI_COMPUTE_PREEMPTION_DMA_BUFFER_BOUNDARY;
 #endif
@@ -314,7 +315,7 @@ STDMETHODIMP CDXGIAdapter::LoadUMD(_In_ KMTUMDVERSION Version, _Out_ HINSTANCE* 
 	qa.Type = KMTQAITYPE_UMDRIVERNAME;
 	um.Version = Version;
 
-	auto st = _AtlModule.GetQueryAdapterInfo()(&qa);
+	auto st = ApiCallback.D3DKMTQueryAdapterInfo(&qa);
 	if (NT_ERROR(st))
 		return NtErrorToDxgiError(st);
 
@@ -346,8 +347,7 @@ STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_
 		if (ThunkSize != sizeof(DXGI_THUNKS_V3))
 			return E_POINTER;
 
-		*((DWORD*)Thunks) = 3; // NOTE: not that great... v4 is hardcoded in w10
-
+		*((DWORD*)Thunks) = _AtlModule.GetGlobalThunkVersion();
 		hr = DXGILoadThunk(_AtlModule.GetGdi32(), (DXGI_THUNKS_V3*)Thunks);
 		break;
 	}
@@ -360,8 +360,7 @@ STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_
 		if (ThunkSize != sizeof(DXGI_THUNKS_V2))
 			return E_POINTER;
 
-		*((DWORD*)Thunks) = 2; // NOTE: not that great... v4 is hardcoded in w10
-
+		*((DWORD*)Thunks) = _AtlModule.GetGlobalThunkVersion();
 		hr = DXGILoadThunk(_AtlModule.GetGdi32(), (DXGI_THUNKS_V2*)Thunks);
 
 		break;
@@ -375,8 +374,7 @@ STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_
 		if (ThunkSize != sizeof(DXGI_THUNKS_V1))
 			return E_POINTER;
 
-		*((DWORD*)Thunks) = 1; // NOTE: not that great... v4 is hardcoded in w10
-
+		*((DWORD*)Thunks) = _AtlModule.GetGlobalThunkVersion();
 		hr = DXGILoadThunk(_AtlModule.GetGdi32(), (DXGI_THUNKS_V1*)Thunks);
 		break;
 	}
@@ -389,8 +387,7 @@ STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_
 		if (ThunkSize != sizeof(DXGI_THUNKS_V4))
 			return E_POINTER;
 
-		*((DWORD*)Thunks) = 4; // NOTE: not that great... v4 is hardcoded in w10
-
+		*((DWORD*)Thunks) = _AtlModule.GetGlobalThunkVersion();
 		hr = DXGILoadThunk(_AtlModule.GetGdi32(), (DXGI_THUNKS_V4*)Thunks);
 		break;
 	}

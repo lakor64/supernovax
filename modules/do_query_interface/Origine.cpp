@@ -26,6 +26,9 @@
 	- 7778752f_5de8_4589_9b5f_cabad2b25b95
 	- 9b7e4a01_342c_4106_a19f_4f2704f689f0
 
+	[ WINDOWS 7 ]
+	- a8bf320a_6e96_4096_9ac7_d7630fb5d81e
+
 	ID3D11DeviceContext:
 	- GUID_ffffffff_1bbe_4d12_afbf_8fdf7e0a87c7
 */
@@ -67,6 +70,9 @@ static LRESULT CALLBACK Bruuuh(_In_ HWND hWnd, _In_ UINT Msg, _In_opt_ WPARAM wP
 //DEFINE_GUID(IID_IDXGIResourceInternal2,			0x79d2046c, 0x22ef, 0x451b, 0x9e, 0x74, 0x22, 0x45, 0xd9, 0xc7, 0x60, 0xea);
   DEFINE_GUID(IID_IUnknownZ,			0x00000040, 0x1bbe, 0x4d12, 0xaf, 0xbf, 0x8f, 0xdf, 0x7e, 0x0a, 0x87, 0xc7); // IDXGIResource*
   
+  DEFINE_GUID(IID_IDXGIResourceInternal2, 0xa8bf320a, 0x6e96, 0x4096, 0x9a, 0xc7, 0xd7, 0x63, 0x0f, 0xb5, 0xd8, 0x1e);
+  DEFINE_GUID(IID_IK, 0x7778752f, 0x5de8, 0x4589, 0x9b, 0x5f, 0xca, 0xba, 0xd2, 0xb2, 0x5b, 0x95);
+
   DEFINE_GUID(IID_IUnknownY, 0xcbe8c719, 0x71a3, 0x40ed, 0xa3, 0xad, 0xa0, 0x51, 0x61, 0xdc, 0xb8, 0x33);
 
 int main()
@@ -152,7 +158,7 @@ int main()
 		printf("kys 3\n");
 	}
 
-	hr = dv->QueryInterface(IID_IUnknownY, (void**)&x2);
+	hr = xd->QueryInterface(IID_IK, (void**)&x2);
 	if (FAILED(hr))
 	{
 		printf("bah\n");

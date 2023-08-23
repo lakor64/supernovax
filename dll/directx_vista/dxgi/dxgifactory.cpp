@@ -20,7 +20,7 @@ CDXGIFactory::~CDXGIFactory()
 		for (auto it2 = it->Outputs.begin(); it2 != it->Outputs.end(); it2++)
 		{
 			ca.hAdapter = it2->Handle;
-			_AtlModule.GetCloseAdapter()(&ca);
+			ApiCallback.D3DKMTCloseAdapter(&ca);
 		}
 	}
 }
@@ -56,6 +56,12 @@ STDMETHODIMP CDXGIFactory::CreateSwapChain(_In_ IUnknown* pDevice, _In_ DXGI_SWA
 		return hr;
 
 	hr = swapChain->Initialize(this, pDevice, pDesc);
+
+	if (FAILED(hr))
+	{
+		delete swapChain;
+		return hr;
+	}
 
 	swapChain->AddRef(); // inc ref to 1
 	*ppSwapChain = swapChain;
@@ -148,7 +154,7 @@ STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
 
 		memcpy(gdi.DeviceName, dd.DeviceName, sizeof(dd.DeviceName));
 
-		err = _AtlModule.GetOpenAdapterFromGdi()(&gdi);
+		err = ApiCallback.D3DKMTOpenAdapterFromGdiDisplayName(&gdi);
 
 		if (FAILED(err))
 			break; // might not have an adapter on this device, exit

@@ -42,6 +42,8 @@ STDMETHODIMP CDXGIOutput::GetDesc(_Out_ DXGI_OUTPUT_DESC* pDesc)
 
 STDMETHODIMP CDXGIOutput::GetDisplayModeList(_In_ DXGI_FORMAT EnumFormat, _In_ UINT Flags, _In_opt_ UINT* pNumModes, _Out_opt_ DXGI_MODE_DESC* pDesc)
 {
+	// NOTE: This function DOES NOT match 1:1 Windows DXGI but it's complete enough to mostly work
+
 	if (!pNumModes)
 		return DXGI_ERROR_INVALID_CALL;
 
@@ -52,12 +54,12 @@ STDMETHODIMP CDXGIOutput::GetDisplayModeList(_In_ DXGI_FORMAT EnumFormat, _In_ U
 	dml.ModeCount = 0;
 	dml.pModeList = nullptr;
 
-	auto status = _AtlModule.GetDisplayModeList()(&dml);
+	auto status = ApiCallback.D3DKMTGetDisplayModeList(&dml);
 	if (NT_ERROR(status))
 		return NtErrorToDxgiError(status);
 
 	dml.pModeList = new D3DKMT_DISPLAYMODE[dml.ModeCount];
-	status = _AtlModule.GetDisplayModeList()(&dml);
+	status = ApiCallback.D3DKMTGetDisplayModeList(&dml);
 	if (NT_ERROR(status))
 		return NtErrorToDxgiError(status);
 
@@ -66,6 +68,7 @@ STDMETHODIMP CDXGIOutput::GetDisplayModeList(_In_ DXGI_FORMAT EnumFormat, _In_ U
 	for (auto i = 0U; i < dml.ModeCount; i++)
 	{
 		auto y = &dml.pModeList[i];
+
 		// there is no format without alpha, so convert those into alpha based formats
 		if (y->Format == D3DDDIFMT_X8R8G8B8)
 			y->Format = D3DDDIFMT_A8R8G8B8;
@@ -135,7 +138,7 @@ STDMETHODIMP CDXGIOutput::GetFrameStatistics(_Out_ DXGI_FRAME_STATISTICS* pStats
 	ds.hDevice = m_desc.Handle;
 	ds.PresentState.VidPnSourceId = m_desc.VidPn;
 
-	auto status = _AtlModule.GetDeviceState()(&ds);
+	auto status = ApiCallback.D3DKMTGetDeviceState(&ds);
 	if (NT_ERROR(status))
 		return NtErrorToDxgiError(status);
 
@@ -202,7 +205,7 @@ STDMETHODIMP CDXGIOutput::WaitForVBlank(void)
 	v.VidPnSourceId = m_desc.VidPn;
 	v.hDevice = NULL;
 
-	return NtErrorToDxgiError(_AtlModule.GetWaitForVBlank()(&v));
+	return NtErrorToDxgiError(ApiCallback.D3DKMTWaitForVerticalBlankEvent(&v));
 }
 
 STDMETHODIMP CDXGIOutput::Initialize(CDXGIAdapter* adapter, DXGIOutputDescBasic& dsc)

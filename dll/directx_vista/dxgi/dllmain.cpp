@@ -9,6 +9,8 @@
 #include "dllmain.h"
 #include "dxgifactory.h"
 
+DXGI_WAPI_CALLBACKS ApiCallback = { 0 };
+
 BOOL WINAPI CATLDXGIModule::DllMain(_In_ DWORD dwReason, _In_opt_ LPVOID lpReserved)
 {
 	switch (dwReason)
@@ -28,71 +30,58 @@ BOOL WINAPI CATLDXGIModule::DllMain(_In_ DWORD dwReason, _In_opt_ LPVOID lpReser
 
 BOOL CATLDXGIModule::MyInit()
 {
-	hGdi = LoadLibraryW(L"gdi32.dll");
-	if (!hGdi)
+	m_hGdi = LoadLibraryW(L"gdi32.dll");
+	if (!m_hGdi)
 		return FALSE;
 
-	fnc1 = (D3DKMTOpenAdapterFromGdiDisplayName_)GetProcAddress(hGdi, "D3DKMTOpenAdapterFromGdiDisplayName");
+	ApiCallback.D3DKMTOpenAdapterFromGdiDisplayName = (D3DKMTOpenAdapterFromGdiDisplayName_)GetProcAddress(m_hGdi, "D3DKMTOpenAdapterFromGdiDisplayName");
+	ApiCallback.D3DKMTQueryAdapterInfo = (D3DKMTQueryAdapterInfo_)GetProcAddress(m_hGdi, "D3DKMTQueryAdapterInfo");
+	ApiCallback.D3DKMTCloseAdapter = (D3DKMTCloseAdapter_)GetProcAddress(m_hGdi, "D3DKMTCloseAdapter");
+	ApiCallback.D3DKMTGetDisplayModeList = (D3DKMTGetDisplayModeList_)GetProcAddress(m_hGdi, "D3DKMTGetDisplayModeList");
+	ApiCallback.D3DKMTWaitForVerticalBlankEvent = (D3DKMTWaitForVerticalBlankEvent_)GetProcAddress(m_hGdi, "D3DKMTWaitForVerticalBlankEvent");
+	ApiCallback.D3DKMTGetDeviceState = (D3DKMTGetDeviceState_)GetProcAddress(m_hGdi, "D3DKMTGetDeviceState");
+	ApiCallback.D3DKMTGetThunkVersion = (D3DKMTGetThunkVersion_)GetProcAddress(m_hGdi, "D3DKMTGetThunkVersion");
 
-	if (!fnc1)
-		return FALSE; // gdi32.dll is NOT from Vista+
+#if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN7
+	ApiCallback.D3DKMTCheckSharedResourceAccess = (D3DKMTCheckSharedResourceAccess_)GetProcAddress(m_hGdi, "D3DKMTCheckSharedResourceAccess");
+#endif
 
 #if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8
-	fnc2 = (D3DKMTEnumAdapters2_)GetProcAddress(hGdi, "D3DKMTEnumAdapters2"); // Win8+
+	ApiCallback.ApiCallback = (D3DKMTEnumAdapters2_)GetProcAddress(m_hGdi, "D3DKMTEnumAdapters2"); // Win8+
 #endif
 
-	fnc4 = (D3DKMTQueryAdapterInfo_)GetProcAddress(hGdi, "D3DKMTQueryAdapterInfo");
-	if (!fnc4)
+	if (!ApiCallback.D3DKMTOpenAdapterFromGdiDisplayName || !ApiCallback.D3DKMTQueryAdapterInfo ||
+		!ApiCallback.D3DKMTCloseAdapter || !ApiCallback.D3DKMTGetDisplayModeList ||
+		!ApiCallback.D3DKMTWaitForVerticalBlankEvent || !ApiCallback.D3DKMTGetDeviceState)
 		return FALSE;
 
-	fnc5 = (D3DKMTCloseAdapter_)GetProcAddress(hGdi, "D3DKMTCloseAdapter");
-	if (!fnc5)
-		return FALSE;
-
-	fnc6 = (D3DKMTGetDisplayModeList_)GetProcAddress(hGdi, "D3DKMTGetDisplayModeList");
-	if (!fnc6)
-		return FALSE;
-
-	fnc7 = (D3DKMTWaitForVerticalBlankEvent_)GetProcAddress(hGdi, "D3DKMTWaitForVerticalBlankEvent");
-	if (!fnc7)
-		return FALSE;
-
-	fnc8 = (D3DKMTGetDeviceState_)GetProcAddress(hGdi, "D3DKMTGetDeviceState");
-	if (!fnc8)
-		return FALSE;
-
-#if 0
-	fnc9 = (D3DKMTGetThunkVersion_)GetProcAddress(hGdi, "D3DKMTGetThunkVersion");
-	if (!fnc9)
-		thunKVer = 1; // fallback to thunk version 1
+	if (ApiCallback.D3DKMTGetThunkVersion)
+		m_thunkVer = ApiCallback.D3DKMTGetThunkVersion();
 	else
-		thunKVer = fnc9();
-#endif
+		m_thunkVer = 1; // Thunk default version
 
-	hDwm = LoadLibraryW(L"dwmapi.dll");
-	if (!hDwm)
-		return FALSE;
+	m_hDwm = LoadLibraryW(L"dwmapi.dll");
+	if (m_hDwm)
+	{
+		ApiCallback.DwmDxGetWindowSharedSurface = (DwmDxGetWindowSharedSurface_)GetProcAddress(m_hDwm, (LPCSTR)100);
+		ApiCallback.DwmDxUpdateWindowSharedSurface = (DwmDxUpdateWindowSharedSurface_)GetProcAddress(m_hDwm, (LPCSTR)101);
+		ApiCallback.DwmIsCompositionEnabled = (DwmIsCompositionEnabled_)GetProcAddress(m_hDwm, "DwmIsCompositionEnabled");
 
-	fnc10 = (DwmDxGetWindowSharedSurface_)GetProcAddress(hDwm, (LPCSTR)100);
-	if (!fnc10)
-		return FALSE;
-
-	fnc11 = (DwmDxUpdateWindowSharedSurface_)GetProcAddress(hDwm, (LPCSTR)101);
-	if (!fnc11)
-		return FALSE;
+		// We don't mind if we can't load dwm stuff actually
+	}
 
 	return TRUE;
 }
 
 void CATLDXGIModule::MyTerm()
 {
-	if (hGdi)
-		FreeLibrary(hGdi);
-	if (hDwm)
-		FreeLibrary(hDwm);
+	if (m_hGdi)
+		FreeLibrary(m_hGdi);
+	if (m_hDwm)
+		FreeLibrary(m_hDwm);
 
-	hDwm = nullptr;
-	hGdi = nullptr;
+	m_hDwm = nullptr;
+	m_hGdi = nullptr;
 }
 
 //! Global ATL module
