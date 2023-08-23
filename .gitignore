@@ -429,3 +429,10 @@ FodyWeavers.xsd
 *.exe
 *.out
 *.app
+
+usecounted.h
+dxgidwm.h
+dxgiternl.h
+dxgixaml.h
+dxgipartner.h
+dlldata.c
