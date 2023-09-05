@@ -280,7 +280,7 @@ interface IDXGISwapChainDWM8 : IDXGIObject
 [
     object,
     local,
-    uuid(ffffffff-ffff-ffff-ffff-ffffffffffee) // TODO: this UUID is invalid
+    uuid(712bd56d-86ff-4b71-91e1-c13b274ff2a2) // ok!
 ]
 interface IDXGIAdapterDWM : IUnknown
 {

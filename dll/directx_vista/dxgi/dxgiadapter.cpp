@@ -177,6 +177,7 @@ STDMETHODIMP CDXGIAdapter::GetDesc(_Out_ DXGI_ADAPTER_DESC* pDesc)
 
 STDMETHODIMP CDXGIAdapter::GetUMDDeviceSize(_In_ UINT unk, _In_ UINT unk2, _In_ UINT unk3)
 {
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIAdapter::GetUMDDeviceSize", "DEBUG", MB_OK);
 	return S_OK;
 }
 
@@ -406,41 +407,49 @@ STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_
 
 STDMETHODIMP CDXGIAdapter::RetireUsage(_In_ D3DKMT_HANDLE Adapter)
 {
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIAdapter::RetireUsage", "DEBUG", MB_OK);
 	return S_OK;
 }
 
 STDMETHODIMP CDXGIAdapter::SetAdapterCapabilities(_In_ DXGI_ADAPTER_CAPABILITIES* cap)
 {
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIAdapter::SetAdapterCapabilities", "DEBUG", MB_OK);
 	return S_OK;
 }
 
 STDMETHODIMP CDXGIAdapter::GetAdapterCapabilities(_Inout_ DXGI_ADAPTER_CAPABILITIES* cap)
 {
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIAdapter::GetAdapterCapabilities", "DEBUG", MB_OK);
 	return S_OK;
 }
 
 STDMETHODIMP_(BOOL) CDXGIAdapter::IsWARP(void)
 {
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIAdapter::IsWARP", "DEBUG", MB_OK);
 	return FALSE;
 }
 
 STDMETHODIMP_(D3DDDI_VIDEO_PRESENT_SOURCE_ID) CDXGIAdapter::GetPrimaryVidPnSourceId(void)
 {
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIAdapter::GetPrimaryVidPnSourceId", "DEBUG", MB_OK);
 	return 0;
 }
 
 STDMETHODIMP_(UINT) CDXGIAdapter::WddmVersion(void)
 {
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIAdapter::WddmVersion", "DEBUG", MB_OK);
 	return 0;
 }
 
 STDMETHODIMP_(BOOL) CDXGIAdapter::MismatchedVendorLda(void)
 {
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIAdapter::MismatchedVendorLda", "DEBUG", MB_OK);
 	return FALSE;
 }
 
 STDMETHODIMP_(BOOL) CDXGIAdapter::IsLda(void)
 {
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIAdapter::IsLda", "DEBUG", MB_OK);
 	return FALSE;
 }
 

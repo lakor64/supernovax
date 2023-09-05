@@ -20,6 +20,7 @@ STDMETHODIMP CDXGIOutput::FindClosestMatchingMode(_In_ const DXGI_MODE_DESC* pMo
 	if (!pModeToMatch || !pClosestMatch)
 		return DXGI_ERROR_INVALID_CALL;
 
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIOutput::FindClosestMatchingMode", "DEBUG", MB_OK);
 	return E_NOTIMPL;
 }
 
@@ -125,6 +126,7 @@ STDMETHODIMP CDXGIOutput::GetDisplaySurfaceData(_In_ IDXGISurface* pDestination)
 	if (!pDestination)
 		return DXGI_ERROR_INVALID_CALL;
 
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIOutput::GetDisplaySurfaceData", "DEBUG", MB_OK);
 	return E_NOTIMPL;
 }
 
@@ -158,6 +160,7 @@ STDMETHODIMP CDXGIOutput::GetGammaControl(_Out_ DXGI_GAMMA_CONTROL* pArray)
 	if (!pArray)
 		return DXGI_ERROR_INVALID_CALL;
 
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIOutput::GetGammaControl", "DEBUG", MB_OK);
 	return E_NOTIMPL;
 }
 
@@ -166,12 +169,13 @@ STDMETHODIMP CDXGIOutput::GetGammaControlCapabilities(_Out_ DXGI_GAMMA_CONTROL_C
 	if (!pGammaCaps)
 		return DXGI_ERROR_INVALID_CALL;
 
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIOutput::GetGammaControlCapabilities", "DEBUG", MB_OK);
 	return E_NOTIMPL;
 }
 
 STDMETHODIMP_(void) CDXGIOutput::ReleaseOwnership(void)
 {
-
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIOutput::ReleaseOwnership", "DEBUG", MB_OK);
 }
 
 STDMETHODIMP CDXGIOutput::SetDisplaySurface(_In_ IDXGISurface* pScanoutSurface)
@@ -187,6 +191,7 @@ STDMETHODIMP CDXGIOutput::SetGammaControl(_In_ const DXGI_GAMMA_CONTROL* pArray)
 	if (!pArray)
 		return DXGI_ERROR_INVALID_CALL;
 
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIOutput::SetGammaControl", "DEBUG", MB_OK);
 	return E_NOTIMPL;
 }
 
@@ -195,6 +200,7 @@ STDMETHODIMP CDXGIOutput::TakeOwnership(_In_ IUnknown* pDevice, _In_ BOOL Exclus
 	if (!pDevice)
 		return DXGI_ERROR_INVALID_CALL;
 
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIOutput::TakeOwnership", "DEBUG", MB_OK);
 	return E_NOTIMPL;
 }
 
@@ -211,10 +217,6 @@ STDMETHODIMP CDXGIOutput::WaitForVBlank(void)
 STDMETHODIMP CDXGIOutput::Initialize(CDXGIAdapter* adapter, DXGIOutputDescBasic& dsc)
 {
 	SetParent((IDXGIAdapter*)adapter);
-
-#ifdef PFF_PROJ_DEBUG
-	printf("CDXGIOutput->Initialize this:%p handle:%u vidpn:%u\n", this, dsc.Handle, dsc.VidPn);
-#endif
 
 	m_desc.Handle = dsc.Handle;
 	m_desc.VidPn = dsc.VidPn;
@@ -312,21 +314,25 @@ STDMETHODIMP_(void) CDXGIOutput::GetOutputDesc()
 #if DXGI_VERSION >= 2
 STDMETHODIMP CDXGIOutput::GetDisplayModeList1(_In_ DXGI_FORMAT EnumFormat, _In_ UINT Flags, _Inout_  UINT* pNumModes, _Out_writes_to_opt_(*pNumModes, *pNumModes)  DXGI_MODE_DESC1* pDesc)
 {
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIOutput::GetDisplayModeList1", "DEBUG", MB_OK);
 	return DXGI_ERROR_UNSUPPORTED;
 }
 
 STDMETHODIMP CDXGIOutput::FindClosestMatchingMode1(_In_  const DXGI_MODE_DESC1* pModeToMatch, _Out_  DXGI_MODE_DESC1* pClosestMatch, _In_opt_  IUnknown* pConcernedDevice)
 {
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIOutput::FindClosestMatchingMode1", "DEBUG", MB_OK);
 	return DXGI_ERROR_UNSUPPORTED;
 }
 
 STDMETHODIMP CDXGIOutput::GetDisplaySurfaceData1(_In_  IDXGIResource* pDestination)
 {
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIOutput::GetDisplaySurfaceData1", "DEBUG", MB_OK);
 	return DXGI_ERROR_UNSUPPORTED;
 }
 
 STDMETHODIMP CDXGIOutput::DuplicateOutput(_In_ IUnknown* pDevice, _COM_Outptr_  IDXGIOutputDuplication** ppOutputDuplication)
 {
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIOutput::DuplicateOutput", "DEBUG", MB_OK);
 	return DXGI_ERROR_UNSUPPORTED;
 }
 #endif

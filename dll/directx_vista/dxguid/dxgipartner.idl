@@ -7,6 +7,7 @@
 import "oaidl.idl";
 import "ocidl.idl";
 import "dxgi.idl";
+import "dxgi1_2.idl";
 
 [
 	object,

@@ -35,10 +35,11 @@ STDMETHODIMP CDXGIFactory::CreateSoftwareAdapter(_In_ HMODULE Module, _Out_ IDXG
 	if (!Module)
 		return DXGI_ERROR_INVALID_CALL;
 
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIFactory::CreateSoftwareAdapter", "DEBUG", MB_OK);
 	return E_NOTIMPL;
 }
 
-// pDevice = IDXGIDevice / ID3D12Device / ID3D12CommandQueue
+// pDevice = IDXGIDevice / ID3D11Device / ID3D12CommandQueue
 STDMETHODIMP CDXGIFactory::CreateSwapChain(_In_ IUnknown* pDevice, _In_ DXGI_SWAP_CHAIN_DESC* pDesc, _Out_ IDXGISwapChain** ppSwapChain)
 {
 	if (!ppSwapChain)
@@ -115,6 +116,8 @@ STDMETHODIMP CDXGIFactory::GetWindowAssociation(_Out_ HWND* pWindowHandle)
 	if (IsInSession0())
 		return DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
 
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIFactory::GetWindowAssociation", "DEBUG", MB_OK);
+
 	return E_NOTIMPL;
 }
 
@@ -125,6 +128,8 @@ STDMETHODIMP CDXGIFactory::MakeWindowAssociation(_In_ HWND WindowHandle, _In_ UI
 
 	if (IsInSession0())
 		return DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
+
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIFactory::MakeWindowAssociation", "DEBUG", MB_OK);
 
 	return E_NOTIMPL;
 }

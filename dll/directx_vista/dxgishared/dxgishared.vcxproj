@@ -286,6 +286,7 @@
     <ClInclude Include="dxgisurface.h" />
     <ClInclude Include="dxgithunks.h" />
     <ClInclude Include="dxgitypes.h" />
+    <ClInclude Include="dxgiusecounted.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\dxguid\dxguid.vcxproj">

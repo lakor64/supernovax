@@ -49,6 +49,31 @@ typedef enum _DXGI_DDI_MODE_ROTATION {
 	DXGI_DDI_MODE_ROTATION_ROTATE180,
 	DXGI_DDI_MODE_ROTATION_ROTATE270
 } DXGI_DDI_MODE_ROTATION;
+
+typedef struct _DXGI_DDI_PRESENT_FLAGS {
+	union {
+		struct {
+			UINT Blt : 1;
+			UINT Flip : 1;
+			UINT PreferRight : 1;
+			UINT TemporaryMono : 1;
+			UINT AllowTearing : 1;
+			UINT AllowFlexibleRefresh : 1;
+			UINT NoScanoutTransform : 1;
+			UINT Reserved : 25;
+		};
+		UINT Value;
+	};
+} DXGI_DDI_PRESENT_FLAGS;
+
+typedef enum _DXGI_DDI_FLIP_INTERVAL_TYPE {
+	DXGI_DDI_FLIP_INTERVAL_IMMEDIATE,
+	DXGI_DDI_FLIP_INTERVAL_ONE,
+	DXGI_DDI_FLIP_INTERVAL_TWO,
+	DXGI_DDI_FLIP_INTERVAL_THREE,
+	DXGI_DDI_FLIP_INTERVAL_FOUR,
+	DXGI_DDI_FLIP_INTERVAL_IMMEDIATE_ALLOW_TEARING
+} DXGI_DDI_FLIP_INTERVAL_TYPE;
 cpp_quote ("#endif")
 
 cpp_quote ("#define DXGI_MAX_SURFACE_RESOURCES 16")
@@ -259,7 +284,7 @@ interface IDXGIResourceInternal2 : IUnknown // TODO: is there any IDXGIResourceI
 [
 	object,
 	local,
-	uuid(bbfeb1e3-6f00-4ad0-a003-dc3c98c415e8)
+	uuid(bbfeb1e3-6f00-4ad0-a003-dc3c98c415e8) // verify vista, ok Windows 7
 ]
 /*
 * Internal data of an adapter (Windows Vista RTM)
@@ -276,7 +301,7 @@ interface IDXGIAdapterInternal : IUnknown
 [
 	object,
 	local,
-	uuid(712bd56d-86ff-4b71-91e1-c13b274ff2a2) // TODO: verify when we find what export this
+	uuid(712bd56d-86ff-4b71-91e1-c13b274ff2a3) // TODO: verify when we find what export this
 ]
 interface IDXGIAdapterInternal1 : IDXGIAdapterInternal
 {
@@ -287,13 +312,14 @@ interface IDXGIAdapterInternal1 : IDXGIAdapterInternal
 [
 	object,
 	local,
-	uuid(7abb6563-02bc-47c4-8ef9-acc4795edbcf) // TODO: Verify again
+	uuid(7abb6563-02bc-47c4-8ef9-acc4795edbcf) // ok!
 ]
 /*
 * Internal data of an adapter (Windows 7 SP1+)
 */
 interface IDXGIAdapterInternal2 : IDXGIAdapterInternal1
 {
+	// SHOULD NOT BE HERE!
 	HRESULT LoadUMD(
 		[in] KMTUMDVERSION Version,
 		[out] HINSTANCE* hUmdDLL
@@ -305,22 +331,28 @@ interface IDXGIAdapterInternal2 : IDXGIAdapterInternal1
 		[in] UINT ThunksVer,
 		[in][out][optional] void* Thunks
 	);
+	
 
 	HRESULT RetireUsage(
 		[in] D3DKMT_HANDLE Adapter
 	);
+	
 
 	HRESULT SetAdapterCapabilities(
 		[in] DXGI_ADAPTER_CAPABILITIES* Capabilities
 	);
+	
 
 	HRESULT GetAdapterCapabilities(
 		[out] DXGI_ADAPTER_CAPABILITIES* Capabilities
 	);
+	
 
 	BOOL IsWARP(
 		void
 	);
+	// --
+
 
 	D3DDDI_VIDEO_PRESENT_SOURCE_ID GetPrimaryVidPnSourceId(
 		void
@@ -453,62 +485,13 @@ interface IDXGIDeviceInternal2 : IDXGIDeviceInternal
 */
 interface IDXGIDeviceInternal3 : IUnknown
 {
-#if 0 // WINDOWS 10+
-	HRESULT Present(const DXGI_PRESENTSURFACE*, UINT, IDXGIResource*, void*, UINT, UINT, UINT*);
-	HRESULT RotateResourceIdentities(IDXGIResource*, IDXGIResource* const*, UINT);
-	HRESULT GetContextResolver(void**);
-	HRESULT CreateSurfaceInternal(IDXGISwapChainInternal*, IUseCounted2*, void*, const DXGI_SURFACE_DESC*, UINT, UINT, UINT, UINT, void*, IDXGIResource**);
-	HRESULT Blt(IDXGIResource*, const RECT*, const RECT*, UINT, IDXGIResource*, const RECT*, /*const SUBRESOURCE_BLT_MAP**/ void*, ULONGLONG, UINT, UINT);
-	HRESULT SetDisplayMode(IDXGIResource*);
-	HRESULT GetGammaCaps(DXGI_GAMMA_CONTROL_CAPABILITIES*);
-	HRESULT OpenSharedResource(void*, int, REFIID, void**);
-	HRESULT IsValidScanoutFormat(DXGI_FORMAT);
-	HRESULT FlushDeletion(IDXGIResource*, const IDXGIResource**, UINT, /*DXGI_INTERNAL_FLUSH_DELETION_REASON*/ UINT);
-	HRESULT GetContentProtection();
-	HRESULT Flush(UINT);
-	HRESULT AcquireResource(IDXGIResource*);
-	HRESULT ReleaseResource(IDXGIResource*);
-	HRESULT GetCaps();
-	HRESULT GetDesc(IDXGIResource*, DXGI_SURFACE_DESC*, UINT*);
-	HRESULT Map(IDXGIResource*, UINT, DXGI_MAPPED_RECT*, UINT);
-	HRESULT Unmap(IDXGIResource*, UINT);
-	HRESULT CheckDirectFlipSupport(UINT, IDXGIResource*, IDXGIResource*, int*);
-	HRESULT GetDeviceRemovedReason();
-	HRESULT GetFlipExSemaphoreHandle();
-	HRESULT ValidateGetDisplaySurfaceDataDest(IDXGIDebugProducer*, /*DXGI_GETDISPLAYSURFACEDATA_VERSION*/ UINT, IDXGIResource*);
-	HRESULT EnsureChildDevice(IDXGIAdapter*, /*DXGI_INTERNAL_CHILD_DEVICE_TYPE*/ UINT);
-	HRESULT GetChildDevice(/*DXGI_INTERNAL_CHILD_DEVICE_TYPE*/ UINT);
-	HRESULT GetMultiplaneOverlayCaps(UINT, /*DXGI_MULTIPLANE_OVERLAY_CAPS**/void*, int*);
-	HRESULT GetMultiplaneOverlayGroupCaps(UINT, UINT, /*DXGI_INTERNAL_MULTIPLANE_OVERLAY_GROUP_CAPS**/ void*);
-	HRESULT CheckMultiplaneOverlaySupport(IDXGIResource*, UINT, /*const DXGI_CHECK_MULTIPLANEOVERLAYSUPPORT_PLANE_INFO**/ void*, int*, int*, void*);
-	HRESULT PresentMultiplaneOverlay(IDXGIResource*, UINT, /*const DXGI_PRESENT_MULTIPLANE_OVERLAY**/ void*, void*);
-	HRESULT OpenSharedResource1(void*, REFIID, void**);
-	HRESULT CheckPresentDurationSupport(UINT, UINT, UINT*, UINT*);
-	HRESULT RemoveDevice(long);
-	HRESULT SetMarkerIfRenderInstrumentationEnabled(/*DXGI_INTERNAL_MARKER_OP*/ UINT);
-	HRESULT LogDroppedAPICallIfEnabled(/*DXGI_INTERNAL_MARKER_OP*/ UINT);
-	HRESULT DriverSupportsOverlays();
-	HRESULT DeviceCompletedHWNDFullscreenTransition();
-	HRESULT SetHardwareProtection(IDXGIResource*, int);
-	HRESULT CheckCompositionColorSpaceSupport(DXGI_FORMAT, DXGI_COLOR_SPACE_TYPE, DXGI_FORMAT, DXGI_COLOR_SPACE_TYPE, int*);
-	HRESULT CheckMultiPlaneOverlayColorSpaceSupport(UINT, DXGI_FORMAT, DXGI_COLOR_SPACE_TYPE, int*);
-	HRESULT IsXBOX(void);
-	HRESULT GetHardwareProtectionCaps(int*, int*);
-	HRESULT SetTransitionalPrimaryResource(IDXGIResource*);
-	HRESULT ResolveSharedResource(IDXGIResource*);
-	HRESULT IsMaximumFrameLatencyReached(UINT);
-	HRESULT CreateFence(ULONGLONG, UINT, IDXGIFenceInternal**);
-	HRESULT OpenFence(void*, IDXGIFenceInternal**);
-	HRESULT WaitForFence(IDXGIFenceInternal*, ULONGLONG, UINT);
-	HRESULT SetPresentPostSignal(IDXGIFenceInternal*, ULONGLONG, int);
-	HRESULT QueryScanoutCaps(IDXGIResource*, UINT, UINT, UINT, /*DXGI_INTERNAL_SCANOUT_FLAGS**/ UINT);
-#else
+#if 1 // WINDOWS 7
 	HRESULT Present(
-		IDXGIDebugProducer* pDebugProducer,
-		IDXGIResource*,
-		void* pPresent, // D3DKMT_PRESENT
-		UINT,
-		UINT
+		IDXGIResource* pSource,
+		IDXGIResource* pDestination,
+		void* dxgiContext, // D3DKMT_PRESENT
+		DXGI_DDI_PRESENT_FLAGS PresentFlags,
+		DXGI_DDI_FLIP_INTERVAL_TYPE FlipInterval
 	);
 
 	HRESULT RotateResourceIdentities(
@@ -651,6 +634,55 @@ interface IDXGIDeviceInternal3 : IUnknown
 		UINT,  // DXGI_GETDISPLAYSURFACEDATA_VERSION
 		IDXGIResource*
 	);
+#else // WINDOWS 10+
+	HRESULT Present(const DXGI_PRESENTSURFACE*, UINT, IDXGIResource*, void*, UINT, UINT, UINT*);
+	HRESULT RotateResourceIdentities(IDXGIResource*, IDXGIResource* const*, UINT);
+	HRESULT GetContextResolver(void**);
+	HRESULT CreateSurfaceInternal(IDXGISwapChainInternal*, IUseCounted2*, void*, const DXGI_SURFACE_DESC*, UINT, UINT, UINT, UINT, void*, IDXGIResource**);
+	HRESULT Blt(IDXGIResource*, const RECT*, const RECT*, UINT, IDXGIResource*, const RECT*, /*const SUBRESOURCE_BLT_MAP**/ void*, ULONGLONG, UINT, UINT);
+	HRESULT SetDisplayMode(IDXGIResource*);
+	HRESULT GetGammaCaps(DXGI_GAMMA_CONTROL_CAPABILITIES*);
+	HRESULT OpenSharedResource(void*, int, REFIID, void**);
+	HRESULT IsValidScanoutFormat(DXGI_FORMAT);
+	HRESULT FlushDeletion(IDXGIResource*, const IDXGIResource**, UINT, /*DXGI_INTERNAL_FLUSH_DELETION_REASON*/ UINT);
+	HRESULT GetContentProtection();
+	HRESULT Flush(UINT);
+	HRESULT AcquireResource(IDXGIResource*);
+	HRESULT ReleaseResource(IDXGIResource*);
+	HRESULT GetCaps();
+	HRESULT GetDesc(IDXGIResource*, DXGI_SURFACE_DESC*, UINT*);
+	HRESULT Map(IDXGIResource*, UINT, DXGI_MAPPED_RECT*, UINT);
+	HRESULT Unmap(IDXGIResource*, UINT);
+	HRESULT CheckDirectFlipSupport(UINT, IDXGIResource*, IDXGIResource*, int*);
+	HRESULT GetDeviceRemovedReason();
+	HRESULT GetFlipExSemaphoreHandle();
+	HRESULT ValidateGetDisplaySurfaceDataDest(IDXGIDebugProducer*, /*DXGI_GETDISPLAYSURFACEDATA_VERSION*/ UINT, IDXGIResource*);
+	HRESULT EnsureChildDevice(IDXGIAdapter*, /*DXGI_INTERNAL_CHILD_DEVICE_TYPE*/ UINT);
+	HRESULT GetChildDevice(/*DXGI_INTERNAL_CHILD_DEVICE_TYPE*/ UINT);
+	HRESULT GetMultiplaneOverlayCaps(UINT, /*DXGI_MULTIPLANE_OVERLAY_CAPS**/void*, int*);
+	HRESULT GetMultiplaneOverlayGroupCaps(UINT, UINT, /*DXGI_INTERNAL_MULTIPLANE_OVERLAY_GROUP_CAPS**/ void*);
+	HRESULT CheckMultiplaneOverlaySupport(IDXGIResource*, UINT, /*const DXGI_CHECK_MULTIPLANEOVERLAYSUPPORT_PLANE_INFO**/ void*, int*, int*, void*);
+	HRESULT PresentMultiplaneOverlay(IDXGIResource*, UINT, /*const DXGI_PRESENT_MULTIPLANE_OVERLAY**/ void*, void*);
+	HRESULT OpenSharedResource1(void*, REFIID, void**);
+	HRESULT CheckPresentDurationSupport(UINT, UINT, UINT*, UINT*);
+	HRESULT RemoveDevice(long);
+	HRESULT SetMarkerIfRenderInstrumentationEnabled(/*DXGI_INTERNAL_MARKER_OP*/ UINT);
+	HRESULT LogDroppedAPICallIfEnabled(/*DXGI_INTERNAL_MARKER_OP*/ UINT);
+	HRESULT DriverSupportsOverlays();
+	HRESULT DeviceCompletedHWNDFullscreenTransition();
+	HRESULT SetHardwareProtection(IDXGIResource*, int);
+	HRESULT CheckCompositionColorSpaceSupport(DXGI_FORMAT, DXGI_COLOR_SPACE_TYPE, DXGI_FORMAT, DXGI_COLOR_SPACE_TYPE, int*);
+	HRESULT CheckMultiPlaneOverlayColorSpaceSupport(UINT, DXGI_FORMAT, DXGI_COLOR_SPACE_TYPE, int*);
+	HRESULT IsXBOX(void);
+	HRESULT GetHardwareProtectionCaps(int*, int*);
+	HRESULT SetTransitionalPrimaryResource(IDXGIResource*);
+	HRESULT ResolveSharedResource(IDXGIResource*);
+	HRESULT IsMaximumFrameLatencyReached(UINT);
+	HRESULT CreateFence(ULONGLONG, UINT, IDXGIFenceInternal**);
+	HRESULT OpenFence(void*, IDXGIFenceInternal**);
+	HRESULT WaitForFence(IDXGIFenceInternal*, ULONGLONG, UINT);
+	HRESULT SetPresentPostSignal(IDXGIFenceInternal*, ULONGLONG, int);
+	HRESULT QueryScanoutCaps(IDXGIResource*, UINT, UINT, UINT, /*DXGI_INTERNAL_SCANOUT_FLAGS**/ UINT);
 #endif
 }
 
@@ -660,7 +692,7 @@ interface IDXGIDeviceInternal3 : IUnknown
 	uuid(a8bf320a-6e96-4096-9ac7-d7630fb5d81e)
 ]
 // TODO: Is there 1?
-interface IDXGIResourceInternal2 : IUnknown
+interface IDXGIResourceInternal3 : IUnknown
 {
 	HRESULT GetDDIHandle(
 

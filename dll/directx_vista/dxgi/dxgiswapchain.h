@@ -8,6 +8,17 @@
 #pragma once
 
 #include "dxgidevicesubobject.h"
+#include "deviceptr.h"
+#include "dxgiusecounted.h"
+
+struct DXGI_SWAP_CHAIN_DESC_INTERNAL : DXGI_SWAP_CHAIN_DESC
+{
+#if DXGI_VERSION >= 2
+	BOOL Stereo;
+	DXGI_ALPHA_MODE AlphaMode;
+	DXGI_SCALING WindowedScaling;
+#endif
+};
 
 class ATL_NO_VTABLE CDXGISwapChain :
 	public DXGIObjRoot,
@@ -16,7 +27,7 @@ class ATL_NO_VTABLE CDXGISwapChain :
 	public IDXGISwapChainMedia,
 	public IDXGIDecodeSwapChain,
 #endif
-	public DXGIUseCountedType
+	public CDXGIUseCounted
 {
 public:
 	BEGIN_COM_MAP(CDXGISwapChain)
@@ -55,12 +66,7 @@ public:
 	STDMETHODIMP ResizeBuffers(_In_ UINT BufferCount, _In_ UINT Width, _In_ UINT Height, _In_ DXGI_FORMAT NewFormat, _In_ UINT SwapChainFlags) override;
 	STDMETHODIMP ResizeTarget(_In_ const DXGI_MODE_DESC* pNewTargetParameters) override;
 	STDMETHODIMP SetFullscreenState(_In_ BOOL Fullscreen, _In_ IDXGIOutput* pTarget) override;
-	// IUseCounted
-	STDMETHODIMP_(ULONG) UCAddUse(void) override;
-	STDMETHODIMP_(ULONG) UCReleaseUse(void) override;
-	STDMETHODIMP UCBreakCyclicReferences(void) override;
-	STDMETHODIMP UCEnstablishCyclicReferences(void) override;
-	STDMETHODIMP UCDestroy(void) override;
+
 
 #if DXGI_VERSION >= 2
 	// IDXGISwapChain1
@@ -75,8 +81,6 @@ public:
     STDMETHODIMP GetBackgroundColor(_Out_ DXGI_RGBA* pColor) override;
     STDMETHODIMP SetRotation(_In_ DXGI_MODE_ROTATION Rotation) override;
     STDMETHODIMP GetRotation(_Out_ DXGI_MODE_ROTATION* pRotation) override;
-	// IUseCounted2
-	STDMETHODIMP UCQueryInterface(_In_ UINT flags, _In_ REFIID riid, _COM_Outptr_ void** ppObj) override;
 #endif
 
 	/*!
@@ -105,32 +109,18 @@ private:
 	*/
 	STDMETHODIMP PresentToGDI(_In_ UINT SyncInterval, _In_ UINT Flags);
 
-	/* Main d3d device */
-	IDXGIDevice* m_pDevice;
-
 	/* Associated adapter */
 	IDXGIAdapter* m_pAdapter;
-
-	/* Device version */
-	uint8_t m_DevVersion;
-
-	/* Internal device */
-	union
-	{
-		/* Vista RTM internal device */
-		IDXGIDeviceInternal* D1;
-		/* Windows 7 RTM internal device */
-		IDXGIDeviceInternal2* D2;
-		/* Windows 7 SP1+ internal device */
-		IDXGIDeviceInternal3* D3;
-	} m_uInternalDevice;
 
 	/* Associated adapter desc */
 	DXGI_ADAPTER_DESC m_adapterDesc;
 
 	/* Swapchain desc */
-	DXGI_SWAP_CHAIN_DESC m_desc;
+	DXGI_SWAP_CHAIN_DESC_INTERNAL m_desc;
 
 	/* Swapchain buffers */
 	std::vector<IDXGIResource*> m_vBuffers;
+
+	/* Device pointer */
+	CDevicePtr m_cDevice;
 };

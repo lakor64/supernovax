@@ -3,6 +3,7 @@
 #include <dxgi.h>
 #include <d3d11.h>
 #include <cstdio>
+#include <crtdbg.h>
 #include <tchar.h>
 
 #undef  DEFINE_GUID
@@ -49,6 +50,14 @@ typedef struct ITestVft
     ULONG(STDMETHODCALLTYPE* Release)(
         IUnknown* This);
 
+	ULONG(STDMETHODCALLTYPE* XdMethod)();
+	ULONG(STDMETHODCALLTYPE* XdMethod2)();
+	ULONG(STDMETHODCALLTYPE* XdMethod3)();
+	ULONG(STDMETHODCALLTYPE* XdMethod4)();
+	ULONG(STDMETHODCALLTYPE* XdMethod5)();
+	ULONG(STDMETHODCALLTYPE* XdMethod6)();
+	ULONG(STDMETHODCALLTYPE* XdMethod7)();
+
     END_INTERFACE
 } IUnknownVtbl;
 
@@ -62,18 +71,11 @@ static LRESULT CALLBACK Bruuuh(_In_ HWND hWnd, _In_ UINT Msg, _In_opt_ WPARAM wP
 {
 	return DefWindowProc(hWnd, Msg, wParam, lParam);
 }
-
-//DEFINE_GUID(IID_IDXGIObject,			0xaec22fb8, 0x76f3, 0x4639, 0x9b, 0xe0, 0x28, 0xeb, 0x43, 0xa6, 0x7a, 0x2e);
-//DEFINE_GUID(IID_IDXGIDebugProducer,	0x9b7e4a00, 0x342c, 0x4106, 0xa1, 0x9f, 0x4f, 0x27, 0x04, 0xf6, 0x89, 0xf0);
-  DEFINE_GUID(IID_IUnknownX,			0xcbe8c719, 0x71a3, 0x40ed, 0xa3, 0xad, 0xa0, 0x51, 0x61, 0xdc, 0xb8, 0x33);
-//DEFINE_GUID(IID_IDXGIDeviceInternal3, 0xf74ee86f, 0x7270, 0x48e8, 0x9d, 0x63, 0x38, 0xaf, 0x75, 0xf2, 0x2d, 0x57);
-//DEFINE_GUID(IID_IDXGIResourceInternal2,			0x79d2046c, 0x22ef, 0x451b, 0x9e, 0x74, 0x22, 0x45, 0xd9, 0xc7, 0x60, 0xea);
-  DEFINE_GUID(IID_IUnknownZ,			0x00000040, 0x1bbe, 0x4d12, 0xaf, 0xbf, 0x8f, 0xdf, 0x7e, 0x0a, 0x87, 0xc7); // IDXGIResource*
   
-  DEFINE_GUID(IID_IDXGIResourceInternal2, 0xa8bf320a, 0x6e96, 0x4096, 0x9a, 0xc7, 0xd7, 0x63, 0x0f, 0xb5, 0xd8, 0x1e);
-  DEFINE_GUID(IID_IK, 0x7778752f, 0x5de8, 0x4589, 0x9b, 0x5f, 0xca, 0xba, 0xd2, 0xb2, 0x5b, 0x95);
-
-  DEFINE_GUID(IID_IUnknownY, 0xcbe8c719, 0x71a3, 0x40ed, 0xa3, 0xad, 0xa0, 0x51, 0x61, 0xdc, 0xb8, 0x33);
+//DEFINE_GUID(IID_TESTGUID, 0xbbfeb1e3, 0x6f00, 0x4ad0, 0xa0, 0x03, 0xdc, 0x3c, 0x98, 0xc4, 0x15, 0xe8); // adapter 0?
+//DEFINE_GUID(IID_TESTGUID, 0x7abb6563, 0x02bc, 0x47c4, 0x8e, 0xf9, 0xac, 0xc4, 0x79, 0x5e, 0xdb, 0xcf); // adapter 0?
+//DEFINE_GUID(IID_TESTGUID, 0x1ae9fb77, 0x7181, 0x4326, 0x8c, 0x90, 0x8e, 0xbc, 0x69, 0xf0, 0xae, 0xf8); // adapter 0?
+DEFINE_GUID(IID_TESTGUID, 0x712bd56d, 0x86ff, 0x4b71,0x91, 0xe1, 0xc1, 0x3b, 0x27, 0x4f, 0xf2, 0xa3); // adapter 0?
 
 int main()
 {
@@ -87,16 +89,13 @@ int main()
 		//return -5;
 	}
 
-#if 0
-	hr = p->QueryInterface(IID_IDXGIUnknownX, (void**)&x2); // IDXGIDEBUGPRODUCER
+	IDXGIAdapter* adpt;
+	hr = p->EnumAdapters(0, &adpt);
 	if (FAILED(hr))
 	{
-		printf("bah\n");
-		p->Release();
-		//return -2;
+		printf("kys 4\n");
+		return 0;
 	}
-#endif
-	p->Release();
 
 	ID3D11Device* dv;
 	IDXGISwapChain* sp;
@@ -158,15 +157,16 @@ int main()
 		printf("kys 3\n");
 	}
 
-	hr = xd->QueryInterface(IID_IK, (void**)&x2);
+	hr = adpt->QueryInterface(IID_TESTGUID, (void**)&x2);
 	if (FAILED(hr))
 	{
 		printf("bah\n");
 		//return -3;
 	}
 
-	printf("pls debug me senpai\n");
-	((void(__stdcall*)(int))(x2->lpVtbl))(400);
+	_CrtDbgBreak();
+
+	x2->lpVtbl->XdMethod2();
 
 	return 0;
 }
