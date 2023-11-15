@@ -2,7 +2,7 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     Device swapchain
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 #include "pch.h"
@@ -83,10 +83,10 @@ STDMETHODIMP CDXGISwapChain::Present(_In_ UINT SyncInterval, _In_ UINT Flags)
 {
 	if (m_desc.Windowed)
 	{
-		if (ApiCallback.DwmIsCompositionEnabled)
+		if (DwmIsCompositionEnabled)
 		{
 			BOOL haveDwm = FALSE;
-			auto hr = ApiCallback.DwmIsCompositionEnabled(&haveDwm);
+			auto hr = DwmIsCompositionEnabled(&haveDwm);
 			if (SUCCEEDED(hr) && haveDwm)
 				return PresentToDWM(SyncInterval, Flags);
 		}
@@ -300,7 +300,7 @@ STDMETHODIMP CDXGISwapChain::PresentToDWM(_In_ UINT SyncInterval, _In_ UINT Flag
 
 	auto m = MonitorFromWindow(m_desc.OutputWindow, MONITOR_DEFAULTTONULL);
 
-	auto hr = ApiCallback.DwmDxGetWindowSharedSurface(m_desc.OutputWindow, m_adapterDesc.AdapterLuid, m, 0, &fmt, &dxSurface, &updId);
+	auto hr = DwmDxGetWindowSharedSurface(m_desc.OutputWindow, m_adapterDesc.AdapterLuid, m, 0, &fmt, &dxSurface, &updId);
 	if (FAILED(hr))
 		return hr;
 
@@ -308,7 +308,7 @@ STDMETHODIMP CDXGISwapChain::PresentToDWM(_In_ UINT SyncInterval, _In_ UINT Flag
 	hr = m_cDevice.OpenSharedResource(dxSurface, __uuidof(pDwmSurface), &pDwmSurface);
 	if (FAILED(hr))
 	{
-		ApiCallback.DwmDxUpdateWindowSharedSurface(m_desc.OutputWindow, updId, 0, m, nullptr);
+		DwmDxUpdateWindowSharedSurface(m_desc.OutputWindow, updId, 0, m, nullptr);
 		return hr;
 	}
 
@@ -323,14 +323,14 @@ STDMETHODIMP CDXGISwapChain::PresentToDWM(_In_ UINT SyncInterval, _In_ UINT Flag
 	RECT windowRect;
 	if (!GetWindowRect(m_desc.OutputWindow, &windowRect))
 	{
-		ApiCallback.DwmDxUpdateWindowSharedSurface(m_desc.OutputWindow, updId, 0, m, nullptr);
+		DwmDxUpdateWindowSharedSurface(m_desc.OutputWindow, updId, 0, m, nullptr);
 		return DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
 	}
 
 	RECT clientRect;
 	if (!GetClientRect(m_desc.OutputWindow, &clientRect))
 	{
-		ApiCallback.DwmDxUpdateWindowSharedSurface(m_desc.OutputWindow, updId, 0, m, nullptr);
+		DwmDxUpdateWindowSharedSurface(m_desc.OutputWindow, updId, 0, m, nullptr);
 		return DXGI_ERROR_NOT_CURRENTLY_AVAILABLE;
 	}
 
@@ -347,13 +347,13 @@ STDMETHODIMP CDXGISwapChain::PresentToDWM(_In_ UINT SyncInterval, _In_ UINT Flag
 	hr = m_cDevice.Blt(bb, nullptr, nullptr, 0, pDwmSurface, nullptr, &bltMap, 0, DXGI_DDI_MODE_ROTATION_IDENTITY);
 	if (FAILED(hr))
 	{
-		ApiCallback.DwmDxUpdateWindowSharedSurface(m_desc.OutputWindow, updId, 0, m, nullptr);
+		DwmDxUpdateWindowSharedSurface(m_desc.OutputWindow, updId, 0, m, nullptr);
 
 		pDwmSurface->Release();
 		return hr;
 	}
 
-	hr = ApiCallback.DwmDxUpdateWindowSharedSurface(m_desc.OutputWindow, updId, DWM_REDIRECTION_FLAG_SUPPORT_PRESENT_TO_GDI_SURFACE, m, &windowRect);
+	hr = DwmDxUpdateWindowSharedSurface(m_desc.OutputWindow, updId, DWM_REDIRECTION_FLAG_SUPPORT_PRESENT_TO_GDI_SURFACE, m, &windowRect);
 	if (FAILED(hr))
 	{
 		pDwmSurface->Release();

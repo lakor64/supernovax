@@ -2,7 +2,7 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     GUID definitions
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 #define WIN32_LEAN_AND_MEAN

@@ -2,7 +2,7 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     Factory class to access all graphics stuff
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 #include "pch.h"
@@ -15,13 +15,19 @@
 CDXGIFactory::~CDXGIFactory()
 {
 	D3DKMT_CLOSEADAPTER ca;
-	for (auto it = m_vAdapters.begin(); it != m_vAdapters.end(); it++)
+	D3DKMTCloseAdapter_ close = (D3DKMTCloseAdapter_)GetProcAddress(g_GDI32, "D3DKMTCloseAdapter");
+
+	if (!close)
+		return;
+
+	// close all the real adapters 
+	for (auto& p : m_vEnums)
 	{
-		for (auto it2 = it->Outputs.begin(); it2 != it->Outputs.end(); it2++)
-		{
-			ca.hAdapter = it2->Handle;
-			ApiCallback.D3DKMTCloseAdapter(&ca);
-		}
+		if (p.AdapterHandle == D3DGPU_NULL)
+			continue;
+
+		ca.hAdapter = p.AdapterHandle;
+		close(&ca);
 	}
 }
 
@@ -35,11 +41,46 @@ STDMETHODIMP CDXGIFactory::CreateSoftwareAdapter(_In_ HMODULE Module, _Out_ IDXG
 	if (!Module)
 		return DXGI_ERROR_INVALID_CALL;
 
-	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIFactory::CreateSoftwareAdapter", "DEBUG", MB_OK);
-	return E_NOTIMPL;
+	ATL::CComObject<CDXGIAdapter>* adapter;
+	auto hr = ATL::CComObject<CDXGIAdapter>::CreateInstance(&adapter);
+
+	if (FAILED(hr))
+		return hr;
+
+	for (const auto& x : m_vEnums)
+	{
+		// add all the outputs regardless, we don't care if they are alive or not
+		//  as a software adapter will have all custom handles anyway
+		adapter->AddOutput(x);
+	}
+
+	hr = adapter->Initialize(this, Module);
+	if (FAILED(hr))
+	{
+		delete adapter;
+		return hr;
+	}
+
+	hr = adapter->QueryInterface(&ppAdapter);
+	if (FAILED(hr))
+	{
+		delete adapter;
+		return hr;
+	}
+
+	return S_OK;
 }
 
-// pDevice = IDXGIDevice / ID3D11Device / ID3D12CommandQueue
+/**
+* @brief This function creates a swapchain
+* @param[in] pDevice Device context
+* @param[in] pDesc Swap chain descriptor
+* @param[out] ppSwapChain Swap chain output
+* @remarks pDevice types:
+* - Direct3D10 context -> IDXGIDevice
+* - Direct3D11 context -> ID3D11Device
+* - Direct3D12 context -> ID3D12CommandQueue
+*/
 STDMETHODIMP CDXGIFactory::CreateSwapChain(_In_ IUnknown* pDevice, _In_ DXGI_SWAP_CHAIN_DESC* pDesc, _Out_ IDXGISwapChain** ppSwapChain)
 {
 	if (!ppSwapChain)
@@ -64,20 +105,24 @@ STDMETHODIMP CDXGIFactory::CreateSwapChain(_In_ IUnknown* pDevice, _In_ DXGI_SWA
 		return hr;
 	}
 
-	swapChain->AddRef(); // inc ref to 1
-	*ppSwapChain = swapChain;
+	hr = swapChain->QueryInterface(&ppSwapChain);
+	if (FAILED(hr))
+	{
+		delete swapChain;
+		return hr;
+	}
 
 	return S_OK;
 }
 
-STDMETHODIMP CDXGIFactory::EnumAdaptersReal(_In_ UINT Adapter, _In_ REFIID Iid, _Out_ void** ppAdapter)
+STDMETHODIMP CDXGIFactory::EnumAdaptersReal(_In_ UINT Adapter, _In_ REFIID Iid, _COM_Outptr_ IDXGIAdapter** ppAdapter)
 {
 	if (!ppAdapter)
 		return DXGI_ERROR_INVALID_CALL;
 
 	*ppAdapter = nullptr;
 
-	if ((Adapter + 1) > m_vAdapters.size())
+	if ((Adapter + 1) > m_vGpuLuids.size())
 		return DXGI_ERROR_NOT_FOUND;
 
 	ATL::CComObject<CDXGIAdapter>* adapter;
@@ -86,14 +131,26 @@ STDMETHODIMP CDXGIFactory::EnumAdaptersReal(_In_ UINT Adapter, _In_ REFIID Iid, 
 	if (FAILED(hr))
 		return hr;
 
-	hr = adapter->Initialize(this, m_vAdapters.at(Adapter));
+	auto luid = m_vGpuLuids.at(Adapter);
+
+	for (const auto& x : m_vEnums)
+	{
+		// add all the outputs associated to this adapter
+
+		if (IsEqualLUID(x.AdapterLuid, luid))
+		{
+			adapter->AddOutput(x);
+		}
+	}
+
+	hr = adapter->Initialize(this);
 	if (FAILED(hr))
 	{
 		delete adapter;
 		return hr;
 	}
 
-	hr = adapter->QueryInterface(Iid, ppAdapter);
+	hr = adapter->QueryInterface(Iid, (void**)ppAdapter);
 	if (FAILED(hr))
 	{
 		delete adapter;
@@ -105,7 +162,7 @@ STDMETHODIMP CDXGIFactory::EnumAdaptersReal(_In_ UINT Adapter, _In_ REFIID Iid, 
 
 STDMETHODIMP CDXGIFactory::EnumAdapters(_In_ UINT Adapter, _COM_Outptr_ IDXGIAdapter** ppAdapter)
 {
-	return EnumAdaptersReal(Adapter, IID_IDXGIAdapter, (void**) ppAdapter);
+	return EnumAdaptersReal(Adapter, IID_IDXGIAdapter, ppAdapter);
 }
 
 STDMETHODIMP CDXGIFactory::GetWindowAssociation(_Out_ HWND* pWindowHandle)
@@ -136,147 +193,176 @@ STDMETHODIMP CDXGIFactory::MakeWindowAssociation(_In_ HWND WindowHandle, _In_ UI
 
 STDMETHODIMP CDXGIFactory::Initialize(void)
 {
-	return RunGdiAdapterEnumator();
+	// enumerate all outputs
+	RunGdiOutputEnumeration();
+
+	// enumerate all real GPUs
+
+	auto hr = RunD3DKMTAdapterEnumeration(g_GDI32, m_vGpuLuids);
+	if (FAILED(hr))
+		return hr; // if you want to have XDDM XP support / something without GDI32.DLL WDDM then modify here
+
+	return S_OK;
 }
 
-STDMETHODIMP CDXGIFactory::RunGdiAdapterEnumator()
+STDMETHODIMP_(void) CDXGIFactory::RunGdiOutputEnumeration()
 {
-	DWORD ids = 0;
-	NTSTATUS err;
-
-	for (; ids < MAX_ENUM_ADAPTERS; ids++) // attempt to enumate ALL adapters
+	for (auto i = 0U; i < MAX_ENUM_OUTPUTS; i++)
 	{
+		DXGIEnumInfo dxgienum = { 0 };
+
 		DISPLAY_DEVICEW dd = { 0 };
 		dd.cb = sizeof(dd);
 
-		if (!EnumDisplayDevicesW(nullptr, ids, &dd, 0))
+		if (!EnumDisplayDevicesW(nullptr, i, &dd, 0))
 			break; // found the last device
 
 		if (!(dd.StateFlags & DISPLAY_DEVICE_ACTIVE))
-			continue; // skip devices that are NOT active, tested via dxgi behavour
+			continue; // skip devices that are NOT active, tested via DXGI behavour
+
+		StringCchCopyN(dxgienum.DeviceName, 32, dd.DeviceName, 32);
+		StringCchCopyN(dxgienum.DeviceString, 128, dd.DeviceString, 128);
+
+		FormatGdiDeviceIdToFactoryEnum(dd.DeviceID, dxgienum);
+
+		m_vEnums.push_back(dxgienum);
+	}
+}
+
+STDMETHODIMP_(void) CDXGIFactory::FormatGdiDeviceIdToFactoryEnum(const std::wstring& id, DXGIEnumInfo& en)
+{
+	en.DeviceId = 0;
+	en.Revision = 0;
+	en.VendorId = 0;
+	en.SubSystemId = 0;
+
+	// Format is: PCI/VEN_#####&DEV_#####&SUBSYS_######&REV_###
+
+	if (memcmp(id.c_str(), L"PCI\\", 8) != 0)
+		return; // invalid string
+
+	auto src = id.substr(4);
+	size_t e;
+	size_t tmp = 0;
+
+	while (true)
+	{
+		e = src.find('&');
+		if (e == std::wstring::npos)
+			e = src.length();
+
+		std::wstring prefix = L"0x";
+
+		if (memcmp(src.c_str(), L"VEN_", 4) == 0)
+		{
+			prefix += src.substr(4, e - 4);
+			en.VendorId = UINT(wcstoul(prefix.c_str(), nullptr, 16));
+		}
+		else if (memcmp(src.c_str(), L"DEV_", 4) == 0)
+		{
+			prefix += src.substr(4, e - 4);
+			en.DeviceId = UINT(wcstoul(prefix.c_str(), nullptr, 16));
+		}
+		else if (memcmp(src.c_str(), L"REV_", 4) == 0)
+		{
+			prefix += src.substr(4, e - 4);
+			en.Revision = UINT(wcstoul(prefix.c_str(), nullptr, 16));
+		}
+		else if (memcmp(src.c_str(), L"SUBSYS_", 7) == 0)
+		{
+			prefix += src.substr(7, e - 7);
+			en.SubSystemId = UINT(wcstoul(prefix.c_str(), nullptr, 16));
+		}
+		else
+			return;
+
+		if (src.length() == e)
+			break;
+
+		src = src.substr(e + 1);
+	}
+}
+
+STDMETHODIMP CDXGIFactory::RunD3DKMTAdapterEnumeration(_In_ HMODULE hSoft, AdapterLUIDStorage& Luids)
+{
+	D3DKMTOpenAdapterFromGdiDisplayName_ openAdapter = (D3DKMTOpenAdapterFromGdiDisplayName_)GetProcAddress(hSoft, "D3DKMTOpenAdapterFromGdiDisplayName");
+
+	if (!openAdapter)
+		return DXGI_ERROR_UNSUPPORTED;
+
+	NTSTATUS err;
+
+	for (auto i = 0U; i < m_vEnums.size(); i++)
+	{
+		auto& x = m_vEnums.at(i);
 
 		D3DKMT_OPENADAPTERFROMGDIDISPLAYNAME gdi = { 0 };
-
-		memcpy(gdi.DeviceName, dd.DeviceName, sizeof(dd.DeviceName));
-
-		err = ApiCallback.D3DKMTOpenAdapterFromGdiDisplayName(&gdi);
+		StringCchCopyN(gdi.DeviceName, 32, x.DeviceName, 32);
+		err = openAdapter(&gdi);
 
 		if (FAILED(err))
 			break; // might not have an adapter on this device, exit
 
-		bool skipThis = false;
+		x.AdapterLuid = gdi.AdapterLuid;
+		x.AdapterHandle = gdi.hAdapter;
+		x.VidPn = gdi.VidPnSourceId;
 
-		for (auto it = m_vAdapters.begin(); it != m_vAdapters.end(); it++)
+		bool found = false;
+
+		// add the gpu to the list of GPUs if the LUID was not found
+
+		for (const auto& p : Luids)
 		{
-			if (IsEqualLUID(gdi.AdapterLuid, it->AdapterLuid))
-			{
-				// fill the new monitor info and skip adapter enumeration
-
-				DXGIOutputDescBasic b;
-				b.Handle = gdi.hAdapter;
-				b.VidPn = gdi.VidPnSourceId;
-				WcsMaxCpy(gdi.DeviceName, b.DeviceName, 31);
-
-				it->Outputs.push_back(b);
-				skipThis = true;
-				break;
-			}
+			found |= IsEqualLUID(p, x.AdapterLuid);
 		}
 
-		if (skipThis)
-		{
-			continue;
-		}
-
-		DXGIAdapterDesc desc;
-
-		desc.IsValid = false;
-		desc.Handle = gdi.hAdapter;
-		desc.AdapterLuid = gdi.AdapterLuid;
-		WcsMaxCpy(dd.DeviceName, desc.Description, 127);
-
-		DXGIOutputDescBasic b;
-		b.Handle = gdi.hAdapter;
-		b.VidPn = gdi.VidPnSourceId;
-		WcsMaxCpy(gdi.DeviceName, b.DeviceName, 31);
-
-		desc.Outputs.push_back(b);
-
-		desc.DeviceId = 0;
-		desc.VendorId = 0;
-		desc.Revision = 0;
-		desc.SubSysId = 0;
-
-		wchar_t tmp[128] = { '0', 'x', '\0' };
-
-		// Format is: PCI/VEN_#####&DEV_#####&SUBSYS_######&REV_###
-
-		/*
-			THIS CODE IS HORRIBLE, PLEASE REFACTOR AND MODIFY THIS
-			INTO SOMETHING THAT ACTUALLY MAKES SENSE!!!!
-		*/
-
-		auto x = wcschr(dd.DeviceID + 8, L'&');
-		auto z = wcslen(dd.DeviceID);
-		int i;
-
-		if (x)
-		{
-			wcsncpy(tmp + 2, dd.DeviceID + 8, x - dd.DeviceID - 8);
-			
-			if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
-				desc.VendorId = (UINT)i;
-
-			auto y = wcschr(x + 5, L'&');
-			if (y)
-			{
-				wcsncpy(tmp + 2, x + 5, y - x - 5);
-				if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
-					desc.DeviceId = (UINT)i;
-
-				x = wcschr(y + 8, L'&');
-				if (x)
-				{
-					wcsncpy(tmp + 2, y + 8, x - y - 8);
-					if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
-						desc.SubSysId = (UINT)i;
-					
-					wcsncpy(tmp + 2, x + 5, z - (x - dd.DeviceID) - 5);
-					tmp[z - (x - dd.DeviceID) - 5 + 2] = L'\0';
-					if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
-						desc.Revision = (UINT)i;
-				}
-				else
-				{
-					wcsncpy(tmp + 2, y + 8, z - (y - dd.DeviceID) - 8);
-					if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
-						desc.SubSysId = (UINT)i;
-				}
-			}
-			else
-			{
-				wcsncpy(tmp + 2, x + 5, z - (x - dd.DeviceID) - 5);
-				if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
-					desc.DeviceId = (UINT)i;
-			}
-		}
-		else
-		{
-			wcsncpy(tmp + 2, dd.DeviceID + 8, z - 8);
-			if (StrToIntEx(tmp, STIF_SUPPORT_HEX, &i))
-				desc.VendorId = (UINT)i;
-		}
-
-		m_vAdapters.push_back(desc);
+		if (!found)
+			Luids.push_back(x.AdapterLuid);
 	}
 
 	return S_OK;
 }
 
+STDMETHODIMP CDXGIFactory::CreateSwapPoolInternal(IUnknown*, const DXGI_SWAP_POOL_DESC* pDesc)
+{
+	MessageBoxA(nullptr, "Call CreateSwapPoolInternal", "dxgi.dll", MB_OK);
+	return E_FAIL;
+}
+
+STDMETHODIMP CDXGIFactory::RegisterStereoStatusWinRTDisplayPropertiesCB(void* pCB)
+{
+	MessageBoxA(nullptr, "Call RegisterStereoStatusWinRTDisplayPropertiesCB", "dxgi.dll", MB_OK);
+	return S_OK;
+}
+
+STDMETHODIMP CDXGIFactory::UnregisterStereoStatusWinRTDisplayPropertiesCB()
+{
+	MessageBoxA(nullptr, "Call UnregisterStereoStatusWinRTDisplayPropertiesCB", "dxgi.dll", MB_OK);
+	return S_OK;
+}
+STDMETHODIMP CDXGIFactory::DumpProducer()
+{
+	MessageBoxA(nullptr, "Call DumpProducer", "dxgi.dll", MB_OK);
+	return E_FAIL;
+}
+
+STDMETHODIMP CDXGIFactory::DumpObject(IUnknown*)
+{
+	MessageBoxA(nullptr, "Call DumpObject", "dxgi.dll", MB_OK);
+	return E_FAIL;
+}
+
+STDMETHODIMP CDXGIFactory::GetSummaryInfoQueueMessageID(int*)
+{
+	MessageBoxA(nullptr, "Call GetSummaryInfoQueueMessageID", "dxgi.dll", MB_OK);
+	return E_FAIL;
+}
+
+
 #if DXGI_VERSION >= 1
 STDMETHODIMP CDXGIFactory::EnumAdapters1(_In_ UINT Adapter, _Out_ IDXGIAdapter1** ppAdapter)
 {
-	return EnumAdaptersReal(Adapter, IID_IDXGIAdapter1, (void**)ppAdapter);
+	return EnumAdaptersReal(Adapter, IID_IDXGIAdapter1, (IDXGIAdapter**)ppAdapter);
 }
 
 STDMETHODIMP_(BOOL) CDXGIFactory::IsCurrent(void)
@@ -286,6 +372,16 @@ STDMETHODIMP_(BOOL) CDXGIFactory::IsCurrent(void)
 #endif
 
 #if DXGI_VERSION >= 2
+STDMETHODIMP_(BOOL) CDXGIFactory::IsStereoEnabled(void)
+{
+	return FALSE;
+}
+
+STDMETHODIMP_(void) CDXGIFactory::SetStereoEnabled(BOOL enabled)
+{
+
+}
+
 STDMETHODIMP_(BOOL) CDXGIFactory::IsWindowedStereoEnabled(void)
 {
 	return FALSE;

@@ -59,7 +59,7 @@ static HRESULT InitD3D10()
 	swapChainDesc.Windowed = true;
 
 	// for sure: D3D10CreateDevice -> Output from factory -> Swapchain...
-	auto hr = D3D10CreateDeviceAndSwapChain(nullptr, D3D10_DRIVER_TYPE_HARDWARE, nullptr, 0, D3D10_SDK_VERSION, &swapChainDesc, &g_sc, &g_dev);
+	auto hr = D3D10CreateDeviceAndSwapChain(nullptr, D3D10_DRIVER_TYPE_REFERENCE, nullptr, 0, D3D10_SDK_VERSION, &swapChainDesc, &g_sc, &g_dev);
 	if (FAILED(hr))
 	{
 		return hr;

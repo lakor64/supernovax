@@ -2,44 +2,41 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     DLL module
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 #pragma once
+
+#include "dllimports.h"
 
 class CATLDXGIModule : public ATL::CAtlDllModuleT< CATLDXGIModule >
 {
 public:
-	CATLDXGIModule() = default;
+	CATLDXGIModule() : m_hDwm(nullptr) {}
 	~CATLDXGIModule() = default;
 
-	/** Custom ATL DllMain */
+	/**
+	* @brief ATL Dll entrypoint
+	* @param[in] dwReason
+	* Reason why the callback was called
+	* @param[in,opt] lpReserved
+	* Reserved parameter
+	* @return TRUE in case of success, FALSE otherwise.
+	* @see Normal Winapi DLL Main
+	*/
 	BOOL WINAPI DllMain(_In_ DWORD dwReason, _In_opt_ LPVOID lpReserved);
 
-	/** Custom DLL init */
+	/**
+	* @brief Loads all required callbacks and modules
+	* @return TRUE in case of success, FALSE otherwise.
+	*/
 	BOOL MyInit();
 
-	/** Custom DLL shutdown */
+	/**
+	* @brief Unloads all required callbacks and modules
+	*/
 	void MyTerm();
 
-	/** Gets GDI32.DLL */
-	HMODULE GetGdi32() const { return m_hGdi; }
-
-	/** Get the global thunk version */
-	ULONG GetGlobalThunkVersion() const { return m_thunkVer; }
-
 private:
-	/** GDI32.DLL */
-	HMODULE m_hGdi;
 	/** DWMAPI.DLL */
 	HMODULE m_hDwm;
-	/** D3D10.DLL */
-	HMODULE m_hD3d10;
-	/** Thunk version */
-	ULONG m_thunkVer;
 };
-
-/** Global ATL module export */
-extern CATLDXGIModule _AtlModule;
-
-/** Api callback, left here because it's easier to manage */
-extern DXGI_WAPI_CALLBACKS ApiCallback;

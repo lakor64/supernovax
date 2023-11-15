@@ -2,7 +2,7 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     DXGI DWM
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  * REFERENCE:
  * - https://shchetinin.blogspot.com/2012/04/dwm-graphics-directx-win8win7.html
  * - https://stackoverflow.com/questions/24739142/how-to-distort-manipulate-dwm-live-thumbnails-in-windows-8-or-in-any-other-way
@@ -12,10 +12,22 @@ import "ocidl.idl";
 import "dxgi.idl";
 import "dxgi1_2.idl";
 
+typedef struct _DXGI_OUTPUT_DWM_DESC
+{
+    BYTE unk; // undocumented
+} DXGI_OUTPUT_DWM_DESC;
+
+typedef struct _DXGI_SCROLL_RECT
+{
+    BYTE unk; // undocumented
+} DXGI_SCROLL_RECT;
+
 [
     object,
     local,
+    // TODO: discover/fix
     uuid(f69f223b-45d3-4aa0-98c8-c40c2b231029)
+    // uuid(8f0f30db-446a-4282-9fa2-28f75c1f39ad)
 ]
 interface IDXGISwapChainDWM : IDXGIDeviceSubObject
 {
@@ -72,7 +84,9 @@ interface IDXGISwapChainDWM : IDXGIDeviceSubObject
 [
     object,
     local,
-    uuid(ffffffff-ffff-ffff-ffff-fffffffffffc) // TODO: this UUID is invalid
+    // TODO: might be one of those two, pls verify on w7rtm / wvsp1
+    //uuid(f69f223b-45d3-4aa0-98c8-c40c2b231029)
+    uuid(8f0f30db-446a-4282-9fa2-28f75c1f39ad)
 ]
 interface IDXGISwapChainDWM1 : IDXGIDeviceSubObject
 {
@@ -115,172 +129,44 @@ interface IDXGISwapChainDWM1 : IDXGIDeviceSubObject
         [out] UINT* pLastPresentCount
     );
 
-    HRESULT PresentDWM(
-
+    HRESULT Present1(
+        UINT,
+        UINT,
+        UINT,
+        const RECT*,
+        UINT,
+        const DXGI_SCROLL_RECT*
     );
 
     HRESULT GetLogicalSurfaceHandle(
-
+        void**
     );
 
     HRESULT CheckDirectFlipSupport(
+        UINT,
+        IDXGIResource*,
+        INT*
+    );
 
+    HRESULT Present2(
+        UINT,
+        UINT,
+        UINT,
+        const RECT*,
+        UINT,
+        const DXGI_SCROLL_RECT*,
+        IDXGIResource*
     );
 
     HRESULT GetCompositionSurface(
-
-    );
-
-    HRESULT GetFrameStatisticsDWM(
-
-    );
-
-    HRESULT GetMultiplaneOverlayCaps(
-
-    );
-
-    HRESULT PresentMultiplaneOverlay(
-
-    );
-
-    HRESULT CheckPresentDurationSupport(
-
-    );
-
-    HRESULT SetPrivateFrameDuration(
-
-    );
-
-    HRESULT SetHardwareProtection(
-
-    );
-
-    HRESULT GetHardwareProtection(
-
-    );
-
-    HRESULT SetLatencyHint(
-
-    );
-
-    HRESULT SwapBuffers(
-
-    );
-
-    HRESULT CheckDwmVidPnOvership(
-
-    );
-
-    HRESULT GetCurrentBackBufferIndex(
-
-    );
-
-    HRESULT GetBackBufferImplicitRotationCount(
-
-    );
-
-    HRESULT GetFrontBufferRenderingCapability(
-
+        [out] void** pSurface
     );
 };
 
 [
     object,
     local,
-    uuid(ffffffff-ffff-ffff-ffff-fffffffffffd) // TODO: this UUID is invalid
-]
-/*
-* Is this real?
-*/
-interface IDXGISwapChainDWM8 : IDXGIObject
-{
-    HRESULT GetDevice(
-        [in] REFIID riid,
-        [out] void** ppvObject
-    );
-
-    HRESULT Present(
-        [in] UINT SyncInterval,
-        [in] UINT Flags
-    );
-
-    HRESULT GetBuffer(
-        [in] UINT Buffer,
-        [in] REFIID riid,
-        [out] void** ppSurface
-    );
-
-    HRESULT GetDesc(
-        [out] DXGI_SWAP_CHAIN_DESC* pDesc
-    );
-
-    HRESULT ResizeBuffers(
-        [in] UINT BufferCount,
-        [in] UINT Width,
-        [in] UINT Height,
-        [in] DXGI_FORMAT NewFormat,
-        [in] UINT SwapChainFlags
-    );
-
-    HRESULT ResizeTarget(
-        [in] DXGI_MODE_DESC* pNewTargetParameters
-    );
-
-    HRESULT GetContainingOutput(
-        [out] IDXGIOutput** ppOutput
-    );
-
-    HRESULT GetFrameStatistics(
-        [out] DXGI_FRAME_STATISTICS* pStats
-    );
-
-    HRESULT GetLastPresentCount(
-        [out] UINT* pLastPresentCount
-    );
-
-    // equals to : http://msdn.microsoft.com/en-us/library/windows/desktop/hh446797%28v=vs.85%29.aspx
-    HRESULT Present1( 
-        [in] UINT SyncInterval,
-        [in] UINT Flags,
-        [in] UINT DirtyRectsCount,
-        [in] RECT* pDirtyRects,
-        [in] RECT* pScrollRect,
-        [in] POINT* pScrollOffset
-    );
-
-    HRESULT GetLogicalSurfaceHandle(
-        [out] LPVOID pVoid
-    );
-
-    //
-    //Called by the Desktop Window Manager (DWM) to verify that the user-mode driver supports Direct Flip operations, in which video memory is seamlessly flipped between an application's 
-    //managed primary allocations and the DWM's managed primary allocations.
-    //
-    HRESULT CheckDirectFlipSupport(
-        [in] ULONG,
-        [in] IDXGIResource* pResource,
-        [in] ULONG*
-    );
-
-    HRESULT Present2(
-        [in] UINT SyncInterval,
-        [in] UINT Flags,
-        [in] UINT DirtyRectsCount,
-        [in] RECT* pDirtyRects,
-        [in] RECT* pScrollRect,
-        [in] POINT* pScrollOffset,
-        [in] IDXGIResource* pResource
-    );
-
-    HRESULT GetCompositionSurface(
-        [out] LPVOID* ppVoid
-    );
-}
-
-[
-    object,
-    local,
-    uuid(712bd56d-86ff-4b71-91e1-c13b274ff2a2) // ok!
+    uuid(712bd56d-86ff-4b71-91e1-c13b274ff2a3) // TODO: fix
 ]
 interface IDXGIAdapterDWM : IUnknown
 {
@@ -301,7 +187,7 @@ interface IDXGIAdapterDWM : IUnknown
 [
     object,
     local,
-    uuid(713f394e-92ca-47e7-ab81-1159c2791e54)
+    uuid(713f394e-92ca-47e7-ab81-1159c2791e54) // ok! windows 7 sp1
 ]
 interface IDXGIFactoryDWM : IUnknown
 {
@@ -316,7 +202,7 @@ interface IDXGIFactoryDWM : IUnknown
 [
     object,
     local,
-    uuid(1ddd77aa-9a4a-4cc8-9e55-98c196bafc8f)
+    uuid(1ddd77aa-9a4a-4cc8-9e55-98c196bafc8f) // ok! windows 7 sp1
 ]
 interface IDXGIFactoryDWM2 : IUnknown
 {
@@ -335,6 +221,33 @@ interface IDXGIFactoryDWM2 : IUnknown
         [out] IDXGISwapChainDWM** ppSwapChainDWM
     );
 }
+
+[
+    object,
+    local,
+    uuid(6f66a9a0-bece-4ee8-b11b-990eb38ed976) // ok (windows 7 sp1)
+]
+interface IDXGIOutputDWM : IUnknown
+{
+    HRESULT LUCCompleteLayerConstruction(
+        void
+    );
+
+    HRESULT GetDesc(
+        [out] DXGI_OUTPUT_DWM_DESC* pDesc
+    );
+   
+    HRESULT FindClosestMatchingModeFromDesktop(
+        [in] const DXGI_MODE_DESC1*,
+        DXGI_MODE_DESC1*,
+        IUnknown*
+    );
+
+    HRESULT WaitForVBlankOrObjects(
+        UINT,
+        void**
+    );
+};
 
 [
     object,

@@ -2,7 +2,7 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     DXGI Direct Composition
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 import "oaidl.idl";
 import "ocidl.idl";
@@ -24,39 +24,32 @@ interface IDXGIAdapterPartner : IUnknown
 [
 	object,
 	local,
-	uuid(ffffffff-ffff-ffff-ffff-fffffffffffa) // TODO: this UUID is invalid
+	uuid(7652c85a-0df5-4567-bcdd-8176a332b99b)
 ]
 interface IDXGISwapChainPartner : IDXGIDeviceSubObject
 {
 	HRESULT GetCompositionInterface(
-	
+		[out] void** pInterface
 	);
 	
 	HRESULT SetAlphaMode(
-	
-	);
-	
-	HRESULT GetFrameStatisticsPartner(
-	
-	);
-	
-	HRESULT GetLogicalSurfaceHandle(
-	
+		[in] DXGI_ALPHA_MODE alphaMode
 	);
 };
 
 [
 	object,
 	local,
-	uuid(ffffffff-ffff-ffff-ffff-ffffffffffc3) // TODO: this UUID is invalid
+	uuid(e17312b5-f3e7-4c72-9c67-74ddbfdd633c)
 ]
 interface IDXGIFactoryPartner : IDXGIObject
 {
 	HRESULT CreateSwapChainForCompositionSurface(
 		[in] IUnknown* pDevice,
 		void*,
-		[in] DXGI_SWAP_CHAIN_DESC1 pSwapChainDesc1,
+		[in] const DXGI_SWAP_CHAIN_DESC1* pSwapChainDesc1,
 		[in] IDXGIOutput* pOutput,
 		[out] IDXGISwapChain1** ppSwapChain1
 	);
 };
+

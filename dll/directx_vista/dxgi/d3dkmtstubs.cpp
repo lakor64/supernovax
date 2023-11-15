@@ -1,10 +1,29 @@
 /*
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
- * PURPOSE:     DXGI UMD stub exports
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * PURPOSE:     DXGI D3DKMT/UMD stub exports
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 #include "pch.h"
+
+/*
+	The following stubs are in use in the situation that a D3DKMT API under XDDM mode,
+	 will might be called for things like OpenGL ICD Initialization or a replacement UMD driver.
+
+	In a more practical use, DXGI.DLL acts a software adapter implementing various D3DKMT APIs
+	 which can potentially open the doors for more support under XDDM mode.
+
+	OpenAdapter is also provided as during XDDM mode, DXGI should reigster itself as a 
+	 device driver, I suppose this is done to enable some portion of DXGI to work under XDDM.
+
+	In a better/more realistic approach, this file should be removed and DXGI.DLL should
+	 redirect to a proper reimplementation of some of the D3DKMT/UMD APIs (eg. DXGIXDDM.DLL) for XDDM,
+	 if someone even wants to do something as strange and as problematic as this.
+
+	 For now, I'll leave this stubs in here just to retrain compatibility with
+	  Windows 7 and possible obscure use-cases that I am not aware of that involves
+	  DXGI as a software adapter or UMD driver.
+*/
 
 #ifdef HAVE_D3D10UUMDI
 #include <D3d10umddi.h>
@@ -33,7 +52,7 @@ extern "C"
 	NTSTATUS NTAPI D3DKMTOpenAdapterFromHdc(_Inout_ D3DKMT_OPENADAPTERFROMHDC* hdc)
 	{
 		memset(hdc, 0, sizeof(*hdc));
-		hdc->hAdapter = 0xF0F;
+		hdc->hAdapter = 1;
 		return STATUS_SUCCESS;
 	}
 
@@ -213,19 +232,11 @@ extern "C"
 
 	HRESULT WINAPI OpenAdapter10(D3D10DDIARG_OPENADAPTER* pOpenData)
 	{
-#ifdef PFF_PROJ_DEBUG
-		printf("OpenAdapter10: data %p\n", pOpenData);
-		_CrtDbgBreak();
-#endif
 		return DXGI_ERROR_UNSUPPORTED;
 	}
 
 	HRESULT WINAPI OpenAdapter10_2(D3D10DDIARG_OPENADAPTER* pOpenData)
 	{
-#ifdef PFF_PROJ_DEBUG
-		printf("OpenAdapter10_2: data %p\n", pOpenData);
-		_CrtDbgBreak();
-#endif
 		return DXGI_ERROR_UNSUPPORTED;
 	}
 }

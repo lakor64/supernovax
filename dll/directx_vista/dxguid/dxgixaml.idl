@@ -2,7 +2,7 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     DXGI UWP/Windows 8 apps
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 import "oaidl.idl";
 import "ocidl.idl";
@@ -11,7 +11,7 @@ import "dxgi.idl";
 [
     object,
     local,
-    uuid(ffffffff-ffff-ffff-ffff-fffffffffffb) // TODO: this UUID is invalid
+    uuid(b02d7a1a-05e0-4a71-8ef4-5c5bbf475086) // TODO: verify on w8
 ]
 interface IDXGISwapChainXAML : IDXGIDeviceSubObject
 {

@@ -1,20 +1,19 @@
 /*
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
- * PURPOSE:     Import callback
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * PURPOSE:     DLL Imports
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 #pragma once
 
-// gdi32.dll
+ // gdi32.dll
 typedef NTSTATUS(NTAPI* D3DKMTOpenAdapterFromGdiDisplayName_)(_Inout_ D3DKMT_OPENADAPTERFROMGDIDISPLAYNAME* disp);
 typedef NTSTATUS(NTAPI* D3DKMTQueryAdapterInfo_)(_Inout_ CONST D3DKMT_QUERYADAPTERINFO* info);
 typedef NTSTATUS(NTAPI* D3DKMTCloseAdapter_)(_In_ CONST D3DKMT_CLOSEADAPTER* close);
 typedef NTSTATUS(NTAPI* D3DKMTGetDisplayModeList_)(_In_ D3DKMT_GETDISPLAYMODELIST* dmList);
 typedef NTSTATUS(NTAPI* D3DKMTWaitForVerticalBlankEvent_)(_In_ CONST D3DKMT_WAITFORVERTICALBLANKEVENT*);
 typedef NTSTATUS(NTAPI* D3DKMTGetDeviceState_)(_Inout_ D3DKMT_GETDEVICESTATE*);
-typedef ULONG(NTAPI* D3DKMTGetThunkVersion_)(void);
 
 #if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN7
 typedef NTSTATUS(NTAPI* D3DKMTCheckSharedResourceAccess_)(_In_ CONST D3DKMT_CHECKSHAREDRESOURCEACCESS*);
@@ -36,3 +35,15 @@ typedef HRESULT(WINAPI* DwmIsCompositionEnabled_)(_Out_ BOOL* pfEnabled);
 
 #define DWM_REDIRECTION_FLAG_WAIT 0
 #define DWM_REDIRECTION_FLAG_SUPPORT_PRESENT_TO_GDI_SURFACE 0x10
+
+/// Global pointer to DwmDxGetWindowSharedSurface
+extern DwmDxGetWindowSharedSurface_ DwmDxGetWindowSharedSurface;
+
+/// Global pointer to DwmDxUpdateWindowSharedSurface
+extern DwmDxUpdateWindowSharedSurface_ DwmDxUpdateWindowSharedSurface;
+
+/// Global pointer to DwmIsCompositionEnabled
+extern DwmIsCompositionEnabled_ DwmIsCompositionEnabled;
+
+/// Global pointer to GDI32.DLL
+extern HMODULE g_GDI32;

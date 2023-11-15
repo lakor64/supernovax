@@ -2,7 +2,7 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     Monitor output
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 #pragma once
@@ -60,12 +60,73 @@ public:
 	STDMETHODIMP DuplicateOutput(_In_ IUnknown* pDevice, _COM_Outptr_  IDXGIOutputDuplication** ppOutputDuplication) override;
 #endif
 
-	// custom
-	STDMETHODIMP Initialize(CDXGIAdapter* parent, DXGIOutputDescBasic& dsc);
+	/**
+	* @brief Initializes a DXGI Output
+	* @param[in] hSoft Software adapter
+	* @param[in] parent Parent adapter
+	* @param dsc Information desc to use
+	* @return S_OK in case of success, or any HRESULT
+	*/
+	STDMETHODIMP Initialize(_In_ HMODULE hSoft, _In_ CDXGIAdapter* parent, const DXGIOutputInfo& dsc);
+
+
+	/**
+	* Sets the monitor info
+	* @param desktopCoord Desktop coordinated
+	* @param hm Handle to the monitor
+	* @param attachedToDesk If the output is attached to the desktop
+	* @remarks SHOULD BE ONLY USED INTERNALLY!!!
+	*/
+	STDMETHODIMP_(void) SetMonitorInfo(RECT desktopCoord, HMONITOR hm, BOOL attachedToDesk)
+	{
+		m_desc.AttachedToDesktop = attachedToDesk;
+		m_desc.Monitor = hm;
+		m_desc.DesktopCoordinates = desktopCoord;
+	}
+
+
+	/**
+	* @brief Gets the device name
+	* @return Name of the output device
+	*/
+	LPCWSTR GetDeviceName() const { return m_desc.DeviceName; }
 
 private:
-	STDMETHODIMP_(bool) CheckIfDDIFormatIsOk(D3DKMT_DISPLAYMODE* ddi, DXGI_FORMAT fmt, UINT flags);
+	/**
+	* @brief Checks if the DDI format is ok for this output
+	* @param ddi Display mode to check
+	* @return true in case it's ok, otherwise false
+	*/
+	STDMETHODIMP_(bool) CheckIfDDIFormatIsOk(const D3DKMT_DISPLAYMODE& ddi, DXGI_FORMAT fmt, UINT flags);
+
+	/**
+	* @brief Sets up output descriptor
+	*/
 	STDMETHODIMP_(void) GetOutputDesc();
 
-	DXGIOutputDesc m_desc;
+	/**
+	* @brief Tries to load D3DKMT APIs
+	* @return S_OK in case of success, or DXGI_ERROR_UNSUPPORTED in case of error
+	*/
+	STDMETHODIMP LoadD3DKMTApi();
+
+	/// output desc type
+	DXGIOutputDescType m_desc;
+
+	/// adapter handle
+	D3DKMT_HANDLE m_hHandle;
+
+	/// vid pn
+	D3DDDI_VIDEO_PRESENT_SOURCE_ID m_VidPn;
+
+	/// software adapter
+	HMODULE m_hDll;
+
+	/// if the output is valid or not
+	bool m_bValid;
+
+	// D3DKMT APIs
+	D3DKMTGetDisplayModeList_ D3DKMTGetDisplayModeList;
+	D3DKMTGetDeviceState_ D3DKMTGetDeviceState;
+	D3DKMTWaitForVerticalBlankEvent_ D3DKMTWaitForVerticalBlankEvent;
 };

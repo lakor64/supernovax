@@ -2,7 +2,7 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     Device swapchain
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 #pragma once
@@ -11,6 +11,10 @@
 #include "deviceptr.h"
 #include "dxgiusecounted.h"
 
+/**
+* @struct DXGI_SWAP_CHAIN_DESC_INTERNAL
+* Internal swap chain description
+*/
 struct DXGI_SWAP_CHAIN_DESC_INTERNAL : DXGI_SWAP_CHAIN_DESC
 {
 #if DXGI_VERSION >= 2
@@ -109,18 +113,18 @@ private:
 	*/
 	STDMETHODIMP PresentToGDI(_In_ UINT SyncInterval, _In_ UINT Flags);
 
-	/* Associated adapter */
+	/// Associated adapter
 	IDXGIAdapter* m_pAdapter;
 
-	/* Associated adapter desc */
+	/// Associated adapter desc
 	DXGI_ADAPTER_DESC m_adapterDesc;
 
-	/* Swapchain desc */
+	/// Swapchain desc
 	DXGI_SWAP_CHAIN_DESC_INTERNAL m_desc;
 
-	/* Swapchain buffers */
+	/// Swapchain buffers
 	std::vector<IDXGIResource*> m_vBuffers;
 
-	/* Device pointer */
+	/// Device pointer
 	CDevicePtr m_cDevice;
 };

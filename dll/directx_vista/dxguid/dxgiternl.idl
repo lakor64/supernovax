@@ -2,7 +2,7 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     DXGI Internal
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 import "oaidl.idl";
@@ -154,10 +154,18 @@ typedef enum _DXGI_RESOURCE_MISC_FLAGS
 	DXGI_RESOURCE_MISC_FLAG_UNKNOWN_3						= 0x200000, // cannot work with SHARED
 } DXGI_RESOURCE_MISC_FLAGS;
 
+typedef struct _DXGI_SWAP_POOL_DESC
+{
+	/*
+	* Undocumented as it's not implemented inside Windows 7 DXGI.DLL
+	*/
+	BYTE unk;
+} DXGI_SWAP_POOL_DESC;
+
 [
 	object,
 	local,
-	uuid(9b7e4a00-342c-4106-a19f-4f2704f689f0)
+	uuid(a2a9f815-4778-40d1-b179-d5d3a1a5f1bc)
 ]
 /*
 * Producer for debug logging
@@ -180,7 +188,7 @@ interface IDXGIDebugProducer : IUnknown
 [
 	object,
 	local,
-	uuid(ffffffff-ffff-ffff-ffff-fffffffffffd) // TODO: THIS IS AN INVALID UUID
+	uuid(d75fab3e-73b6-4fdf-a47e-f35ca18a7dbf)
 ]
 /*
 * Internal swapchain data
@@ -190,16 +198,6 @@ interface IDXGISwapChainInternal : IUnknown
 	HRESULT AcquireBuffer(
 		[in] IDXGIResource* Resource,
 		[in] UINT unk
-	);
-
-	HRESULT GetResourceParent(
-		[in] REFIID iid,
-		[out] void** pOut
-	);
-
-	HRESULT GetCurrentCommandQueue(
-		[in] REFIID iid,
-		[out] void** pOut
 	);
 };
 
@@ -284,7 +282,7 @@ interface IDXGIResourceInternal2 : IUnknown // TODO: is there any IDXGIResourceI
 [
 	object,
 	local,
-	uuid(bbfeb1e3-6f00-4ad0-a003-dc3c98c415e8) // verify vista, ok Windows 7
+	uuid(bbfeb1e3-6f00-4ad0-a003-dc3c98c415e8) // ok! (dxgi.dll windows vista rtm)
 ]
 /*
 * Internal data of an adapter (Windows Vista RTM)
@@ -301,25 +299,26 @@ interface IDXGIAdapterInternal : IUnknown
 [
 	object,
 	local,
-	uuid(712bd56d-86ff-4b71-91e1-c13b274ff2a3) // TODO: verify when we find what export this
+	uuid(712bd56d-86ff-4b71-91e1-c13b274ff2a2) // ok! (dxgi.dll windows 7)
 ]
-interface IDXGIAdapterInternal1 : IDXGIAdapterInternal
+interface IDXGIAdapterUnknownInternal : IUnknown
 {
-	// TODO: We are aware that this exists but we don't know the data
+	HRESULT CloseKernelHandle(
+		[in] D3DKMT_HANDLE* pHandle
+	);
 };
 
 
 [
 	object,
 	local,
-	uuid(7abb6563-02bc-47c4-8ef9-acc4795edbcf) // ok!
+	uuid(7abb6563-02bc-47c4-8ef9-acc4795edbcf) // ok! (dxgi.dll windows 7)
 ]
 /*
 * Internal data of an adapter (Windows 7 SP1+)
 */
-interface IDXGIAdapterInternal2 : IDXGIAdapterInternal1
+interface IDXGIAdapterInternal2 : IDXGIAdapterInternal
 {
-	// SHOULD NOT BE HERE!
 	HRESULT LoadUMD(
 		[in] KMTUMDVERSION Version,
 		[out] HINSTANCE* hUmdDLL
@@ -722,20 +721,22 @@ interface IDXGIResourceInternal3 : IUnknown
 [
 	object,
 	local,
-	uuid(ffffffff-ffff-ffff-ffff-fffffffffff4) // TODO: this UUID is invalid
+	uuid(d1ed7b7c-f03c-4b2a-bbeb-6415dbe54938)
 ]
 interface IDXGIFactoryInternal : IUnknown
 {
-	HRESULT CloseKernelHandle(
+	HRESULT CreateSwapPoolInternal(
+		[in] IUnknown*,
+		[in] const DXGI_SWAP_POOL_DESC* pDesc
 
 	);
 
 	HRESULT RegisterStereoStatusWinRTDisplayPropertiesCB(
-
+		[in] void* pCB
 	);
 
 	HRESULT UnregisterStereoStatusWinRTDisplayPropertiesCB(
-
+		void
 	);
 
 };

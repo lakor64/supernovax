@@ -1,8 +1,8 @@
 /*
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
- * PURPOSE:     Monitor output
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * PURPOSE:     Monitor handling
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 #include "pch.h"
@@ -11,8 +11,15 @@
 #include "utils.h"
 
 CDXGIOutput::CDXGIOutput()
+	: m_hDll(nullptr)
+	, m_bValid(false)
+	, D3DKMTGetDisplayModeList(nullptr)
+	, D3DKMTGetDeviceState(nullptr)
+	, D3DKMTWaitForVerticalBlankEvent(nullptr)
+	, m_hHandle(D3DGPU_NULL)
+	, m_VidPn(D3DDDI_ID_UNINITIALIZED)
 {
-	memset(&m_desc, 0, sizeof(m_desc));
+	ZeroMemory(&m_desc, sizeof(m_desc));
 }
 
 STDMETHODIMP CDXGIOutput::FindClosestMatchingMode(_In_ const DXGI_MODE_DESC* pModeToMatch, _Out_ DXGI_MODE_DESC* pClosestMatch, _In_opt_ IUnknown* pConcernedDevice)
@@ -29,7 +36,7 @@ STDMETHODIMP CDXGIOutput::GetDesc(_Out_ DXGI_OUTPUT_DESC* pDesc)
 	if (!pDesc)
 		return DXGI_ERROR_INVALID_CALL;
 
-	if (!m_desc.IsValid)
+	if (!m_bValid)
 		GetOutputDesc();
 
 	pDesc->AttachedToDesktop = m_desc.AttachedToDesktop;
@@ -50,17 +57,17 @@ STDMETHODIMP CDXGIOutput::GetDisplayModeList(_In_ DXGI_FORMAT EnumFormat, _In_ U
 
 	D3DKMT_GETDISPLAYMODELIST dml;
 
-	dml.hAdapter = m_desc.Handle;
-	dml.VidPnSourceId = m_desc.VidPn;
+	dml.hAdapter = m_hHandle;
+	dml.VidPnSourceId = m_VidPn;
 	dml.ModeCount = 0;
 	dml.pModeList = nullptr;
 
-	auto status = ApiCallback.D3DKMTGetDisplayModeList(&dml);
+	auto status = D3DKMTGetDisplayModeList(&dml);
 	if (NT_ERROR(status))
 		return NtErrorToDxgiError(status);
 
 	dml.pModeList = new D3DKMT_DISPLAYMODE[dml.ModeCount];
-	status = ApiCallback.D3DKMTGetDisplayModeList(&dml);
+	status = D3DKMTGetDisplayModeList(&dml);
 	if (NT_ERROR(status))
 		return NtErrorToDxgiError(status);
 
@@ -68,17 +75,17 @@ STDMETHODIMP CDXGIOutput::GetDisplayModeList(_In_ DXGI_FORMAT EnumFormat, _In_ U
 
 	for (auto i = 0U; i < dml.ModeCount; i++)
 	{
-		auto y = &dml.pModeList[i];
+		auto& y = dml.pModeList[i];
 
 		// there is no format without alpha, so convert those into alpha based formats
-		if (y->Format == D3DDDIFMT_X8R8G8B8)
-			y->Format = D3DDDIFMT_A8R8G8B8;
-		else if (y->Format == D3DDDIFMT_X1R5G5B5)
-			y->Format = D3DDDIFMT_A1R5G5B5;
-		else if (y->Format == D3DDDIFMT_X4R4G4B4)
-			y->Format = D3DDDIFMT_A4R4G4B4;
-		else if (y->Format == D3DDDIFMT_X8B8G8R8)
-			y->Format = D3DDDIFMT_A8B8G8R8;
+		if (y.Format == D3DDDIFMT_X8R8G8B8)
+			y.Format = D3DDDIFMT_A8R8G8B8;
+		else if (y.Format == D3DDDIFMT_X1R5G5B5)
+			y.Format = D3DDDIFMT_A1R5G5B5;
+		else if (y.Format == D3DDDIFMT_X4R4G4B4)
+			y.Format = D3DDDIFMT_A4R4G4B4;
+		else if (y.Format == D3DDDIFMT_X8B8G8R8)
+			y.Format = D3DDDIFMT_A8B8G8R8;
 
 		if (CheckIfDDIFormatIsOk(y, EnumFormat, Flags))
 		{
@@ -102,7 +109,7 @@ STDMETHODIMP CDXGIOutput::GetDisplayModeList(_In_ DXGI_FORMAT EnumFormat, _In_ U
 		{
 			D3DKMT_DISPLAYMODE* y = (D3DKMT_DISPLAYMODE*)&dml.pModeList[i];
 
-			if (CheckIfDDIFormatIsOk(y, EnumFormat, Flags))
+			if (CheckIfDDIFormatIsOk(*y, EnumFormat, Flags))
 			{
 				pDesc[iteSize].Width = y->Width;
 				pDesc[iteSize].Height = y->Height;
@@ -137,10 +144,10 @@ STDMETHODIMP CDXGIOutput::GetFrameStatistics(_Out_ DXGI_FRAME_STATISTICS* pStats
 
 	D3DKMT_GETDEVICESTATE ds;
 	ds.StateType = D3DKMT_DEVICESTATE_PRESENT;
-	ds.hDevice = m_desc.Handle;
-	ds.PresentState.VidPnSourceId = m_desc.VidPn;
+	ds.hDevice = m_hHandle;
+	ds.PresentState.VidPnSourceId = m_VidPn;
 
-	auto status = ApiCallback.D3DKMTGetDeviceState(&ds);
+	auto status = D3DKMTGetDeviceState(&ds);
 	if (NT_ERROR(status))
 		return NtErrorToDxgiError(status);
 
@@ -207,47 +214,47 @@ STDMETHODIMP CDXGIOutput::TakeOwnership(_In_ IUnknown* pDevice, _In_ BOOL Exclus
 STDMETHODIMP CDXGIOutput::WaitForVBlank(void)
 {
 	D3DKMT_WAITFORVERTICALBLANKEVENT v;
-	v.hAdapter = m_desc.Handle;
-	v.VidPnSourceId = m_desc.VidPn;
+	v.hAdapter = m_hHandle;
+	v.VidPnSourceId = m_VidPn;
 	v.hDevice = NULL;
 
-	return NtErrorToDxgiError(ApiCallback.D3DKMTWaitForVerticalBlankEvent(&v));
+	return NtErrorToDxgiError(D3DKMTWaitForVerticalBlankEvent(&v));
 }
 
-STDMETHODIMP CDXGIOutput::Initialize(CDXGIAdapter* adapter, DXGIOutputDescBasic& dsc)
+STDMETHODIMP CDXGIOutput::Initialize(_In_ HMODULE hSoft, _In_ CDXGIAdapter* adapter, const DXGIOutputInfo& dsc)
 {
 	SetParent((IDXGIAdapter*)adapter);
-
-	m_desc.Handle = dsc.Handle;
-	m_desc.VidPn = dsc.VidPn;
-	memcpy(m_desc.DeviceName, dsc.DeviceName, sizeof(dsc.DeviceName));
-	return S_OK;
+	m_hDll = hSoft;
+	m_hHandle = dsc.AdapterHandle;
+	m_VidPn = dsc.VidPn;
+	StringCchCopyN(m_desc.DeviceName, 32, dsc.DeviceName, 32);
+	return LoadD3DKMTApi();
 }
 
-STDMETHODIMP_(bool) CDXGIOutput::CheckIfDDIFormatIsOk(D3DKMT_DISPLAYMODE* ddi, DXGI_FORMAT fmt, UINT flags)
+STDMETHODIMP_(bool) CDXGIOutput::CheckIfDDIFormatIsOk(const D3DKMT_DISPLAYMODE& ddi, DXGI_FORMAT fmt, UINT flags)
 {
-	if (ddi->Format != DXGI_MFMapDXGIFormatToDX9Format(fmt))
+	if (ddi.Format != DXGI_MFMapDXGIFormatToDX9Format(fmt))
 		return false;
 
-	if (!ddi->Flags.ValidatedAgainstMonitorCaps)
+	if (!ddi.Flags.ValidatedAgainstMonitorCaps)
 		return false;
 
-	if (ddi->DisplayOrientation != D3DDDI_ROTATION_IDENTITY)
+	if (ddi.DisplayOrientation != D3DDDI_ROTATION_IDENTITY)
 		return false;
 
 	// for some reason I don't see 59hz refresh in DXGI
-	if (ddi->RefreshRate.Denominator != 1)
+	if (ddi.RefreshRate.Denominator != 1)
 		return false;
 
-	// note: I don't know if this is ok!
-	if (ddi->DisplayFixedOutput != 0)
+	// TODO: I don't know if this is ok!
+	if (ddi.DisplayFixedOutput != 0)
 		return false;
 
 	// TODO: DXGI_ENUM_MODES_INTERLACED
 	// TODO: DXGI_ENUM_MODES_SCALING
 
 #if (DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8) && !_WINSDK_7
-	if (ddi->Flags.Stereo && !(flags & DXGI_ENUM_MODES_STEREO))
+	if (ddi.Flags.Stereo && !(flags & DXGI_ENUM_MODES_STEREO))
 		return false;
 
 	// TODO: DXGI_ENUM_MODES_DISABLED_STEREO
@@ -258,20 +265,16 @@ STDMETHODIMP_(bool) CDXGIOutput::CheckIfDDIFormatIsOk(D3DKMT_DISPLAYMODE* ddi, D
 
 static BOOL CALLBACK EnumOutput(HMONITOR hm, HDC hdc, LPRECT rect, LPARAM user)
 {
-	DXGIOutputDesc* pDesc = (DXGIOutputDesc*)user;
+	const auto pOutput = (CDXGIOutput*)user;
 	MONITORINFOEXW mi;
 	mi.cbSize = sizeof(mi);
 
 	if (GetMonitorInfoW(hm, (LPMONITORINFO) & mi))
 	{
-		if (wcscmp(mi.szDevice, pDesc->DeviceName) == 0)
+		if (wcscmp(mi.szDevice, pOutput->GetDeviceName()) == 0)
 		{
-			pDesc->DesktopCoordinates = mi.rcMonitor;
-			pDesc->Monitor = hm;
-
-			// note: this is true because dxgifactory only enum active devices, may be false for remove devices...
-			pDesc->AttachedToDesktop = TRUE;
-
+			// note: this is true because dxgifactory only enum active devices at the moment
+			pOutput->SetMonitorInfo(mi.rcMonitor, hm, TRUE);
 			return FALSE;
 		}
 	}
@@ -281,7 +284,7 @@ static BOOL CALLBACK EnumOutput(HMONITOR hm, HDC hdc, LPRECT rect, LPARAM user)
 
 STDMETHODIMP_(void) CDXGIOutput::GetOutputDesc()
 {
-	EnumDisplayMonitors(nullptr, nullptr, EnumOutput, (LPARAM)&m_desc);
+	EnumDisplayMonitors(nullptr, nullptr, EnumOutput, (LPARAM)this);
 	DEVMODEW dm = { 0 };
 	dm.dmSize = sizeof(dm);
 
@@ -308,7 +311,19 @@ STDMETHODIMP_(void) CDXGIOutput::GetOutputDesc()
 		}
 	}
 
-	m_desc.IsValid = true;
+	m_bValid = true;
+}
+
+STDMETHODIMP CDXGIOutput::LoadD3DKMTApi()
+{
+	D3DKMTGetDisplayModeList = (D3DKMTGetDisplayModeList_)GetProcAddress(m_hDll, "D3DKMTGetDisplayModeList");
+	D3DKMTGetDeviceState = (D3DKMTGetDeviceState_)GetProcAddress(m_hDll, "D3DKMTGetDeviceState");
+	D3DKMTWaitForVerticalBlankEvent = (D3DKMTWaitForVerticalBlankEvent_)GetProcAddress(m_hDll, "D3DKMTWaitForVerticalBlankEvent");
+
+	if (!D3DKMTWaitForVerticalBlankEvent || !D3DKMTGetDeviceState || !D3DKMTGetDisplayModeList)
+		return DXGI_ERROR_UNSUPPORTED;
+
+	return S_OK;
 }
 
 #if DXGI_VERSION >= 2

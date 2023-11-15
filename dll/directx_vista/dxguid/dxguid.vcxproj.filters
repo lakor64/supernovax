@@ -35,6 +35,12 @@
     <ClCompile Include="usecounted_p.c">
       <Filter>generated</Filter>
     </ClCompile>
+    <ClCompile Include="lockowner_i.c">
+      <Filter>generated</Filter>
+    </ClCompile>
+    <ClCompile Include="lockowner_p.c">
+      <Filter>generated</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="dxgidwm.idl" />
@@ -42,6 +48,7 @@
     <Midl Include="usecounted.idl" />
     <Midl Include="dxgipartner.idl" />
     <Midl Include="dxgixaml.idl" />
+    <Midl Include="lockowner.idl" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="generated">
@@ -62,6 +69,9 @@
       <Filter>generated</Filter>
     </ClInclude>
     <ClInclude Include="usecounted.h">
+      <Filter>generated</Filter>
+    </ClInclude>
+    <ClInclude Include="lockowner.h">
       <Filter>generated</Filter>
     </ClInclude>
   </ItemGroup>

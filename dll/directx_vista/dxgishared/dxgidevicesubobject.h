@@ -2,14 +2,17 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     Device sub object
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 #pragma once
 
 #include "dxgiobject.h"
 
-/*** Template definition of a subobject */
+/**
+* @class CDXGIDeviceSubObject
+* Template definition of a device suboject
+*/
 template <typename T>
 class ATL_NO_VTABLE CDXGIDeviceSubObject :
 	public CDXGIObject<T>

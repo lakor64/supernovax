@@ -2,14 +2,17 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     Basic DXGI object
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 #pragma once
 
 #include <vector>
 
-/** Manages the private data of a DXGIObject */
+/**
+* @struct DXGIPrivateData
+* Manages the private data of any DXGI object
+*/
 struct DXGIPrivateData
 {
 	/**
@@ -20,7 +23,10 @@ struct DXGIPrivateData
 	*/
 	union
 	{
+		/** Raw data */
 		LPVOID raw;
+
+		/** COM data */
 		IUnknown** com;
 	} pData;
 
@@ -40,6 +46,9 @@ struct DXGIPrivateData
 
 	~DXGIPrivateData() = default;
 
+	/**
+	* @brief Releases private data
+	*/
 	void Release()
 	{
 		if (pData.raw)
@@ -53,7 +62,13 @@ struct DXGIPrivateData
 		}
 	}
 
-	/** Sets custom data */
+	/** 
+	* @brief Sets custom data
+	* @param guid GUID of the custom object
+	* @param pData raw data to set
+	* @param nSize size of the raw data
+	* @param com true if the data is COM based
+	*/
 	bool Set(GUID guid, LPCVOID pData, UINT nSize, bool com)
 	{
 		Release();
@@ -76,12 +91,16 @@ struct DXGIPrivateData
 	}
 };
 
-/** template DXGI object */
+/**
+* @class CDXGIObject
+* Class that implementes a basic DXGI object
+*/
 template <typename T>
 class ATL_NO_VTABLE CDXGIObject : 
 	public T
 {
 public:
+	/// Map of a private data
 	using PrivateDataMap = std::vector<DXGIPrivateData>;
 
 	STDMETHODIMP SetPrivateData(_In_ REFGUID Name, _In_ UINT DataSize, _In_opt_ const void* pData) override
@@ -172,10 +191,21 @@ protected:
 	IUnknown* m_pParent;
 
 private:
-	STDMETHODIMP SetPrivateDataReal(_In_ REFGUID Name, _In_ UINT DataSize, _In_opt_ const void* pData, _In_ bool com)
+	/**
+	* @brief Sets up the private data
+	* @param[in] Name GUID of the private data
+	* @param DataSize size of the private data
+	* @param[in,opt] pData Pointer to the data to store
+	* @param com true if the data is a COM pointer
+	* @param S_OK in case of success, or E_OUTOFMEMORY
+	*/
+	STDMETHODIMP SetPrivateDataReal(_In_ REFGUID Name, UINT DataSize, _In_opt_ const void* pData, bool com)
 	{
 		if (!pData)
-			return DeletePD(Name);
+		{
+			DeletePD(Name);
+			return S_OK;
+		}
 
 		auto p = FindPD(Name);
 		if (p == m_vData.end())
@@ -192,8 +222,11 @@ private:
 		return S_OK;
 	}
 
-	/** Delete private data */
-	STDMETHODIMP DeletePD(_In_ REFGUID Name)
+	/**
+	* @brief Deletes a private data from this object
+	* @param[in] Name GUID of the private data to delete
+	*/
+	void DeletePD(_In_ REFGUID Name)
 	{
 		for (auto it = m_vData.begin(); it != m_vData.end(); it++)
 		{
@@ -204,11 +237,15 @@ private:
 				break;
 			}
 		}
-
-		return S_OK;
 	}
 
-	/** Find private data */
+	/**
+	* @brief Finds a private data inside the object
+	* @param Name GUID to search
+	* @return an iterator that contains the position 
+	*  of the private data, otherwise the end of the
+	*  map
+	*/
 	inline PrivateDataMap::iterator FindPD(_In_ REFGUID Name)
 	{
 		auto it = m_vData.begin();

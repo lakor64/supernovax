@@ -2,7 +2,7 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     Shared code main inclusions
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 #ifndef __DXGISHARED_H__
 #define __DXGISHARED_H__
@@ -86,8 +86,9 @@
 #error "Do not use wine d3dkmthk.h"
 #endif
 
-#ifndef MAX_ENUM_ADAPTERS
-#define MAX_ENUM_ADAPTERS 16
+// Maximum enum outputs
+#ifndef MAX_ENUM_OUTPUTS
+#define MAX_ENUM_OUTPUTS 16
 #endif
 
 // NTSTATUS
@@ -101,7 +102,7 @@
 #define STATUS_INVALID_PARAMETER 0xC000000D 
 #endif
 
-/** ATL Object root typedef */
+/// ATL Object root typedef
 using DXGIObjRoot = ATL::CComObjectRootEx<ATL::CComMultiThreadModelNoCS>;
 
 // Project

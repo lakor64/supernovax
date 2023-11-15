@@ -58,5 +58,8 @@
     <ClInclude Include="dxgiusecounted.h">
       <Filter>Headers</Filter>
     </ClInclude>
+    <ClInclude Include="lockedowner.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

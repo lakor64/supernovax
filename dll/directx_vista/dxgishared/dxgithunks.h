@@ -2,9 +2,8 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     Thunks definitions
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
-
 #pragma once
 
 struct DXGI_THUNKS_V1
@@ -118,8 +117,7 @@ struct DXGI_THUNKS_V4 : public DXGI_THUNKS_V3
 	void* D3DKMTGetAllocationPriority;
 };
 
-constexpr auto DXGI_THUNKS_NAMES_V1_LENGTH = 27;
-constexpr const char* DXGI_THUNKS_NAMES_V1[DXGI_THUNKS_NAMES_V1_LENGTH] = {
+constexpr const char* DXGI_THUNKS_NAMES_V1[] = {
 	"D3DKMTRender",
 	"D3DKMTLock",
 	"D3DKMTUnlock",
@@ -149,8 +147,7 @@ constexpr const char* DXGI_THUNKS_NAMES_V1[DXGI_THUNKS_NAMES_V1_LENGTH] = {
 	"D3DKMTSetQueuedLimit",
 };
 
-constexpr auto DXGI_THUNKS_NAMES_V2_LENGTH = 12 + DXGI_THUNKS_NAMES_V1_LENGTH;
-constexpr const char* DXGI_THUNKS_NAMES_V2[DXGI_THUNKS_NAMES_V2_LENGTH] = {
+constexpr const char* DXGI_THUNKS_NAMES_V2[] = {
 	// V1
 	"D3DKMTRender",
 	"D3DKMTLock",
@@ -194,8 +191,7 @@ constexpr const char* DXGI_THUNKS_NAMES_V2[DXGI_THUNKS_NAMES_V2_LENGTH] = {
 	"D3DKMTConfigureSharedResource",
 };
 
-constexpr auto DXGI_THUNKS_NAMES_V3_LENGTH = 18 + DXGI_THUNKS_NAMES_V2_LENGTH;
-constexpr const char* DXGI_THUNKS_NAMES_V3[DXGI_THUNKS_NAMES_V3_LENGTH] = {
+constexpr const char* DXGI_THUNKS_NAMES_V3[] = {
 	// V1
 	"D3DKMTRender",
 	"D3DKMTLock",
@@ -258,8 +254,7 @@ constexpr const char* DXGI_THUNKS_NAMES_V3[DXGI_THUNKS_NAMES_V3_LENGTH] = {
 	"D3DKMTCheckMultiPlaneOverlaySupport",
 };
 
-constexpr auto DXGI_THUNKS_NAMES_V4_LENGTH = 37 + DXGI_THUNKS_NAMES_V3_LENGTH;
-constexpr const char* DXGI_THUNKS_NAMES_V4[DXGI_THUNKS_NAMES_V4_LENGTH] = {
+constexpr const char* DXGI_THUNKS_NAMES_V4[] = {
 	// V1
 	"D3DKMTRender",
 	"D3DKMTLock",

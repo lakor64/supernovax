@@ -1,0 +1,231 @@
+ADAPTER DESC:
+	Description: Software Adapter
+	VendorID: 0
+	DeviceID: 0
+	SubSysId: 0
+	Revision: 0
+	DedicatedVideoMemory: 0
+	DedicatedSystemMemory: 0
+	SharedSystemMemory: 2147217152
+	AdapterLuid: 0 37d6ae
+ADAPTER DESC1:
+	Description: Software Adapter
+	VendorID: 0
+	DeviceID: 0
+	SubSysId: 0
+	Revision: 0
+	DedicatedVideoMemory: 0
+	DedicatedSystemMemory: 0
+	SharedSystemMemory: 2147217152
+	AdapterLuid: 0 37d6ae
+	Flags: 0
+DXGI MODE 0
+	Width: 640
+	Height: 480
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 1
+	Width: 720
+	Height: 480
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 2
+	Width: 720
+	Height: 576
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 3
+	Width: 800
+	Height: 480
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 4
+	Width: 800
+	Height: 600
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 5
+	Width: 854
+	Height: 480
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 6
+	Width: 1024
+	Height: 768
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 7
+	Width: 1152
+	Height: 864
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 8
+	Width: 1280
+	Height: 720
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 9
+	Width: 1280
+	Height: 768
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 10
+	Width: 1280
+	Height: 800
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 11
+	Width: 1280
+	Height: 960
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 12
+	Width: 1280
+	Height: 1024
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 13
+	Width: 1366
+	Height: 768
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 14
+	Width: 1400
+	Height: 1050
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 15
+	Width: 1440
+	Height: 900
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 16
+	Width: 1600
+	Height: 1200
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 17
+	Width: 1680
+	Height: 1050
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 18
+	Width: 1920
+	Height: 1080
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 19
+	Width: 1920
+	Height: 1200
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 20
+	Width: 1920
+	Height: 1440
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 21
+	Width: 2048
+	Height: 1536
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 22
+	Width: 2358
+	Height: 1226
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 23
+	Width: 2358
+	Height: 1280
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 24
+	Width: 2560
+	Height: 1440
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 25
+	Width: 2560
+	Height: 1600
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 26
+	Width: 2560
+	Height: 1920
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 27
+	Width: 2880
+	Height: 1800
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 28
+	Width: 3840
+	Height: 2160
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0
+DXGI MODE 29
+	Width: 3840
+	Height: 2400
+	Refresh rate: 1 60
+	Format: 57
+	Scanline order: 1
+	Scaling: 0

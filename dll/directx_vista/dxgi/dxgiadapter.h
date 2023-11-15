@@ -2,17 +2,26 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     GPU Adapter
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 #pragma once
 
 #include "dxgiobject.h"
 
+enum class DXGIAdapterModuleType
+{
+	Invalid,
+	Hardware,
+	Software,
+	Warp
+};
+
 class ATL_NO_VTABLE CDXGIAdapter : 
 	public DXGIObjRoot,
 	public CDXGIObject<DXGIAdapterType>,
-	public DXGIAdapterInternalType
+	public DXGIAdapterInternalType,
+	public IDXGIAdapterUnknownInternal
 {
 public:
 	BEGIN_COM_MAP(CDXGIAdapter)
@@ -28,8 +37,8 @@ public:
 #endif
 #if DXGI_VERSION >= 1
 		COM_INTERFACE_ENTRY_IID(IID_IDXGIAdapter1, IDXGIAdapter1)
-		COM_INTERFACE_ENTRY_IID(IID_IDXGIAdapterInternal1, IDXGIAdapterInternal1)
 #endif
+		COM_INTERFACE_ENTRY_IID(IID_IDXGIAdapterUnknownInternal, IDXGIAdapterUnknownInternal)
 		COM_INTERFACE_ENTRY_IID(IID_IDXGIAdapter, IDXGIAdapter)
 		COM_INTERFACE_ENTRY_IID(IID_IDXGIAdapterInternal, IDXGIAdapterInternal)
 		COM_INTERFACE_ENTRY_IID(IID_IDXGIObject, IDXGIObject)
@@ -52,9 +61,6 @@ public:
 #endif
 	// IDXGIAdapterInternal
 	STDMETHODIMP GetUMDDeviceSize(_In_ UINT unk, _In_ UINT unk2, _In_ UINT unk3) override;
-#if DXGI_VERSION >= 1
-	// IDXGIAdapterInternal1
-#endif
 #if DXGI_VERSION >= 2
 	// IDXGIAdapterInternal2
 	STDMETHODIMP LoadUMD(_In_ KMTUMDVERSION Version, _Out_ HINSTANCE* hUMD) override;
@@ -68,13 +74,73 @@ public:
 	STDMETHODIMP_(BOOL) MismatchedVendorLda(void) override;
 	STDMETHODIMP_(BOOL) IsLda(void) override;
 #endif
-	// custom
-	STDMETHODIMP Initialize(IDXGIFactory* parent, const DXGIAdapterDesc& desc);
+
+	STDMETHODIMP CloseKernelHandle(_In_ D3DKMT_HANDLE* pHandle) override;
+
+	
+	/**
+	* @brief Initializes the DXGI Adapter as a hardware adapter
+	* @param[in] parent Parent factory
+	*/
+	STDMETHODIMP Initialize(_In_ IDXGIFactory* parent);
+
+	/**
+	* @brief Initializes the DXGI Adapter as a software adapter
+	* @param[in] parent Parent factory
+	* @param[in] hSoft Software module
+	*/
+	STDMETHODIMP Initialize(_In_ IDXGIFactory* parent, _In_ HMODULE hSoft);
+
+	/**
+	* @brief Adds an output to the adapter
+	* @param e Output to add
+	*/
+	STDMETHODIMP_(void) AddOutput(const DXGIEnumInfo& e);
 
 private:
+
+	/**
+	* @brief Attempts to load D3DKMT API
+	* @return S_OK in case of success, or DXGI_ERROR_UNSUPPORTED in case a required API is not supported
+	*/
+	STDMETHODIMP LoadD3DKMTApi();
+
+	/**
+	* @brief Sets up the adapter description
+	*/
 	STDMETHODIMP_(void) GetAdapterDesc();
 
-	/** adapter descriptor */
-	DXGIAdapterDesc m_desc;
+	/**
+	* @brief Query the supported adapter version
+	* @param uv version to query
+	* @return S_OK in case it's supported ,or DXGI_ERROR*
+	*/
+	STDMETHODIMP QueryUMDVersion(KMTUMDVERSION uv);
 
+	/**
+	* @brief Changes adapter info for DirectX9-only adapters
+	*/
+	STDMETHODIMP_(void) ChangeDataToSoftAdapter();
+
+	/// Module DLL
+	HMODULE m_hDll;
+
+	/// Check if the adapter was enumated
+	bool m_bValid;
+
+	/// One generic handle of the specified GPU
+	D3DKMT_HANDLE m_hHandle;
+
+	// Exports from D3DKMT
+	D3DKMTQueryAdapterInfo_ D3DKMTQueryAdapterInfo;
+	// ----------
+
+	/// Adapter desc type
+	DXGIAdapterDescType m_desc;
+
+	/// Outputs
+	std::vector <DXGIOutputInfo> m_vOutputs;
+
+	/// Module type
+	DXGIAdapterModuleType m_modType;
 };

@@ -2,7 +2,7 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     GPU resource
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 #include "dxgishared.h"
@@ -13,6 +13,8 @@ STDMETHODIMP CDXGIResource::GetEvictionPriority(_Out_ UINT* pEvictionPriority)
 	if (!pEvictionPriority)
 		return DXGI_ERROR_INVALID_CALL;
 
+	*pEvictionPriority = 0;
+
 	return E_NOTIMPL;
 }
 
@@ -20,6 +22,8 @@ STDMETHODIMP CDXGIResource::GetSharedHandle(_Out_ HANDLE* pSharedHandle)
 {
 	if (!pSharedHandle)
 		return DXGI_ERROR_INVALID_CALL;
+
+	*pSharedHandle = nullptr;
 
 	return E_NOTIMPL;
 }

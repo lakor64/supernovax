@@ -2,7 +2,7 @@
  * PROJECT:     ReactX Graphics Infrastructure
  * COPYRIGHT:   See COPYING in the top level directory
  * PURPOSE:     GPU Adapter
- * COPYRIGHT:   Copyright 2023 Christian Rendina <christian.rendina@gmail.com>
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 #include "pch.h"
@@ -12,20 +12,41 @@
 #include "dxgithunks.h"
 #include "thunkloader.h"
 
-CDXGIAdapter::CDXGIAdapter()
+CDXGIAdapter::CDXGIAdapter() 
+	: m_hDll(nullptr)
+	, m_bValid(false)
+	, m_hHandle(D3DGPU_NULL)
+	, D3DKMTQueryAdapterInfo(nullptr)
+	, m_modType(DXGIAdapterModuleType::Invalid)
 {
-	m_desc.Handle = NULL;
-	m_desc.IsValid = false;
+	ZeroMemory(&m_desc, sizeof(m_desc));
 }
 
 CDXGIAdapter::~CDXGIAdapter()
 {
+	if (m_modType == DXGIAdapterModuleType::Warp || m_modType == DXGIAdapterModuleType::Software)
+	{
+		D3DKMT_CLOSEADAPTER ca;
+		D3DKMTCloseAdapter_ close = (D3DKMTCloseAdapter_)GetProcAddress(m_hDll, "D3DKMTCloseAdapter");
+
+		if (!close)
+			return;
+
+		// close opened d3dkmt handles here
+		for (auto& p : m_vOutputs)
+		{
+			if (p.AdapterHandle == D3DGPU_NULL)
+				continue;
+
+			ca.hAdapter = p.AdapterHandle;
+			close(&ca);
+		}
+	}
 }
 
+// this function checks if the UMD driver supports the specified interface
 STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Out_ LARGE_INTEGER* pUMDVersion)
 {
-	// this function checks if the UMD driver supports the specified interface
-
 	if (!pUMDVersion)
 		return DXGI_ERROR_INVALID_CALL;
 
@@ -34,13 +55,12 @@ STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Ou
 
 	if (isD3d10)
 		startVer = KMTUMDVERSION_DX10; // ID3D10Device (if we support DX10 or greater)
-
 	else if (!IsEqualIID(IID_IDXGIDevice, InterfaceName))
 		return DXGI_ERROR_UNSUPPORTED;
 
 	D3DKMT_QUERYADAPTERINFO info;
 	D3DKMT_UMDFILENAMEINFO umdFile;
-	info.hAdapter = m_desc.Handle;
+	info.hAdapter = m_hHandle;
 	info.PrivateDriverDataSize = sizeof(umdFile);
 	info.Type = KMTQAITYPE_UMDRIVERNAME;
 	info.pPrivateDriverData = &umdFile;
@@ -51,7 +71,7 @@ STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Ou
 		// apperently (needs confirmation): some drivers can implement only DXVA2 and fail when it attempts to call DX9 version or similar
 
 		umdFile.Version = (KMTUMDVERSION)startVer;
-		auto err = NtErrorToDxgiError(ApiCallback.D3DKMTQueryAdapterInfo(&info));
+		auto err = NtErrorToDxgiError(D3DKMTQueryAdapterInfo(&info));
 
 		if (SUCCEEDED(err))
 			break;
@@ -62,15 +82,15 @@ STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Ou
 
 			// fallback to gdi32.dll if we don't have a D3D9 compatible driver
 			// this is because that we might be running in XDDM mode
-			GetModuleFileNameW(_AtlModule.GetGdi32(), umdFile.UmdFileName, MAX_PATH);
+			GetModuleFileNameW(g_GDI32, umdFile.UmdFileName, MAX_PATH);
 		}
 	}
 
 	if (isD3d10)
 	{
-		// we have an UMD driver that claims to DirectX 10
+		// we have an UMD driver that claims to support DirectX 10
 		// let's see if we can actually create a D3D10 device.
-		// In case we can NOT create a device with D3D10, we consider that the don't support D3D10
+		// In case we can NOT create a device with D3D10, we consider that we don't support D3D10
 
 		auto d3d = LoadLibraryW(L"d3d10.dll");
 		if (!d3d)
@@ -82,13 +102,15 @@ STDMETHODIMP CDXGIAdapter::CheckInterfaceSupport(_In_ REFGUID InterfaceName, _Ou
 			return DXGI_ERROR_UNSUPPORTED;
 
 		ID3D10Device* pDev;
-		auto hr = d3d10cv(this, D3D10_DRIVER_TYPE_HARDWARE, nullptr, 0, D3D10_SDK_VERSION, &pDev);
+		auto hr = d3d10cv(this, (m_desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) ? D3D10_DRIVER_TYPE_SOFTWARE : D3D10_DRIVER_TYPE_HARDWARE, nullptr, 0, D3D10_SDK_VERSION, &pDev);
 
 		if (FAILED(hr))
 			return DXGI_ERROR_UNSUPPORTED;
 
 		pDev->Release();
 	}
+
+	// get the resource version of the umd
 
 	auto sz = GetFileVersionInfoSizeW(umdFile.UmdFileName, nullptr);
 
@@ -128,7 +150,7 @@ STDMETHODIMP CDXGIAdapter::EnumOutputs(_In_ UINT Output, _COM_Outptr_ IDXGIOutpu
 
 	*ppOutput = nullptr;
 
-	if ((Output + 1) > m_desc.Outputs.size())
+	if ((Output + 1) > m_vOutputs.size())
 		return DXGI_ERROR_NOT_FOUND;
 
 	ATL::CComObject<CDXGIOutput>* op;
@@ -137,7 +159,7 @@ STDMETHODIMP CDXGIAdapter::EnumOutputs(_In_ UINT Output, _COM_Outptr_ IDXGIOutpu
 	if (FAILED(hr))
 		return hr;
 
-	hr = op->Initialize(this, m_desc.Outputs[Output]);
+	hr = op->Initialize(m_hDll, this, m_vOutputs[Output]);
 	if (FAILED(hr))
 	{
 		delete op;
@@ -159,14 +181,14 @@ STDMETHODIMP CDXGIAdapter::GetDesc(_Out_ DXGI_ADAPTER_DESC* pDesc)
 	if (!pDesc)
 		return DXGI_ERROR_INVALID_CALL;
 
-	if (!m_desc.IsValid)
+	if (!m_bValid)
 		GetAdapterDesc();
 
 	pDesc->AdapterLuid = m_desc.AdapterLuid;
 	pDesc->DedicatedSystemMemory = m_desc.DedicatedSystemMemory;
 	pDesc->DedicatedVideoMemory = m_desc.DedicatedVideoMemory;
 	pDesc->SharedSystemMemory = m_desc.SharedSystemMemory;
-	wcscpy(pDesc->Description, m_desc.Description);
+	StringCchCopyN(pDesc->Description, 128, m_desc.Description, 128);
 	pDesc->DeviceId = m_desc.DeviceId;
 	pDesc->Revision = m_desc.Revision;
 	pDesc->SubSysId = m_desc.SubSysId;
@@ -181,10 +203,114 @@ STDMETHODIMP CDXGIAdapter::GetUMDDeviceSize(_In_ UINT unk, _In_ UINT unk2, _In_ 
 	return S_OK;
 }
 
-STDMETHODIMP CDXGIAdapter::Initialize(IDXGIFactory* parent, const DXGIAdapterDesc& desc)
+STDMETHODIMP CDXGIAdapter::Initialize(_In_ IDXGIFactory* parent)
 {
 	SetParent(parent); // keep the reference of self alive...
-	m_desc = desc;
+	m_hDll = g_GDI32;
+	
+	auto hr = LoadD3DKMTApi();
+	if (FAILED(hr))
+		return hr;
+
+	m_modType = DXGIAdapterModuleType::Hardware;
+
+	if (FAILED(QueryUMDVersion(KMTUMDVERSION_DX10)))
+		ChangeDataToSoftAdapter();
+
+	return S_OK;
+}
+
+STDMETHODIMP CDXGIAdapter::Initialize(_In_ IDXGIFactory* parent, _In_ HMODULE hSoft)
+{
+	SetParent(parent);
+
+	m_hDll = hSoft;
+	
+	auto hr = LoadD3DKMTApi();
+	if (FAILED(hr))
+		return hr;
+
+	// clear information that was copied from real outputs
+	m_desc.AdapterLuid.HighPart = 0;
+	m_desc.AdapterLuid.LowPart = 0;
+	m_desc.VendorId = 0;
+	m_desc.DeviceId = 0;
+	m_desc.Revision = 0;
+	m_desc.SubSysId = 0;
+	m_hHandle = D3DGPU_NULL;
+
+	// set module type
+
+	// Ordinal 199 is an undocumented exports that is used for internal IDXGIAdapterWarp data
+	if ((GetProcAddress(m_hDll, "OpenAdapter10") || GetProcAddress(m_hDll, "OpenAdapter10_2")) && GetProcAddress(m_hDll, (LPCSTR)199))
+		m_modType = DXGIAdapterModuleType::Warp;
+	// dxgi.dll of Windows hardcodes this, but we can use this two exports to check if we are using ref devices
+	else if (GetProcAddress(m_hDll, "D3D11RefGetLastCreation") || GetProcAddress(m_hDll, "D3D10RefGetLastCreation"))
+		m_modType = DXGIAdapterModuleType::Software;
+
+	auto gdiDisp = (D3DKMTOpenAdapterFromGdiDisplayName_)GetProcAddress(hSoft, "D3DKMTOpenAdapterFromGdiDisplayName");
+
+	if (gdiDisp && m_modType != DXGIAdapterModuleType::Invalid)
+	{
+		NTSTATUS err;
+		bool failed = false;
+
+		ChangeDataToSoftAdapter();
+
+		// we might have outputs to enumerate
+		for (auto& x : m_vOutputs)
+		{
+			D3DKMT_OPENADAPTERFROMGDIDISPLAYNAME gdi = { 0 };
+			StringCchCopyN(gdi.DeviceName, 32, x.DeviceName, 32);
+			err = gdiDisp(&gdi);
+
+			if (FAILED(err))
+			{
+				failed = true;
+				break;
+			}
+
+			if (m_hHandle == D3DGPU_NULL)
+				m_hHandle = gdi.hAdapter;
+
+			x.AdapterHandle = gdi.hAdapter;
+			x.VidPn = gdi.VidPnSourceId;
+			m_desc.AdapterLuid = gdi.AdapterLuid;
+		}
+	}
+	else
+	{
+		// we cannot enumerate the adapters, which means we don't have any!
+		m_vOutputs.clear();
+	}
+
+	return S_OK;
+}
+
+STDMETHODIMP_(void) CDXGIAdapter::AddOutput(const DXGIEnumInfo& e)
+{
+	m_desc.VendorId = e.VendorId;
+	m_desc.DeviceId = e.DeviceId;
+	m_desc.Revision = e.Revision;
+	m_desc.SubSysId = e.SubSystemId;
+	m_desc.AdapterLuid = e.AdapterLuid;
+	
+	if (m_hHandle == D3DGPU_NULL)
+		m_hHandle = e.AdapterHandle;
+
+	DXGIOutputInfo o;
+	o.AdapterHandle = e.AdapterHandle;
+	o.VidPn = e.VidPn;
+	StringCchCopyN(o.DeviceName, 32, e.DeviceName, 32);
+	m_vOutputs.push_back(o);
+}
+
+STDMETHODIMP CDXGIAdapter::LoadD3DKMTApi()
+{
+	D3DKMTQueryAdapterInfo = (D3DKMTQueryAdapterInfo_)GetProcAddress(m_hDll, "D3DKMTQueryAdapterInfo");
+	if (!D3DKMTQueryAdapterInfo)
+		return DXGI_ERROR_UNSUPPORTED;
+
 	return S_OK;
 }
 
@@ -193,12 +319,19 @@ STDMETHODIMP_(void) CDXGIAdapter::GetAdapterDesc()
 	D3DKMT_QUERYADAPTERINFO qa;
 	D3DKMT_SEGMENTSIZEINFO segInfo;
 
-	qa.hAdapter = m_desc.Handle;
+	/// skip query information if the adapter is invalid
+	if (m_modType == DXGIAdapterModuleType::Invalid)
+	{
+		m_bValid = true;
+		return;
+	}
+
+	qa.hAdapter = m_hHandle;
 	qa.Type = KMTQAITYPE_GETSEGMENTSIZE;
 	qa.PrivateDriverDataSize = sizeof(segInfo);
 	qa.pPrivateDriverData = &segInfo;
 
-	NTSTATUS s = ApiCallback.D3DKMTQueryAdapterInfo(&qa);
+	NTSTATUS s = D3DKMTQueryAdapterInfo(&qa);
 
 	if (NT_ERROR(s))
 		return;
@@ -207,23 +340,17 @@ STDMETHODIMP_(void) CDXGIAdapter::GetAdapterDesc()
 	m_desc.DedicatedVideoMemory = (SIZE_T)segInfo.DedicatedVideoMemorySize;
 	m_desc.SharedSystemMemory = (SIZE_T)segInfo.SharedSystemMemorySize;
 
-	D3DKMT_ADAPTERREGISTRYINFO reg;
+	D3DKMT_ADAPTERREGISTRYINFO reg = { 0 };
 	qa.Type = KMTQAITYPE_ADAPTERREGISTRYINFO;
 	qa.PrivateDriverDataSize = sizeof(reg);
 	qa.pPrivateDriverData = &reg;
 
-	s = ApiCallback.D3DKMTQueryAdapterInfo(&qa);
+	s = D3DKMTQueryAdapterInfo(&qa);
 
-	if (NT_ERROR(s))
-		return;
-
-
-	WcsMaxCpy(reg.AdapterString, m_desc.Description, 127);
-
-	// TODO!
-#if DXGI_VERSION >= 1
-	m_desc.Flags = DXGI_ADAPTER_FLAG_NONE;
-#endif
+	if (NT_SUCCESS(s))
+	{
+		StringCchCopyN(m_desc.Description, 128, reg.AdapterString, 260);
+	}
 
 #if DXGKDDI_INTERFACE_VERSION >= DXGKDDI_INTERFACE_VERSION_WIN8
 	D3DKMT_ADAPTERTYPE at;
@@ -233,7 +360,7 @@ STDMETHODIMP_(void) CDXGIAdapter::GetAdapterDesc()
 
 	s = ApiCallback.D3DKMTGetQueryAdapterInfo(&qa);
 
-	if (SUCCEEDED(s))
+	if (NT_SUCCESS(s))
 	{
 		m_desc.Flags |= at.SoftwareDevice ? DXGI_ADAPTER_FLAG_SOFTWARE : DXGI_ADAPTER_FLAG_NONE;
 	}
@@ -241,12 +368,12 @@ STDMETHODIMP_(void) CDXGIAdapter::GetAdapterDesc()
 	// TODO: Use KMTQAITYPE_WDDM_1_2_CAPS to gather GraphicsPreemptionGranularity&&ComputePreemptionGranularity
 
 #elif DXGI_VERSION >= 2
-	// NOTE: hardcoded because we are not in Windows 8
+	// hardcoded because we are not in Windows 8
 	m_desc.GraphicsPreemptionGranularity = DXGI_GRAPHICS_PREEMPTION_DMA_BUFFER_BOUNDARY;
 	m_desc.ComputePreemptionGranularity = DXGI_COMPUTE_PREEMPTION_DMA_BUFFER_BOUNDARY;
 #endif
 
-	m_desc.IsValid = true;
+	m_bValid = true;
 }
 
 #if DXGI_VERSION >= 1
@@ -255,7 +382,7 @@ STDMETHODIMP CDXGIAdapter::GetDesc1(_Out_ DXGI_ADAPTER_DESC1* pDesc)
 	if (!pDesc)
 		return DXGI_ERROR_INVALID_CALL;
 
-	if (!m_desc.IsValid)
+	if (!m_bValid)
 		GetAdapterDesc();
 
 	pDesc->AdapterLuid = m_desc.AdapterLuid;
@@ -279,7 +406,7 @@ STDMETHODIMP CDXGIAdapter::GetDesc2(_Out_ DXGI_ADAPTER_DESC2* pDesc)
 	if (!pDesc)
 		return DXGI_ERROR_INVALID_CALL;
 
-	if (!m_desc.IsValid)
+	if (!m_bValid)
 		GetAdapterDesc();
 
 	pDesc->AdapterLuid = m_desc.AdapterLuid;
@@ -310,13 +437,13 @@ STDMETHODIMP CDXGIAdapter::LoadUMD(_In_ KMTUMDVERSION Version, _Out_ HINSTANCE* 
 
 	D3DKMT_QUERYADAPTERINFO qa;
 	D3DKMT_UMDFILENAMEINFO um;
-	qa.hAdapter = m_desc.Handle;
+	qa.hAdapter = m_hHandle;
 	qa.PrivateDriverDataSize = sizeof(um);
 	qa.pPrivateDriverData = &um;
 	qa.Type = KMTQAITYPE_UMDRIVERNAME;
 	um.Version = Version;
 
-	auto st = ApiCallback.D3DKMTQueryAdapterInfo(&qa);
+	auto st = D3DKMTQueryAdapterInfo(&qa);
 	if (NT_ERROR(st))
 		return NtErrorToDxgiError(st);
 
@@ -330,7 +457,7 @@ STDMETHODIMP CDXGIAdapter::LoadUMD(_In_ KMTUMDVERSION Version, _Out_ HINSTANCE* 
 
 STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_ D3DKMT_HANDLE* Adapter, _In_ UINT ThunkSize, _Out_opt_ void* Thunks)
 {
-	HRESULT hr = S_OK;
+	bool hr = true;
 
 	switch (Version)
 	{
@@ -340,16 +467,17 @@ STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_
 	case DXGI_THUNKS_VERSION_NONE:
 		break;
 
-	case DXGI_THUNKS_VERSION_3:
+
+	case DXGI_THUNKS_VERSION_1:
 	{
 		if (!Thunks)
 			break;
 
-		if (ThunkSize != sizeof(DXGI_THUNKS_V3))
+		if (ThunkSize != sizeof(DXGI_THUNKS_V1))
 			return E_POINTER;
 
-		*((DWORD*)Thunks) = _AtlModule.GetGlobalThunkVersion();
-		hr = DXGILoadThunk(_AtlModule.GetGdi32(), (DXGI_THUNKS_V3*)Thunks);
+		*((DWORD*)Thunks) = 1;
+		hr = DXGILoadThunkProcs(m_hDll, DXGI_THUNKS_NAMES_V1, (FARPROC*)Thunks);
 		break;
 	}
 
@@ -361,22 +489,22 @@ STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_
 		if (ThunkSize != sizeof(DXGI_THUNKS_V2))
 			return E_POINTER;
 
-		*((DWORD*)Thunks) = _AtlModule.GetGlobalThunkVersion();
-		hr = DXGILoadThunk(_AtlModule.GetGdi32(), (DXGI_THUNKS_V2*)Thunks);
+		*((DWORD*)Thunks) = 2;
+		hr = DXGILoadThunkProcs(m_hDll, DXGI_THUNKS_NAMES_V2, (FARPROC*)Thunks);
 
 		break;
 	}
 
-	case DXGI_THUNKS_VERSION_1:
+	case DXGI_THUNKS_VERSION_3:
 	{
 		if (!Thunks)
 			break;
 
-		if (ThunkSize != sizeof(DXGI_THUNKS_V1))
+		if (ThunkSize != sizeof(DXGI_THUNKS_V3))
 			return E_POINTER;
 
-		*((DWORD*)Thunks) = _AtlModule.GetGlobalThunkVersion();
-		hr = DXGILoadThunk(_AtlModule.GetGdi32(), (DXGI_THUNKS_V1*)Thunks);
+		*((DWORD*)Thunks) = 3;
+		hr = DXGILoadThunkProcs(m_hDll, DXGI_THUNKS_NAMES_V3, (FARPROC*)Thunks);
 		break;
 	}
 
@@ -388,20 +516,47 @@ STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_
 		if (ThunkSize != sizeof(DXGI_THUNKS_V4))
 			return E_POINTER;
 
-		*((DWORD*)Thunks) = _AtlModule.GetGlobalThunkVersion();
-		hr = DXGILoadThunk(_AtlModule.GetGdi32(), (DXGI_THUNKS_V4*)Thunks);
+		*((DWORD*)Thunks) = 4;
+		hr = DXGILoadThunkProcs(m_hDll, DXGI_THUNKS_NAMES_V4, (FARPROC*)Thunks);
 		break;
 	}
 
 
 	}
 
-	if (FAILED(hr))
-		return hr;
+	if (!hr)
+		return E_NOINTERFACE;
 
 	if (Adapter)
-		*Adapter = m_desc.Handle;
+		*Adapter = m_hHandle;
 
+	return S_OK;
+}
+
+STDMETHODIMP CDXGIAdapter::QueryUMDVersion(KMTUMDVERSION uv)
+{
+	D3DKMT_QUERYADAPTERINFO info;
+	D3DKMT_UMDFILENAMEINFO umdFile;
+	info.hAdapter = m_hHandle;
+	info.PrivateDriverDataSize = sizeof(umdFile);
+	info.Type = KMTQAITYPE_UMDRIVERNAME;
+	info.pPrivateDriverData = &umdFile;
+	umdFile.Version = uv;
+	return NtErrorToDxgiError(D3DKMTQueryAdapterInfo(&info));
+}
+
+STDMETHODIMP_(void) CDXGIAdapter::ChangeDataToSoftAdapter()
+{
+	StringCchCopy(m_desc.Description, 128, L"Software Adapter");
+	m_desc.VendorId = 0;
+	m_desc.DeviceId = 0;
+	m_desc.SubSysId = 0;
+	m_desc.Revision = 0;
+}
+
+STDMETHODIMP CDXGIAdapter::CloseKernelHandle(_In_ D3DKMT_HANDLE* pHandle)
+{
+	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIAdapter::CloseKernelHandle", "DEBUG", MB_OK);
 	return S_OK;
 }
 
@@ -425,8 +580,7 @@ STDMETHODIMP CDXGIAdapter::GetAdapterCapabilities(_Inout_ DXGI_ADAPTER_CAPABILIT
 
 STDMETHODIMP_(BOOL) CDXGIAdapter::IsWARP(void)
 {
-	MessageBoxA(nullptr, "NOT IMPLEMENTED: CDXGIAdapter::IsWARP", "DEBUG", MB_OK);
-	return FALSE;
+	return m_modType == DXGIAdapterModuleType::Warp ? TRUE : FALSE;
 }
 
 STDMETHODIMP_(D3DDDI_VIDEO_PRESENT_SOURCE_ID) CDXGIAdapter::GetPrimaryVidPnSourceId(void)
