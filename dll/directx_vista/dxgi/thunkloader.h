@@ -16,17 +16,23 @@
 * @param[out] Procs output procedures
 * @return true in case of success, otherwise false
 */
-inline bool DXGILoadThunkProcs(_In_ HMODULE hGdi, _In_ const char* const* List, _Inout_ FARPROC Procs[])
+template <typename T>
+inline bool DXGILoadThunkProcs(_In_ HMODULE hGdi, _In_ T& List, _Inout_ FARPROC Procs[])
 {
-	for (int i = 0; i < sizeof(List); i++)
+	for (int i = 0; i < sizeof(List) / sizeof(const char*); i++)
 	{
 		if (!List[i])
 			continue; // Two thunks are not discovered
 
 		FARPROC x = GetProcAddress(hGdi, List[i]);
 
-		if (!x)
-			return false;
+		// it looks like from software adapter that some of this are expected to fail
+		/*if (!x)
+		{
+			x = GetProcAddress(g_GDI32, List[i]);
+			if (!x)
+				return false;
+		}*/
 
 		Procs[i + 1] = x;
 	}

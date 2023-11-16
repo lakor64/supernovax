@@ -162,6 +162,29 @@ typedef struct _DXGI_SWAP_POOL_DESC
 	BYTE unk;
 } DXGI_SWAP_POOL_DESC;
 
+typedef struct _NONSXS_QUERYRESOURCEINFO
+{
+	/*
+	* TODO: discover later (it's for d3d10 device reimp)
+	*/
+	BYTE unk;
+} NONSXS_QUERYRESOURCEINFO;
+
+typedef struct _NONSXS_DESTROYALLOCATION
+{
+	BYTE unk;
+} NONSXS_DESTROYALLOCATION;
+
+typedef struct _NONSXS_OPENKEYEDMUTEX
+{
+	BYTE unk;
+} NONSXS_OPENKEYEDMUTEX;
+
+typedef struct _NONSXS_DESTROYKEYEDMUTEX
+{
+	BYTE unk;
+} NONSXS_DESTROYKEYEDMUTEX;
+
 [
 	object,
 	local,
@@ -312,7 +335,7 @@ interface IDXGIAdapterUnknownInternal : IUnknown
 [
 	object,
 	local,
-	uuid(7abb6563-02bc-47c4-8ef9-acc4795edbcf) // ok! (dxgi.dll windows 7)
+	uuid(7abb6563-02bc-47c4-8ef9-acc4795edbcf) // ok! (dxgi.dll windows 7 sp1 & rtm)
 ]
 /*
 * Internal data of an adapter (Windows 7 SP1+)
@@ -390,7 +413,7 @@ interface IDXGIDeviceTest : IUnknown
 	HRESULT CheckPresentDurationSupport(
 
 	);
-}
+};
 
 [
 	object,
@@ -398,7 +421,7 @@ interface IDXGIDeviceTest : IUnknown
 	uuid(5a92ae4f-81fa-4cac-a1d8-ae479ac581cd)
 ]
 /*
-* Internal device data (Windows Vista RTM)
+* Internal device data (Windows Vista)
 */
 interface IDXGIDeviceInternal : IUnknown
 {
@@ -458,7 +481,6 @@ interface IDXGIDeviceInternal : IUnknown
 		DXGI_FORMAT Format
 	);
 }
-
 
 [
 	object,
@@ -739,4 +761,97 @@ interface IDXGIFactoryInternal : IUnknown
 		void
 	);
 
+};
+
+[
+	object,
+	local,
+	uuid(0fee0f52-6b6f-4715-bde8-d43eade9c8e6) // ok! windows vista sp2
+]
+interface ID3D10NonSxSDevice : IUnknown
+{
+	HRESULT CreateDriverInstance(
+		void*,
+		void*,
+		void*,
+		UINT
+	);
+
+	HRESULT RelocateDriverInterface(
+		void*
+	);
+
+	HRESULT DestroyDriverInstance(
+		void
+	);
+
+	HRESULT GetDeviceChildSize(
+		UINT,
+		const void*,
+		ULONG
+	);
+
+	HRESULT CreateDeviceChild(
+		UINT,
+		const void*,
+		ULONGLONG,
+		void*
+	);
+
+	HRESULT DestroyDeviceChild(
+		UINT,
+		void*
+	);
+	
+	HRESULT CheckDeviceActive(
+		void
+	);
+
+	HRESULT RemoveDevice(
+		LONG
+	);
+
+	HRESULT QueryResourceInfo(
+		NONSXS_QUERYRESOURCEINFO*
+	);
+
+	HRESULT OpenResource(
+		void*
+	);
+
+	HRESULT DestroyAllocation(
+		NONSXS_DESTROYALLOCATION*
+	);
+
+	HRESULT GetSharedResourceCreationArgs(
+		const void**
+	);
+	
+	HRESULT SetSharedResourceCreationArgs(
+		const void*
+	);
+
+	HRESULT AcquireCounterExclusiveMode(
+		void
+	);
+
+	HRESULT ReleaseCounterExclusiveMode(
+		void
+	);
+};
+
+[
+	local,
+	object,
+	uuid(0fee0f52-6b6f-4715-bde8-d43eade9c8e7) // TODO: fix this guid
+]
+interface ID3D10NonSxSDevice2 : ID3D10NonSxSDevice
+{
+	HRESULT OpenKeyedMutex(
+		NONSXS_OPENKEYEDMUTEX*
+	);
+	
+	HRESULT DestroyKeyedMutex(
+		NONSXS_DESTROYKEYEDMUTEX*
+	);
 };

@@ -61,12 +61,8 @@ STDMETHODIMP CDXGIFactory::CreateSoftwareAdapter(_In_ HMODULE Module, _Out_ IDXG
 		return hr;
 	}
 
-	hr = adapter->QueryInterface(&ppAdapter);
-	if (FAILED(hr))
-	{
-		delete adapter;
-		return hr;
-	}
+	adapter->AddRef();
+	*ppAdapter = adapter;
 
 	return S_OK;
 }
@@ -105,12 +101,8 @@ STDMETHODIMP CDXGIFactory::CreateSwapChain(_In_ IUnknown* pDevice, _In_ DXGI_SWA
 		return hr;
 	}
 
-	hr = swapChain->QueryInterface(&ppSwapChain);
-	if (FAILED(hr))
-	{
-		delete swapChain;
-		return hr;
-	}
+	swapChain->AddRef();
+	*ppSwapChain = swapChain;
 
 	return S_OK;
 }
@@ -150,12 +142,8 @@ STDMETHODIMP CDXGIFactory::EnumAdaptersReal(_In_ UINT Adapter, _In_ REFIID Iid, 
 		return hr;
 	}
 
-	hr = adapter->QueryInterface(Iid, (void**)ppAdapter);
-	if (FAILED(hr))
-	{
-		delete adapter;
-		return hr;
-	}
+	adapter->AddRef();
+	*ppAdapter = adapter;
 
 	return S_OK;
 }

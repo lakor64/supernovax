@@ -1,22 +1,17 @@
 #define WIN32_LEAN_AND_MEAN 1
 #include <Windows.h>
 #include <dxgi.h>
-#include <d3d11.h>
+#include <d3d10.h>
 #include <cstdio>
 #include <crtdbg.h>
 #include <tchar.h>
-
-#include <dxgidwm.h>
-#include <dxgipartner.h>
-#include <dxgixaml.h>
-#include <dxgiternl.h>
 
 #undef  DEFINE_GUID
 #define DEFINE_GUID(name,l,w1,w2,b1,b2,b3,b4,b5,b6,b7,b8) EXTERN_C const GUID name = { l, w1, w2, { b1, b2, b3, b4, b5, b6, b7, b8 } }
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "dxguid.lib")
-#pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "d3d10.lib")
 
 /*
 	*** GUIDS TO TEST ***
@@ -24,11 +19,6 @@
 	Windows Vista RTM
 		IDXGISwapChain
 			9b7e4a01_342c_4106_a19f_4f2704f689f0
-
-		ID3D10Device
-			0fee0f52_6b6f_4715_bde8_d43eade9c8e6
-			5a92ae4f_81fa_4cac_a1d8_ae479ac581cd
-			00000040_342d_4106_a19f_4f2704f689f0
 
 		ID3D10Resource
 			00000040_342d_4106_a19f_4f2704f689f0
@@ -57,7 +47,7 @@ public:
 			IUnknown* This,
 			/* [in] */ REFIID riid,
 			/* [annotation][iid_is][out] */
-			_COM_Outptr_  void** ppvObject);
+			void** ppvObject);
 
 	ULONG(STDMETHODCALLTYPE* AddRef)(
 		IUnknown* This);
@@ -85,7 +75,7 @@ static LRESULT CALLBACK Bruuuh(_In_ HWND hWnd, _In_ UINT Msg, _In_opt_ WPARAM wP
 	return DefWindowProc(hWnd, Msg, wParam, lParam);
 }
 
-DEFINE_GUID(IID_TESTGUID, 0x712bd56d, 0x86ff, 0x4b71, 0x91, 0xe1, 0xc1, 0x3b, 0x27, 0x4f, 0xf2, 0xa2);
+DEFINE_GUID(IID_TESTGUID, 0x00000040,0x342d,0x4106,0xa1,0x9f,0x4f,0x27,0x04,0xf6,0x89,0xf0);
 
 int main()
 {
@@ -113,7 +103,7 @@ int main()
 		return 0;
 	}
 
-	ID3D11Device* dv;
+	ID3D10Device* dv;
 	IDXGISwapChain* sp;
 	D3D_FEATURE_LEVEL fl = D3D_FEATURE_LEVEL_10_0;
 
@@ -159,22 +149,22 @@ int main()
 
 	swapChainDesc.OutputWindow = hw;
 
-	hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, &fl, 1, D3D11_SDK_VERSION, &swapChainDesc, &sp, &dv, nullptr, nullptr);
+	hr = D3D10CreateDeviceAndSwapChain(nullptr, D3D10_DRIVER_TYPE_WARP, nullptr, 0, D3D10_SDK_VERSION, &swapChainDesc, &sp, &dv);
 	if (FAILED(hr))
 	{
 		printf("kys 2 %x\n", hr);
 		//return -4;
 	}
 
-	ID3D11Texture2D* xd;
-	hr = sp->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&xd);
+	ID3D10Texture2D* xd;
+	hr = sp->GetBuffer(0, __uuidof(ID3D10Texture2D), (void**)&xd);
 	if (FAILED(hr))
 	{
 		printf("kys 3\n");
 	}
 
 	ITest* x2;
-	hr = adpt->QueryInterface(IID_TESTGUID, (void**)&x2);
+	hr = dv->QueryInterface(IID_TESTGUID, (void**)&x2);
 	//hr = p->QueryInterface(__uuidof(IDXGIFactoryPartner), (void**)&x2);
 	if (FAILED(hr))
 	{

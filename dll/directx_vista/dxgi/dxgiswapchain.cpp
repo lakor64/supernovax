@@ -281,7 +281,7 @@ STDMETHODIMP CDXGISwapChain::Initialize(_In_ IDXGIFactory* pFactory, _In_ IUnkno
 	/*
 	* Create back buffer
 	*/
-	hr = m_cDevice.CreateSurfaceInternal(&dsc, 1, 1, DXGI_RESOURCE_BIND_RENDER_TARGET, 0, &pBB);
+	hr = m_cDevice.CreateSurfaceInternal(&dsc, 1, 1, DXGI_RESOURCE_BIND_RENDER_TARGET | DXGI_RESOURCE_BIND_SHADER_RESOURCE, 0, &pBB);
 
 	if (FAILED(hr))
 		return hr;

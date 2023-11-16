@@ -457,7 +457,7 @@ STDMETHODIMP CDXGIAdapter::LoadUMD(_In_ KMTUMDVERSION Version, _Out_ HINSTANCE* 
 
 STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_ D3DKMT_HANDLE* Adapter, _In_ UINT ThunkSize, _Out_opt_ void* Thunks)
 {
-	bool hr = true;
+	bool isOk = true;
 
 	switch (Version)
 	{
@@ -477,7 +477,7 @@ STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_
 			return E_POINTER;
 
 		*((DWORD*)Thunks) = 1;
-		hr = DXGILoadThunkProcs(m_hDll, DXGI_THUNKS_NAMES_V1, (FARPROC*)Thunks);
+		isOk = DXGILoadThunkProcs(m_hDll, DXGI_THUNKS_NAMES_V1, (FARPROC*)Thunks);
 		break;
 	}
 
@@ -490,7 +490,7 @@ STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_
 			return E_POINTER;
 
 		*((DWORD*)Thunks) = 2;
-		hr = DXGILoadThunkProcs(m_hDll, DXGI_THUNKS_NAMES_V2, (FARPROC*)Thunks);
+		isOk = DXGILoadThunkProcs(m_hDll, DXGI_THUNKS_NAMES_V2, (FARPROC*)Thunks);
 
 		break;
 	}
@@ -504,7 +504,7 @@ STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_
 			return E_POINTER;
 
 		*((DWORD*)Thunks) = 3;
-		hr = DXGILoadThunkProcs(m_hDll, DXGI_THUNKS_NAMES_V3, (FARPROC*)Thunks);
+		isOk = DXGILoadThunkProcs(m_hDll, DXGI_THUNKS_NAMES_V3, (FARPROC*)Thunks);
 		break;
 	}
 
@@ -517,14 +517,14 @@ STDMETHODIMP CDXGIAdapter::InstanceThunks(_In_ DXGI_THUNKS_VERSION Version, _In_
 			return E_POINTER;
 
 		*((DWORD*)Thunks) = 4;
-		hr = DXGILoadThunkProcs(m_hDll, DXGI_THUNKS_NAMES_V4, (FARPROC*)Thunks);
+		isOk = DXGILoadThunkProcs(m_hDll, DXGI_THUNKS_NAMES_V4, (FARPROC*)Thunks);
 		break;
 	}
 
 
 	}
 
-	if (!hr)
+	if (!isOk)
 		return E_NOINTERFACE;
 
 	if (Adapter)
