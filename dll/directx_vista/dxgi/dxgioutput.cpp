@@ -117,7 +117,7 @@ STDMETHODIMP CDXGIOutput::GetDisplayModeList(_In_ DXGI_FORMAT EnumFormat, _In_ U
 				pDesc[iteSize].RefreshRate.Denominator = y->RefreshRate.Denominator;
 				pDesc[iteSize].ScanlineOrdering = (DXGI_MODE_SCANLINE_ORDER)y->ScanLineOrdering;
 				pDesc[iteSize].Scaling = DXGI_MODE_SCALING_UNSPECIFIED; // TODO: figure out how to handle/read scaling
-				pDesc[iteSize].Format = EnumFormat;
+				pDesc[iteSize].Format = DXGI_MFMapDX9FormatToDXGIFormat(y->Format); //EnumFormat;
 
 				iteSize++;
 			}
@@ -233,23 +233,6 @@ STDMETHODIMP CDXGIOutput::Initialize(_In_ HMODULE hSoft, _In_ CDXGIAdapter* adap
 
 STDMETHODIMP_(bool) CDXGIOutput::CheckIfDDIFormatIsOk(const D3DKMT_DISPLAYMODE& ddi, DXGI_FORMAT fmt, UINT flags)
 {
-	if (ddi.Format != DXGI_MFMapDXGIFormatToDX9Format(fmt))
-		return false;
-
-	if (!ddi.Flags.ValidatedAgainstMonitorCaps)
-		return false;
-
-	if (ddi.DisplayOrientation != D3DDDI_ROTATION_IDENTITY)
-		return false;
-
-	// for some reason I don't see 59hz refresh in DXGI
-	if (ddi.RefreshRate.Denominator != 1)
-		return false;
-
-	// TODO: I don't know if this is ok!
-	if (ddi.DisplayFixedOutput != 0)
-		return false;
-
 	// TODO: DXGI_ENUM_MODES_INTERLACED
 	// TODO: DXGI_ENUM_MODES_SCALING
 

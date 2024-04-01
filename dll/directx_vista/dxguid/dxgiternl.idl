@@ -446,10 +446,10 @@ interface IDXGIDeviceInternal : IUnknown
 	HRESULT CreateSurfaceInternal(
 		IUseCounted*,
 		const DXGI_SURFACE_DESC* pDesc,
-		UINT,
+		UINT NumOfOutput,
 		UINT,
 		void*,
-		[out] IDXGISurface** pOutput
+		[out] IDXGISurface** ppOutput
 	);
 
 	HRESULT Blt(
