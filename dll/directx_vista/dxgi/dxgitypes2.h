@@ -1,3 +1,10 @@
+/*
+ * PROJECT:     ReactX Graphics Infrastructure
+ * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
+ * PURPOSE:     Common types
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
+ */
+
 #pragma once
 
 /**

@@ -1,7 +1,7 @@
 /*
- * PROJECT:     ReactX Graphics Infrastructure
- * COPYRIGHT:   See COPYING in the top level directory
- * PURPOSE:     DXGI Internal
+ * PROJECT:     ReactX
+ * LICENSE:     MIT (https://spdx.org/licenses/MIT)
+ * PURPOSE:     ReactX Internal COM interfaces
  * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 

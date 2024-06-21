@@ -1,7 +1,7 @@
 /*
- * PROJECT:     ReactX Graphics Infrastructure
- * COPYRIGHT:   See COPYING in the top level directory
- * PURPOSE:     DXGI UWP/Windows 8 apps
+ * PROJECT:     ReactX
+ * LICENSE:     MIT (https://spdx.org/licenses/MIT)
+ * PURPOSE:     ReactX Graphics Infrastructure COM interfaces for XAML apps (Windows 8) 
  * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 import "oaidl.idl";

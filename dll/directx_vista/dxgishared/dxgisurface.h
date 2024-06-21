@@ -1,6 +1,6 @@
 /*
  * PROJECT:     ReactX Graphics Infrastructure
- * COPYRIGHT:   See COPYING in the top level directory
+ * LICENSE:     LGPL-2.0-or-later (https://spdx.org/licenses/LGPL-2.0-or-later.html)
  * PURPOSE:     Render surface
  * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */

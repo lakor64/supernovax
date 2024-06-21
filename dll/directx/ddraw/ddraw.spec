@@ -1,0 +1,7 @@
+@ stdcall DirectDrawCreate(ptr ptr ptr)
+@ stdcall DirectDrawCreateEx(ptr ptr ptr ptr)
+@ stdcall DirectDrawCreateClipper(long ptr ptr)
+@ stdcall DirectDrawEnumerateA(ptr ptr)
+@ stdcall DirectDrawEnumerateW(ptr ptr)
+@ stdcall DirectDrawEnumerateExA(ptr ptr long)
+@ stdcall DirectDrawEnumerateExW(ptr ptr long)

@@ -1,0 +1,18 @@
+/*
+ * PROJECT:     ReactX
+ * LICENSE:     MIT (https://spdx.org/licenses/MIT)
+ * PURPOSE:     ReactX Diagnostic Tool COM interfaces
+ * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
+ */
+[
+	object,
+	local,
+	uuid(7D0F462F-4064-4862-BC7F933E5058C10F)
+]
+interface IDxDiagProviderPrivate : IUnknown
+{
+	int ExecMethod(
+		[in] LPCWSTR lpActionName,
+		[in] VARIANT* lpValue
+	);
+};

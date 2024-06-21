@@ -1,0 +1,9 @@
+LIBRARY ddraw
+EXPORTS
+	DirectDrawCreate
+	DirectDrawCreateEx
+	DirectDrawCreateClipper
+	DirectDrawEnumerateA
+	DirectDrawEnumerateW
+	DirectDrawEnumerateExA
+	DirectDrawEnumerateExW

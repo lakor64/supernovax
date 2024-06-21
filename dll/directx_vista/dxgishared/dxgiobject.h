@@ -1,7 +1,7 @@
 /*
  * PROJECT:     ReactX Graphics Infrastructure
- * COPYRIGHT:   See COPYING in the top level directory
- * PURPOSE:     Basic DXGI object
+ * LICENSE:     LGPL-2.0-or-later (https://spdx.org/licenses/LGPL-2.0-or-later.html)
+ * PURPOSE:     Basic object
  * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
 

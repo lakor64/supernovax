@@ -1,8 +1,8 @@
 /*
- * PROJECT:     ReactX Graphics Infrastructure
- * COPYRIGHT:   See COPYING in the top level directory
- * PURPOSE:     DXGI DWM
- * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
+ * PROJECT:     ReactX
+ * LICENSE:     MIT (https://spdx.org/licenses/MIT)
+ * PURPOSE:     ReactX DWM COM interfaces
+ * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
  * REFERENCE:
  * - https://shchetinin.blogspot.com/2012/04/dwm-graphics-directx-win8win7.html
  * - https://stackoverflow.com/questions/24739142/how-to-distort-manipulate-dwm-live-thumbnails-in-windows-8-or-in-any-other-way
@@ -10,7 +10,10 @@
 import "oaidl.idl";
 import "ocidl.idl";
 import "dxgi.idl";
+
+#ifndef _WIN7_SDK
 import "dxgi1_2.idl";
+#endif
 
 typedef struct _DXGI_OUTPUT_DWM_DESC
 {
@@ -199,6 +202,7 @@ interface IDXGIFactoryDWM : IUnknown
     );
 }
 
+#ifndef _WIN7_SDK
 [
     object,
     local,
@@ -248,6 +252,7 @@ interface IDXGIOutputDWM : IUnknown
         void**
     );
 };
+#endif
 
 [
     object,

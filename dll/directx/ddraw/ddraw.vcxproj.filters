@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{6555954c-d188-463e-9ce5-15fabb94d482}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Sources">
+      <UniqueIdentifier>{f2ec5cb7-2b79-4015-a9a4-f24a5a388dcc}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="directdraw.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="directdrawclipper.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="directdrawcolorcontrol.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="directdrawgammacontrol.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="directdrawpalette.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="directdrawsurface.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="directdrawvideoport.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="iddvideoportcontainer.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="pch.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ddrawenum.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="directdraw.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="directdrawclipper.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="directdrawcolorcontrol.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="directdrawgammacontrol.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="directdrawpalette.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="directdrawsurface.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="iddvideoportcontainer.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dllmain.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="dllimports.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="directdrawvideoport.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ddrawiatl.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ddraw.def">
+      <Filter>Sources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ddraw.rc">
+      <Filter>Sources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
