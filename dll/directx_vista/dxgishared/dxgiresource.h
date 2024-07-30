@@ -1,6 +1,6 @@
 /*
  * PROJECT:     ReactX Graphics Infrastructure
- * LICENSE:     LGPL-2.0-or-later (https://spdx.org/licenses/LGPL-2.0-or-later.html)
+ * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
  * PURPOSE:     GPU resource
  * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
  */
