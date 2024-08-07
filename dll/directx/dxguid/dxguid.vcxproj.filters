@@ -41,6 +41,12 @@
     <ClCompile Include="lockowner_p.c">
       <Filter>generated</Filter>
     </ClCompile>
+    <ClCompile Include="dxdiag_private_i.c">
+      <Filter>generated</Filter>
+    </ClCompile>
+    <ClCompile Include="dxdiag_private_p.c">
+      <Filter>generated</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="dxgidwm.idl" />
@@ -49,6 +55,7 @@
     <Midl Include="dxgipartner.idl" />
     <Midl Include="dxgixaml.idl" />
     <Midl Include="lockowner.idl" />
+    <Midl Include="dxdiag_private.idl" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="generated">
@@ -72,6 +79,9 @@
       <Filter>generated</Filter>
     </ClInclude>
     <ClInclude Include="lockowner.h">
+      <Filter>generated</Filter>
+    </ClInclude>
+    <ClInclude Include="dxdiag_private.h">
       <Filter>generated</Filter>
     </ClInclude>
   </ItemGroup>
