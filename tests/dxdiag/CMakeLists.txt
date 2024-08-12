@@ -1,0 +1,3 @@
+add_subdirectory(dxdiag_actioner)
+add_subdirectory(dxdiag_walker)
+add_subdirectory(dxdiagn_proxy)

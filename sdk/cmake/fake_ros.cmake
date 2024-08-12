@@ -143,6 +143,9 @@ function(add_fake_targets)
 
     add_library(xdk ALIAS psdk)
     add_library(dxsdk ALIAS psdk)
+
+    add_library(cppstl INTERFACE)
+    target_link_libraries(cppstl INTERFACE psdk libcpmt.lib)
 endfunction()
 
 function(get_native_tool_path file)

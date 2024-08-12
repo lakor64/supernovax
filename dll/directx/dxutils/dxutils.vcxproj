@@ -54,7 +54,6 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{F4BA6590-D13F-4AEB-A1E1-484642D507F1}</ProjectGuid>
     <RootNamespace>d3d10</RootNamespace>
-    <WindowsTargetPlatformVersion>7.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

@@ -119,7 +119,7 @@ static void walk(IDxDiagContainer* root, container& ptr_c)
 
 static const char* val_type(const VARIANT& v)
 {
-    switch (v.vt)
+    switch (v.n1.n2.vt)
     {
     case VT_EMPTY:
         return "empty";
@@ -232,15 +232,15 @@ static void print_val(std::wofstream& of, const VARIANT& v)
 {
     of << "type: " << val_type(v) << " val: ";
 
-    switch (v.vt)
+    switch (v.n1.n2.vt)
     {
     case VT_I1:
     case VT_UI1:
-        of << int(v.bVal);
+        of << int(v.n1.n2.n3.bVal);
         break;
     case VT_I2:
     case VT_UI2:
-        of << v.iVal;
+        of << v.n1.n2.n3.iVal;
         break;
     case VT_I4:
     case VT_UINT:
@@ -249,40 +249,40 @@ static void print_val(std::wofstream& of, const VARIANT& v)
     case VT_VARIANT:
     case VT_HRESULT:
     case VT_FILETIME:
-        of << v.lVal;
+        of << v.n1.n2.n3.lVal;
         break;
     case VT_BOOL:
-        of << v.boolVal;
+        of << v.n1.n2.n3.boolVal;
         break;
     case VT_I8:
     case VT_UI8:
     case VT_DECIMAL:
-        of << v.llVal;
+        of << v.n1.n2.n3.llVal;
         break;
     case VT_CY:
-        of << v.cyVal.int64;
+        of << v.n1.n2.n3.cyVal.int64;
         break;
     case VT_DATE:
-        of << v.date;
+        of << v.n1.n2.n3.date;
         break;
     case VT_PTR:
-        of << uint64_t(v.punkVal);
+        of << uint64_t(v.n1.n2.n3.punkVal);
         break;
     case VT_SAFEARRAY:
-        of << "elements: " << v.parray->cbElements << " dims: " << v.parray->cDims << " locks: " << v.parray->cLocks << " features: " << v.parray->fFeatures;
+        of << "elements: " << v.n1.n2.n3.parray->cbElements << " dims: " << v.n1.n2.n3.parray->cDims << " locks: " << v.n1.n2.n3.parray->cLocks << " features: " << v.n1.n2.n3.parray->fFeatures;
         break;
     case VT_LPSTR:
-        of << v.pcVal;
+        of << v.n1.n2.n3.pcVal;
         break;
     case VT_BSTR:
-        of << "len: " << SysStringLen(v.bstrVal) << " val: " << v.bstrVal;
+        of << "len: " << SysStringLen(v.n1.n2.n3.bstrVal) << " val: " << v.n1.n2.n3.bstrVal;
         break;
     case VT_LPWSTR:
-        of << (LPWSTR)v.pcVal;
+        of << (LPWSTR)v.n1.n2.n3.pcVal;
         break;
     case VT_INT_PTR:
     case VT_UINT_PTR:
-        of << *v.puintVal;
+        of << *v.n1.n2.n3.puintVal;
         break;
     default:
         break;

@@ -22,7 +22,7 @@
 
 static const char* val_type(const VARIANT& v)
 {
-    switch (v.vt)
+    switch (v.n1.n2.vt)
     {
     case VT_EMPTY:
         return "empty";
@@ -135,15 +135,15 @@ static void print_val(const VARIANT& v)
 {
     std::cout << "type: " << val_type(v) << " val: ";
 
-    switch (v.vt)
+    switch (v.n1.n2.vt)
     {
     case VT_I1:
     case VT_UI1:
-        std::cout << int(v.bVal);
+        std::cout << int(v.n1.n2.n3.bVal);
         break;
     case VT_I2:
     case VT_UI2:
-        std::cout << v.iVal;
+        std::cout << v.n1.n2.n3.iVal;
         break;
     case VT_I4:
     case VT_UINT:
@@ -152,40 +152,40 @@ static void print_val(const VARIANT& v)
     case VT_VARIANT:
     case VT_HRESULT:
     case VT_FILETIME:
-        std::cout << v.lVal;
+        std::cout << v.n1.n2.n3.lVal;
         break;
     case VT_BOOL:
-        std::cout << v.boolVal;
+        std::cout << v.n1.n2.n3.boolVal;
         break;
     case VT_I8:
     case VT_UI8:
     case VT_DECIMAL:
-        std::cout << v.llVal;
+        std::cout << v.n1.n2.n3.llVal;
         break;
     case VT_CY:
-        std::cout << v.cyVal.int64;
+        std::cout << v.n1.n2.n3.cyVal.int64;
         break;
     case VT_DATE:
-        std::cout << v.date;
+        std::cout << v.n1.n2.n3.date;
         break;
     case VT_PTR:
-        std::cout << uint64_t(v.punkVal);
+        std::cout << uint64_t(v.n1.n2.n3.punkVal);
         break;
     case VT_SAFEARRAY:
-        std::cout << "elements: " << v.parray->cbElements << " dims: " << v.parray->cDims << " locks: " << v.parray->cLocks << " features: " << v.parray->fFeatures;
+        std::cout << "elements: " << v.n1.n2.n3.parray->cbElements << " dims: " << v.n1.n2.n3.parray->cDims << " locks: " << v.n1.n2.n3.parray->cLocks << " features: " << v.n1.n2.n3.parray->fFeatures;
         break;
     case VT_LPSTR:
-        std::cout << v.pcVal;
+        std::cout << v.n1.n2.n3.pcVal;
         break;
     case VT_BSTR:
-        std::cout << "len: " << SysStringLen(v.bstrVal) << " val: " << v.bstrVal;
+        std::cout << "len: " << SysStringLen(v.n1.n2.n3.bstrVal) << " val: " << v.n1.n2.n3.bstrVal;
         break;
     case VT_LPWSTR:
-        std::cout << (LPWSTR)v.pcVal;
+        std::cout << (LPWSTR)v.n1.n2.n3.pcVal;
         break;
     case VT_INT_PTR:
     case VT_UINT_PTR:
-        std::cout << *v.puintVal;
+        std::cout << *v.n1.n2.n3.puintVal;
         break;
     default:
         break;
@@ -401,16 +401,16 @@ int main(int argc, char** argv)
 
     printf("We now change sound hw accel\n");
     ULONG x = 0;
-    v.vt = VT_UINT_PTR;
-    v.pulVal = &x;
+    v.n1.n2.vt = VT_UINT_PTR;
+    v.n1.n2.n3.pulVal = &x;
     EXEC_METHOD(L"SetSoundHWAccel", &v);
     RUN_DXDIAG;
     YOO_BOX;
 
 
     printf("We now execute TestDD\n");
-    v.vt = VT_UI8;
-    v.ullVal = 0;
+    v.n1.n2.vt = VT_UI8;
+    v.n1.n2.n3.ullVal = 0;
     EXEC_METHOD(L"TestDD", NULL);
     printf("TestDD returned\n");
     while_thing();
