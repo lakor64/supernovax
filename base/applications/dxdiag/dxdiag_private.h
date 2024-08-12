@@ -61,12 +61,12 @@ struct system_information
     WCHAR* szUserDPI;
     WCHAR* szMiracastAvailable;
     WCHAR* szMSHybrid;
-    ULONG nDPlayDebugLevel;
-    ULONG nDDrawDebugLevel;
-    ULONG nDIDebugLevel;
-    ULONG nDMusicDebugLevel;
-    ULONG nDShowDebugLevel;
-    ULONG nDSoundDebugLevel;
+    INT nDPlayDebugLevel;
+    INT nDDrawDebugLevel;
+    INT nDIDebugLevel;
+    INT nDMusicDebugLevel;
+    INT nDShowDebugLevel;
+    INT nDSoundDebugLevel;
     BOOL bIsDSoundDebugRuntime;
     BOOL bIsDPlayDebugRuntime;
     BOOL bIsDDrawDebugRuntime;

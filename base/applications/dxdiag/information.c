@@ -40,34 +40,59 @@
 #define wcsdup _wcsdup
 WINE_DEFAULT_DEBUG_CHANNEL(dxdiag);
 
+struct property_output
+{
+    WCHAR** wchar;
+    union
+    {
+        ULONG* ulong;
+    };
+    BOOL count;
+};
+
 struct property_list
 {
     const WCHAR *property_name;
-    WCHAR **output;
+    struct property_output output;
 };
 
-static BOOL property_to_string(IDxDiagContainer *container, const WCHAR *property, WCHAR **output)
+static void property_to_data(IDxDiagContainer *container, const WCHAR *property, struct property_output* output)
 {
     VARIANT var;
     HRESULT hr;
-    BOOL ret = FALSE;
 
     VariantInit(&var);
 
     hr = IDxDiagContainer_GetProp(container, property, &var);
     if (SUCCEEDED(hr))
     {
-        if (V_VT(&var) == VT_BSTR)
+        switch (V_VT(&var))
         {
-            WCHAR *bstr = V_BSTR(&var);
+        case VT_BSTR:
+        {
+            WCHAR* bstr = V_BSTR(&var);
 
-            *output = wcsdup(bstr);
-            ret = !!*output;
+            *(output->wchar) = wcsdup(bstr);
+            break;
         }
+
+        case VT_I4:
+        case VT_BOOL:
+            *output->ulong = (ULONG)V_I4(&var);
+            break;
+
+        default:
+            WINE_ERR("Unsupported property variant: %s\n", wine_dbgstr_variant(&var));
+            break;
+        }
+    }
+    else
+    {
+        // We might run this app on systems with older versions of dxdiagn.dll
+        WINE_ERR("Cannot find property %s\n", wine_dbgstr_w(property));
     }
 
     VariantClear(&var);
-    return ret;
 }
 
 static void free_system_information(struct dxdiag_information *dxdiag_info)
@@ -77,6 +102,7 @@ static void free_system_information(struct dxdiag_information *dxdiag_info)
     free(system_info->szTimeEnglish);
     free(system_info->szTimeLocalized);
     free(system_info->szMachineNameEnglish);
+    free(system_info->szMachineNameLocalized);
     free(system_info->szOSExLongEnglish);
     free(system_info->szOSExLocalized);
     free(system_info->szLanguagesEnglish);
@@ -92,6 +118,13 @@ static void free_system_information(struct dxdiag_information *dxdiag_info)
     free(system_info->szDirectXVersionLongEnglish);
     free(system_info->szSetupParamEnglish);
     free(system_info->szDxDiagVersion);
+    free(system_info->szPhysicalMemoryEnglishOS);
+    free(system_info->szSystemDPI);
+    free(system_info->szDWMScalingDPI);
+    free(system_info->szDxDbVersion);
+    free(system_info->szUserDPI);
+    free(system_info->szMiracastAvailable);
+    free(system_info->szMSHybrid);
 }
 
 static inline void fill_system_property_list(struct dxdiag_information *dxdiag_info, struct property_list *list)
@@ -99,58 +132,90 @@ static inline void fill_system_property_list(struct dxdiag_information *dxdiag_i
     struct system_information *system_info = &dxdiag_info->system_info;
 
     list[0].property_name = L"szTimeEnglish";
-    list[0].output = &system_info->szTimeEnglish;
+    list[0].output.wchar = &system_info->szTimeEnglish;
     list[1].property_name = L"szTimeLocalized";
-    list[1].output = &system_info->szTimeLocalized;
+    list[1].output.wchar = &system_info->szTimeLocalized;
     list[2].property_name = L"szMachineNameEnglish";
-    list[2].output = &system_info->szMachineNameEnglish;
-    list[3].property_name = L"szOSExLongEnglish";
-    list[3].output = &system_info->szOSExLongEnglish;
-    list[4].property_name = L"szOSExLocalized";
-    list[4].output = &system_info->szOSExLocalized;
-    list[5].property_name = L"szLanguagesEnglish";
-    list[5].output = &system_info->szLanguagesEnglish;
-    list[6].property_name = L"szLanguagesLocalized";
-    list[6].output = &system_info->szLanguagesLocalized;
-    list[7].property_name = L"szSystemManufacturerEnglish";
-    list[7].output = &system_info->szSystemManufacturerEnglish;
-    list[8].property_name = L"szSystemModelEnglish";
-    list[8].output = &system_info->szSystemModelEnglish;
-    list[9].property_name = L"szBIOSEnglish";
-    list[9].output = &system_info->szBIOSEnglish;
-    list[10].property_name = L"szProcessorEnglish";
-    list[10].output = &system_info->szProcessorEnglish;
-    list[11].property_name = L"szPhysicalMemoryEnglish";
-    list[11].output = &system_info->szPhysicalMemoryEnglish;
-    list[12].property_name = L"szPageFileEnglish";
-    list[12].output = &system_info->szPageFileEnglish;
-    list[13].property_name = L"szPageFileLocalized";
-    list[13].output = &system_info->szPageFileLocalized;
-    list[14].property_name = L"szWindowsDir";
-    list[14].output = &system_info->szWindowsDir;
-    list[15].property_name = L"szDirectXVersionLongEnglish";
-    list[15].output = &system_info->szDirectXVersionLongEnglish;
-    list[16].property_name = L"szSetupParamEnglish";
-    list[16].output = &system_info->szSetupParamEnglish;
-    list[17].property_name = L"szDxDiagVersion";
-    list[17].output = &system_info->szDxDiagVersion;
+    list[2].output.wchar = &system_info->szMachineNameEnglish;
+    list[3].property_name = L"szMachineNameLocalized";
+    list[3].output.wchar = &system_info->szMachineNameLocalized;
+    list[4].property_name = L"szOSExLongEnglish";
+    list[4].output.wchar = &system_info->szOSExLongEnglish;
+    list[5].property_name = L"szOSExLocalized";
+    list[5].output.wchar = &system_info->szOSExLocalized;
+    list[6].property_name = L"szLanguagesEnglish";
+    list[6].output.wchar = &system_info->szLanguagesEnglish;
+    list[7].property_name = L"szLanguagesLocalized";
+    list[7].output.wchar = &system_info->szLanguagesLocalized;
+    list[8].property_name = L"szSystemManufacturerEnglish";
+    list[8].output.wchar = &system_info->szSystemManufacturerEnglish;
+    list[9].property_name = L"szSystemModelEnglish";
+    list[9].output.wchar = &system_info->szSystemModelEnglish;
+    list[10].property_name = L"szBIOSEnglish";
+    list[10].output.wchar = &system_info->szBIOSEnglish;
+    list[11].property_name = L"szProcessorEnglish";
+    list[11].output.wchar = &system_info->szProcessorEnglish;
+    list[12].property_name = L"szPhysicalMemoryEnglish";
+    list[12].output.wchar = &system_info->szPhysicalMemoryEnglish;
+    list[13].property_name = L"szPageFileEnglish";
+    list[13].output.wchar = &system_info->szPageFileEnglish;
+    list[14].property_name = L"szPageFileLocalized";
+    list[14].output.wchar = &system_info->szPageFileLocalized;
+    list[15].property_name = L"szWindowsDir";
+    list[15].output.wchar = &system_info->szWindowsDir;
+    list[16].property_name = L"szDirectXVersionLongEnglish";
+    list[16].output.wchar = &system_info->szDirectXVersionLongEnglish;
+    list[17].property_name = L"szSetupParamEnglish";
+    list[17].output.wchar = &system_info->szSetupParamEnglish;
+    list[18].property_name = L"szDxDiagVersion";
+    list[18].output.wchar = &system_info->szDxDiagVersion;
+    list[19].property_name = L"szPhysicalMemoryEnglishOS";
+    list[19].output.wchar = &system_info->szPhysicalMemoryEnglishOS;
+    list[20].property_name = L"szSystemDPI";
+    list[20].output.wchar = &system_info->szSystemDPI;
+    list[21].property_name = L"szDWMScalingDPI";
+    list[21].output.wchar = &system_info->szDWMScalingDPI;
+    list[22].property_name = L"szDxDbVersion";
+    list[22].output.wchar = &system_info->szDxDbVersion;
+    list[23].property_name = L"szUserDPI";
+    list[23].output.wchar = &system_info->szUserDPI;
+    list[24].property_name = L"szMiracastAvailable";
+    list[24].output.wchar = &system_info->szMiracastAvailable;
+    list[25].property_name = L"szMSHybrid";
+    list[25].output.wchar = &system_info->szMSHybrid;
+    list[26].property_name = L"nDPlayDebugLevel";
+    list[26].output.ulong = &system_info->nDPlayDebugLevel;
+    list[27].property_name = L"nDDrawDebugLevel";
+    list[27].output.ulong = &system_info->nDDrawDebugLevel;
+    list[28].property_name = L"nDIDebugLevel";
+    list[28].output.ulong = &system_info->nDIDebugLevel;
+    list[29].property_name = L"nDMusicDebugLevel";
+    list[29].output.ulong = &system_info->nDMusicDebugLevel;
+    list[30].property_name = L"nDShowDebugLevel";
+    list[30].output.ulong = &system_info->nDShowDebugLevel;
+    list[31].property_name = L"nDSoundDebugLevel";
+    list[31].output.ulong = &system_info->nDSoundDebugLevel;
+    list[32].property_name = L"bIsDSoundDebugRuntime";
+    list[32].output.ulong = &system_info->bIsDSoundDebugRuntime;
+    list[33].property_name = L"bIsDPlayDebugRuntime";
+    list[33].output.ulong = &system_info->bIsDPlayDebugRuntime;
+    list[34].property_name = L"bIsDDrawDebugRuntime";
+    list[34].output.ulong = &system_info->bIsDDrawDebugRuntime;
+    list[35].property_name = L"bIsDMusicDebugRuntime";
+    list[35].output.ulong = &system_info->bIsDMusicDebugRuntime;
 }
 
 static BOOL fill_system_information(IDxDiagContainer *container, struct dxdiag_information *dxdiag_info)
 {
     struct system_information *system_info = &dxdiag_info->system_info;
     size_t i;
-    struct property_list property_list[18];
+    struct property_list property_list[36];
 
     fill_system_property_list(dxdiag_info, property_list);
 
     for (i = 0; i < ARRAY_SIZE(property_list); i++)
     {
-        if (!property_to_string(container, property_list[i].property_name, property_list[i].output))
-        {
-            WINE_ERR("Failed to retrieve property %s\n", wine_dbgstr_w(property_list[i].property_name));
-            return FALSE;
-        }
+        property_to_data(container, property_list[i].property_name, &property_list[i].output);
     }
 
 #ifdef _WIN64

@@ -10,7 +10,7 @@ extern unsigned char __cdecl __wine_dbg_get_channel_flags(struct __wine_debug_ch
 
 extern const char* __cdecl __wine_dbg_strdup(const char* str)
 {
-    return "";
+    return _strdup(str);
 }
 
 static unsigned char g_wineput = 0;

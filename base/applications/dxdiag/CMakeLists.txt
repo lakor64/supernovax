@@ -29,7 +29,7 @@ if (PFF)
     target_link_libraries(dxdiag psdk msxml6 comctl32)
     add_importlibs(dxdiag fakewine)
 else()
-#    add_importlibs(dxdiag user32 advapi32 comctl32 version winmm msvcrt kernel32 ntdll)
+    add_importlibs(dxdiag user32 advapi32 comctl32 version winmm msvcrt kernel32 ntdll)
 endif()
 
 add_pch(dxdiag precomp.h SOURCE)

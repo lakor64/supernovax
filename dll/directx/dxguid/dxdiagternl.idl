@@ -4,10 +4,12 @@
  * PURPOSE:     ReactX Diagnostic Tool COM interfaces
  * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
  */
+import "oaidl.idl";
+
 [
 	object,
 	local,
-	uuid(7D0F462F-4064-4862-BC7F933E5058C10F)
+	uuid(7D0F462F-4064-4862-BC7F-933E5058C10F)
 ]
 interface IDxDiagProviderPrivate : IUnknown
 {
