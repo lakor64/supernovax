@@ -5,6 +5,7 @@
 #define COBJMACROS
 
 #ifdef __PFF__
+typedef struct IDxDiagContainer IDxDiagContainer; // fix declaration for xp
 #define DECLSPEC_EXPORT __declspec(dllimport)
 #endif
 

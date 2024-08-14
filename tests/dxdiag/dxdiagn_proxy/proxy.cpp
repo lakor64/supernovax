@@ -34,17 +34,24 @@ public:
 			break;
 
 		case DLL_PROCESS_ATTACH:
+
 			m_hDll = LoadLibraryW(L"dxdiagn2.dll");
-			if (!m_hDll)
-				return FALSE;
+            if (!m_hDll)
+            {
+                MessageBoxA(nullptr, "Cannot load dxdiagn2.dll", "dxdiagn proxy", MB_ICONERROR | MB_OK);
+                return FALSE;
+            }
 
 			m_pProc = (DllGetClassObjectCb)GetProcAddress(m_hDll, "DllGetClassObject");
 			if (!m_pProc)
 			{
+                MessageBoxA(nullptr, "cannot get DllGetClassObject from dxdiagn ms", "dxdiagn proxy", MB_ICONERROR | MB_OK);
 				FreeLibrary(m_hDll);
 				m_hDll = nullptr;
 				return FALSE;
 			}
+
+            MessageBoxA(nullptr, "proxy dxdiag online", "dxdiagn proxy", MB_OK);
 			break;
 		}
 
@@ -227,6 +234,8 @@ public:
         }
         qo += L" return->";
         qo += std::to_wstring(r);
+
+        MessageBoxW(nullptr, qo.c_str(), L"dxdiagn proxy", MB_OK);
         return r;
 	}
 
