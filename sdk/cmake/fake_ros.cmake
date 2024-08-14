@@ -13,6 +13,8 @@
 # SYS_PSDK_LIBDIR: Platform SDK library dir
 # SYS_PSDK_BINDIR: Platform SDK binary dir
 # SYS_PSDK_TARGET: Platform SDK target
+# SYS_DXSDK_ROOT: DX SDK root
+# SYS_DXSDK_NEEDED: Requires an external DX SDK
 # CMAKE_VS_PLATFORM_TOOLSET: MSVC toolchain
 # CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION: Windows SDK version from cmake
 #
@@ -65,14 +67,24 @@ string(STRIP "${VS_CRT_VERSION}" VS_CRT_VERSION)
 
 set(SYS_MSVC_CRT_ROOT "${SYS_VISUALSTUDIO_PATH}/VC/Tools/MSVC/${VS_CRT_VERSION}" CACHE STRING "MSVC CRT root directory" FORCE)
 mark_as_advanced(SYS_MSVC_CRT_ROOT)
+
+if (NOT EXISTS "${SYS_MSVC_CRT_ROOT}")
+    message(FATAL_ERROR "Cannot find MSVC CRT root directory")
+endif()
+
 set(SYS_MSVC_CRT_INC "${SYS_MSVC_CRT_ROOT}/include" CACHE STRING "MSVC CRT includes directory" FORCE)
 mark_as_advanced(SYS_MSVC_CRT_INC)
-set(SYS_MSVC_CRT_LIBDIR "${SYS_MSVC_CRT_ROOT}/lib/${ARCH}" CACHE STRING "MSVC CRT library directory" FORCE)
+set(SYS_MSVC_CRT_LIBDIR "${SYS_MSVC_CRT_ROOT}/lib/${WINARCH}" CACHE STRING "MSVC CRT library directory" FORCE)
 mark_as_advanced(SYS_MSVC_CRT_LIBDIR)
+
+if (NOT EXISTS "${SYS_MSVC_CRT_ROOT}/atlmfc")
+    message(FATAL_ERROR "ATL/MFC not installed for this toolchain")
+endif()
 
 # Windows PSDK bootstrap
 
 set(SYS_PSDK_ROOT "$ENV{ProgramFiles\(x86\)}/Windows Kits")
+set(SYS_DXSDK_NEEDED 0 CACHE BOOL "Need separate DX SDK" FORCE)
 
 if (SYS_IS_XP)
     # you need corecrt v10 for proper compile with v141_xp
@@ -80,11 +92,29 @@ if (SYS_IS_XP)
     # set real psdk root
     set(SYS_PSDK_ROOT "$ENV{ProgramFiles\(x86\)}/Microsoft SDKs/Windows/v7.1A")
     set(SYS_IS_PSDK_V10 0 CACHE BOOL "Platform SDK for NT10+" FORCE)
+
+    if (NOT EXISTS "${SYS_PSDK_ROOT_10}")
+        message(FATAL_ERROR "Cannot find Platform SDK for Windows 10")
+    endif()
+
+    set(SYS_DXSDK_NEEDED TRUE CACHE BOOL "Need separate DX SDK" FORCE)
+
+    set(SYS_DXSDK_ROOT "$ENV{ProgramFiles\(x86\)}/Microsoft DirectX SDK \(June 2010\)")
+
+    if (NOT EXISTS "${SYS_DXSDK_ROOT}")
+        message(FATAL_ERROR "Cannot find DX SDK root")
+    endif()
 elseif ("${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}" MATCHES "10")
     set(SYS_PSDK_ROOT "${SYS_PSDK_ROOT}/10")
     set(SYS_IS_PSDK_V10 TRUE CACHE BOOL "Platform SDK for NT10+" FORCE)
 endif()
 
+if (NOT EXISTS "${SYS_PSDK_ROOT}")
+    message(FATAL_ERROR "Cannot find Platform SDK")
+endif()
+
+mark_as_advanced(SYS_DXSDK_ROOT)
+mark_as_advanced(SYS_DXSDK_NEEDED)
 mark_as_advanced(SYS_IS_PSDK_V10)
 set(SYS_PSDK_ROOT "${SYS_PSDK_ROOT}" CACHE STRING "Platform SDK root" FORCE)
 mark_as_advanced(SYS_PSDK_ROOT)
@@ -93,9 +123,9 @@ if (SYS_IS_PSDK_V10) # ucrt
     set(SYS_PSDK_TARGET "0x0601" CACHE STRING "Platform SDK target ID" FORCE)
     set(SYS_PSDK_INC_ROOT "${SYS_PSDK_ROOT}/Include/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
     set(SYS_PSDK_INC "${SYS_PSDK_INC_ROOT}/ucrt;${SYS_PSDK_INC_ROOT}/shared;${SYS_PSDK_INC_ROOT}/um" CACHE STRING "Platform SDK includes directory" FORCE)
-    set(SYS_PSDK_LIB_ROOT "${SYS_PSDK_ROOT}/Lib/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}/${ARCH}")
+    set(SYS_PSDK_LIB_ROOT "${SYS_PSDK_ROOT}/Lib/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}/${WINARCH}")
     set(SYS_PSDK_LIBDIR "${SYS_CRT_LIB_ROOT}/um;${SYS_CRT_LIB_ROOT}/ucrt;${VS_CRT_LIBDIR}" CACHE STRING "Platform SDK library directory" FORCE)
-    set(SYS_PSDK_BINDIR "${SYS_PSDK_ROOT}/bin/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}/${ARCH}" CACHE STRING "Platform SDK bin directory" FORCE) # TODO: THIS SHOULD BE HOST WIDE NOT COMPILATION WIDE
+    set(SYS_PSDK_BINDIR "${SYS_PSDK_ROOT}/bin/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}/${WINARCH}" CACHE STRING "Platform SDK bin directory" FORCE) # TODO: THIS SHOULD BE HOST WIDE NOT COMPILATION WIDE
 else()
     set(SYS_PSDK_TARGET "0x0501" CACHE STRING "Platform SDK target ID" FORCE)
     set(SYS_PSDK_INC "${SYS_PSDK_ROOT}/Include;${SYS_PSDK_ROOT_10}/Include/${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}/ucrt" CACHE STRING "Platform SDK includes directory" FORCE)
@@ -120,6 +150,9 @@ message(STATUS "MSVC CRT path: ${SYS_MSVC_CRT_ROOT}")
 message(STATUS "Target NT5.1: ${SYS_IS_XP}")
 message(STATUS "PSDK path: ${SYS_PSDK_ROOT}")
 message(STATUS "PSDK NT10+: ${SYS_IS_PSDK_V10}")
+if (SYS_DXSDK_NEEDED)
+    message(STATUS "DXSDK root: ${SYS_DXSDK_ROOT}")
+endif()
 
 # Host bootstrap
 
@@ -185,12 +218,23 @@ function(add_fake_targets)
         #release vcruntime.lib ucrt.lib msvcrt.lib
         libcmt.lib libvcruntime.lib libucrt.lib
     )
-
     add_library(xdk ALIAS psdk)
-    add_library(dxsdk ALIAS psdk)
+
+    if (NOT SYS_DXSDK_NEEDED)
+        add_library(dxsdk ALIAS psdk)
+    else()
+        add_library(dxsdk INTERFACE)
+        #target_link_directories(dxsdk INTERFACE ${SYS_DXSDK_ROOT}/Lib/${WINARCH})
+        target_include_directories(dxsdk INTERFACE ${SYS_DXSDK_ROOT}/Include)
+    endif()
 
     add_library(cppstl INTERFACE)
     target_link_libraries(cppstl INTERFACE psdk libcpmt.lib)
+
+    add_library(atl_classes INTERFACE)
+    target_include_directories(atl_classes INTERFACE ${SYS_MSVC_CRT_ROOT}/atlmfc/include)
+    target_link_directories(atl_classes INTERFACE ${SYS_MSVC_CRT_ROOT}/atlmfc/lib/${WINARCH})
+    target_link_libraries(atl_classes INTERFACE atls)
 endfunction()
 
 function(get_native_tool_path file)
