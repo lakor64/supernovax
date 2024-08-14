@@ -7,11 +7,7 @@
 import "oaidl.idl";
 import "ocidl.idl";
 import "dxgi.idl";
-
-#ifndef _WIN7_SDK
 import "dxgi1_2.idl";
-#endif
-
 
 [
 	object,
@@ -25,7 +21,6 @@ interface IDXGIAdapterPartner : IUnknown
 	);
 };
 
-#ifndef _WIN7_SDK
 [
 	object,
 	local,
@@ -57,4 +52,3 @@ interface IDXGIFactoryPartner : IDXGIObject
 		[out] IDXGISwapChain1** ppSwapChain1
 	);
 };
-#endif

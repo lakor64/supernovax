@@ -26,8 +26,16 @@ set(HOST_OUT_PATH "${REACTOS_BINARY_DIR}/bin-tools")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${REACTOS_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${REACTOS_BINARY_DIR}/bin")
 
+
+# fake modules
+include(sdk/cmake/fake_ros.cmake)
+
 if (NOT DEFINED DLL_EXPORT_VERSION)
-    set(DLL_EXPORT_VERSION "0x601" CACHE STRING "" FORCE)
+    if (SYS_IS_XP)
+        set(DLL_EXPORT_VERSION "0x501" CACHE STRING "" FORCE)
+    else()
+        set(DLL_EXPORT_VERSION "0x601" CACHE STRING "" FORCE)
+    endif()
 endif()
 
 # check that the ARCH (target architecture) variable is defined
@@ -77,9 +85,6 @@ include(sdk/cmake/config.cmake)
 
 # Compiler flags handling
 include(sdk/cmake/compilerflags.cmake)
-
-# fake modules
-include(sdk/cmake/fake_ros.cmake)
 
 add_definitions(
     -D__REACTOS__
@@ -274,10 +279,6 @@ endif()
 
 ## pff specific code
 
-# get all system-wide includes to use in pff project
-get_system_includes()
-# now we have ${SYS_CRT_INC} and ${SYS_CRT_LIBDIR}
-
 # get all host includes for host tools
 get_host_includes()
 # now we have ${HOST_CRT_INC} and ${HOST_CRT_LIBDIR}
@@ -291,10 +292,8 @@ add_fake_targets()
 
 add_dependency_header()
 
-
-
-include_directories(${SYS_CRT_INC})
-link_directories(${SYS_CRT_LIBDIR})
+include_directories(${SYS_PSDK_INC} ${SYS_MSVC_CRT_INC})
+link_directories(${SYS_PSDK_LIBDIR} ${SYS_MSVC_CRT_LIBDIR})
 
 #add_subdirectory(sdk/include/reactos/wine) # manually import wine!
 add_subdirectory(sdk/include/reactos/mc)

@@ -1,15 +1,24 @@
 add_definitions(-D_MIDL_USE_GUIDDEF_)
 include_directories(${CMAKE_CURRENT_LIST_DIR})
 
-add_idl_headers(dxguid_idl
-dxgipartner.idl
-dxgidwm.idl
-dxdiagternl.idl
-dxdiag_private.idl
-usecounted.idl
-lockowner.idl
-dxgixaml.idl
-dxgiternl.idl)
+set(IDL_HS
+    dxgidwm.idl
+    dxdiagternl.idl
+    dxdiag_private.idl
+    usecounted.idl
+    lockowner.idl
+    dxgixaml.idl
+    dxgiternl.idl
+)
+
+if (DLL_EXPORT_VERSION GREATER_EQUAL 0x602)
+    list(APPEND IDL_HS 
+        dxgidwm1_2.idl
+        dxgipartner.idl
+    )
+endif()
+
+add_idl_headers(dxguid_idl ${IDL_HS})
 
 add_iid_library(dxguid_iid 
     dxdiag_private.idl
