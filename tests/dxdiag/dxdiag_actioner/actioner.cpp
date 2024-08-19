@@ -208,6 +208,13 @@ static LRESULT WINAPI MYWNDPROC(_In_ HWND hw, _In_ UINT Msg, _In_ WPARAM wp, _In
         PostQuitMessage(0);
         break;
     default:
+        if (Msg >= WM_USER)
+        {
+            std::string g = "GOT CUSTOM MESSAGE: ";
+            g += std::to_string(Msg);
+            MessageBoxA(nullptr, g.c_str(), "DXDIAG ACTIONER", MB_OK);
+        }
+
         return DefWindowProc(hw, Msg, wp, lp);
     }
 
@@ -263,15 +270,26 @@ static void del_thing(void)
 
 static void while_thing(void)
 {
-    MSG msg = { 0 };
+    
+    LARGE_INTEGER start, freq;
+    QueryPerformanceCounter(&start);
+    QueryPerformanceFrequency(&freq);
+    LARGE_INTEGER end = start;
 
-    while (GetMessage(&msg, nullptr, 0, 0))
+    while (((end.QuadPart - start.QuadPart) / freq.QuadPart) < 5.0)
     {
-        if (msg.message == WM_QUIT)
-            break;
+        MSG msg = { 0 };
 
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
+        while (GetMessage(&msg, nullptr, 0, 0))
+        {
+            if (msg.message == WM_QUIT)
+                break;
+
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+
+        QueryPerformanceCounter(&end);
     }
 }
 
@@ -386,33 +404,37 @@ int main(int argc, char** argv)
     YOO_BOX;
 #endif
 
-#if 0 // verified, it's all ok
+#if 1 // verified, it's all ok
     printf("We now execute RunNetVoiceWizard\n");
-    v.vt = VT_BYREF;
+    v.n1.n2.vt = VT_BYREF;
 
     // works both way!!
-    //v.puintVal = (UINT*)g_hwnd;
-    v.puintVal = NULL;
+    v.n1.n2.n3.puintVal = (UINT*)g_hwnd;
+    //v.puintVal = NULL;
     // ---
 
     EXEC_METHOD(L"RunNetVoiceWizard", &v);
     printf("RunNetVoiceWizard returned\n");
+    while_thing();
 #endif
 
     printf("We now change sound hw accel\n");
-    ULONG x = 0;
-    v.n1.n2.vt = VT_UINT_PTR;
-    v.n1.n2.n3.pulVal = &x;
+    v.n1.n2.vt = VT_I4;
+    v.n1.n2.n3.lVal = 0x10000;
     EXEC_METHOD(L"SetSoundHWAccel", &v);
     RUN_DXDIAG;
     YOO_BOX;
 
-
     printf("We now execute TestDD\n");
-    v.n1.n2.vt = VT_UI8;
+    v.n1.n2.vt = VT_UI8; // btw this is unchecked xddd
+    int oh[2];
+    oh[0] = (int)g_hwnd;
+    oh[1] = 0;
     v.n1.n2.n3.ullVal = 0;
     EXEC_METHOD(L"TestDD", NULL);
     printf("TestDD returned\n");
+    RUN_DXDIAG;
+    YOO_BOX;
     while_thing();
 
 error:

@@ -1,0 +1,19 @@
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	uuid(65b61695-f659-4560-a028-dedf84cf7463),
+		version(1.0),
+]
+library DxDiagProviderModule
+{
+	/* [
+		uuid(A65B8071-3BFE-4213-9A5B-491DA4461CA7)
+	]
+		coclass DxDiagProvider
+	{
+		[default] interface IDxDiagProvider;
+		interface IDxDiagProviderPrivate;
+
+	};*/
+};

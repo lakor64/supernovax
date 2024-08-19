@@ -3,26 +3,33 @@
 #define _ATL_NO_AUTOMATIC_NAMESPACE 1
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS 1	// explicit CString
 #define ATL_NO_ASSERT_ON_DESTROY_NONEXISTENT_WINDOW 1
+#define USE_STATIC_ATL 1
 
 #include <atlbase.h>
 #include <atlcom.h>
+#include <atlctl.h>
 #include <dxdiag.h>
 #include <dxdiag_private.h>
 #include <string>
+#include <sstream>
+#include <proxy_i.h>
 
-typedef HRESULT(WINAPI* DllGetClassObjectCb)(_In_ REFCLSID rclsid, _In_ REFIID riid, _Out_ LPVOID* ppv);
+typedef HRESULT(WINAPI* DllGetClassObjectCb)(_In_ IID* rclsid, _In_ IID* riid, _Out_ LPVOID* ppv);
 
-class ATL_NO_VTABLE CDxDiagProviderModule :
+class CDxDiagProviderModule :
 	public ATL::CAtlDllModuleT<CDxDiagProviderModule>
 {
 public:
-	DECLARE_LIBID(CLSID_DxDiagProvider)
+	DECLARE_LIBID(LIBID_DxDiagProviderModule)
 
 	explicit CDxDiagProviderModule() : m_hDll(nullptr), m_pProc(nullptr) {}
 	~CDxDiagProviderModule() = default;
 
 	BOOL WINAPI DllMain(_In_ DWORD dwReason, _In_opt_ LPVOID lpReserved)
 	{
+        if (!ATL::CAtlDllModuleT<CDxDiagProviderModule>::DllMain(dwReason, lpReserved))
+            return FALSE;
+
 		switch (dwReason)
 		{
 		case DLL_PROCESS_DETACH:
@@ -58,13 +65,21 @@ public:
 		return TRUE;
 	}
 
-	HRESULT CreateDxDiagProvider(IDxDiagProvider* ptr)
+	HRESULT CreateDxDiagProvider(IDxDiagProvider** ptr)
 	{
 		if (!m_pProc)
 			return E_NOINTERFACE;
 
-		return m_pProc(CLSID_DxDiagProvider, IID_IDxDiagProvider, (LPVOID*) & ptr);
-	}
+        //MessageBoxA(nullptr, "Test create dxprovider", "dxdiagn proxy", MB_OK);
+        IClassFactory* caf = nullptr;
+		auto x = m_pProc((IID*) & CLSID_DxDiagProvider, (IID*)&IID_IClassFactory, (LPVOID*)&caf);
+        if (FAILED(x))
+            return x;
+        x = caf->CreateInstance(nullptr, IID_IDxDiagProvider, (void**)ptr);
+        caf->Release();
+        //MessageBoxA(nullptr, "Test create dxprovider ok", "dxdiagn proxy", MB_OK);
+        return x;
+    }
 
 private:
 	HMODULE m_hDll;
@@ -184,10 +199,77 @@ static const wchar_t* val_type(const VARIANT& v)
     return L"???";
 }
 
-class ATL_NO_VTABLE CDxDiagProvider
-	: public IDxDiagProvider,
+static void add_variant_val(const VARIANT& val, std::wstring& q, LPCWSTR key)
+{
+    switch (val.vt)
+    {
+    case VT_I1:
+    case VT_UI1:
+        q += std::to_wstring((UINT)val.bVal);
+        break;
+    case VT_I2:
+    case VT_UI2:
+        q += std::to_wstring(val.uiVal);
+        break;
+    case VT_I4:
+    case VT_UI4:
+    case VT_UINT:
+        q += std::to_wstring(val.uintVal);
+        break;
+    case VT_I8:
+    case VT_UI8:
+        q += std::to_wstring(val.ullVal);
+    case VT_BYREF:
+        if (wcscmp(key, L"TestDD") == 0 ||
+            wcscmp(key, L"TestD3D") == 0 ||
+            wcscmp(key, L"TestSnd") == 0)
+        {
+            struct TESTDD_DATA
+            {
+                HWND hwnd;
+                int32_t result;
+            };
+
+            TESTDD_DATA* ddq = (TESTDD_DATA*)val.byref;
+            q += L"hwnd->";
+            q += std::to_wstring((intptr_t)ddq->hwnd);
+            q += L" result->";
+            q += std::to_wstring(ddq->result);
+        }
+        else if (wcscmp(key, L"TestMusic") == 0)
+        {
+            struct TESTMUSIC_DATA
+            {
+                HWND hwnd;
+                GUID g;
+            };
+            TESTMUSIC_DATA* ddq = (TESTMUSIC_DATA*)val.byref;
+            q += L"hwnd->";
+            q += std::to_wstring((intptr_t)ddq->hwnd);
+            q += L"guid->";
+            wchar_t myptr[255] = { 0 };
+            StringFromGUID2(ddq->g, myptr, 254);
+            q += myptr;
+        }
+        else if (wcscmp(key, L"TestNetwork"))
+        {
+            q += L"hwnd->";
+            q += std::to_wstring((intptr_t)(HWND)val.byref);
+        }
+        else
+        {
+            q += std::to_wstring((UINT)val.byref);
+        }
+        break;
+    default:
+        break;
+    }
+}
+
+class ATL_NO_VTABLE CDxDiagProvider : 
+    public IDxDiagProvider,
 	public IDxDiagProviderPrivate,
-    public ATL::CComObjectRootEx<ATL::CComMultiThreadModelNoCS>
+    public ATL::CComObjectRootEx<ATL::CComSingleThreadModel>
 {
 public:
 	BEGIN_COM_MAP(CDxDiagProvider)
@@ -195,7 +277,16 @@ public:
 		COM_INTERFACE_ENTRY_IID(IID_IDxDiagProviderPrivate, IDxDiagProviderPrivate)
 	END_COM_MAP()
 
-	CDxDiagProvider() : m_pms(nullptr), m_ppms(nullptr) {}
+    DECLARE_NO_REGISTRY()
+    DECLARE_NOT_AGGREGATABLE(CDxDiagProvider)
+
+	CDxDiagProvider() : m_pms(nullptr), m_ppms(nullptr)
+    {
+#ifdef BIG_DEBUG
+        MessageBoxA(nullptr, "create provider", "dxdiagn proxy", MB_OK);
+#endif
+    }
+
 	~CDxDiagProvider()
 	{
 		if (m_ppms)
@@ -206,7 +297,48 @@ public:
 
 	STDMETHODIMP Initialize(DXDIAG_INIT_PARAMS* pParams) override
 	{
-		return m_pms->Initialize(pParams);
+#ifdef BIG_DEBUG
+        MessageBoxA(nullptr, "Create base DxDiag Provider", "dxdiagn proxy", MB_OK);
+#endif
+
+        auto hr = _AtlModule.CreateDxDiagProvider(&m_pms);
+        if (FAILED(hr))
+        {
+            std::stringstream sss;
+            sss << "CreateDxDiagProvider fail: ";
+            sss << std::hex << hr;
+
+            MessageBoxA(nullptr, sss.str().c_str(), "dxdiagn proxy", MB_OK);
+            return hr;
+        }
+
+#ifdef BIG_DEBUG
+        MessageBoxA(nullptr, "Initialize base DxDiag Provider", "dxdiagn proxy", MB_OK);
+#endif
+
+		hr = m_pms->Initialize(pParams);
+        if (FAILED(hr))
+        {
+            std::stringstream sss;
+            sss << "Initialize fail: ";
+            sss << std::hex << hr;
+
+            MessageBoxA(nullptr, sss.str().c_str(), "dxdiagn proxy", MB_OK);
+            return hr;
+        }
+
+        hr = m_pms->QueryInterface(IID_IDxDiagProviderPrivate, (LPVOID*)&m_ppms);
+        if (FAILED(hr))
+        {
+            std::stringstream sss;
+            sss << "QueryInterface private fail: ";
+            sss << std::hex << hr;
+
+            MessageBoxA(nullptr, sss.str().c_str(), "dxdiagn proxy", MB_OK);
+            return hr;
+        }
+
+        return S_OK;
 	}
 
 	STDMETHODIMP GetRootContainer(IDxDiagContainer** ppInstance) override
@@ -227,6 +359,9 @@ public:
         if (lpValue)
         {
             qo += val_type(*lpValue);
+            qo += L"(";
+            add_variant_val(*lpValue, qo, lpActionName);
+            qo += L")";
         }
         else
         {
@@ -244,6 +379,65 @@ private:
 	IDxDiagProviderPrivate* m_ppms;
 };
 
+static void print_no_interface(REFIID rclsid, REFIID riid)
+{
+    std::wstring p = L"";
+    LPOLESTR clsidlp = nullptr;
+    StringFromCLSID(rclsid, &clsidlp);
+    LPOLESTR riidlp = nullptr;
+    StringFromIID(riid, &riidlp);
+    p = L"Cannot find clsid: ";
+    p += clsidlp;
+    p += L" iid: ";
+    p += riidlp;
+    CoTaskMemFree(riidlp);
+    CoTaskMemFree(clsidlp);
+
+    MessageBoxW(nullptr, p.c_str(), L"dxdiagn proxy", MB_OK);
+}
+
+class ATL_NO_VTABLE CDxDiagProviderFactory :
+    public ATL::CComClassFactory
+{
+public:
+    STDMETHOD(CreateInstance)(LPUNKNOWN pUnkOuter, REFIID riid, void** ppvObj)
+    {
+        if (IsEqualIID(riid, IID_IDxDiagProvider) ||
+            IsEqualIID(riid, IID_IDxDiagProviderPrivate) ||
+            IsEqualIID(riid, IID_IUnknown))
+        {
+            ATL::CComObject<CDxDiagProvider>* prov;
+            auto hr = ATL::CComObject<CDxDiagProvider>::CreateInstance(&prov);
+            if (FAILED(hr))
+            {
+                MessageBoxA(nullptr, "Provider CreateInstance fail", "dxdiagn proxy", MB_OK);
+                return hr;
+            }
+
+            prov->AddRef();
+            *ppvObj = prov;
+
+            return S_OK;
+        }
+
+        print_no_interface(CLSID_DxDiagProvider, riid);
+        return E_NOINTERFACE;
+    }
+};
+
+class ATL_NO_VTABLE CDxDiagProviderClass :
+    public ATL::CComObjectRootEx<ATL::CComSingleThreadModel>,
+    public ATL::CComCoClass<CDxDiagProviderClass, &CLSID_DxDiagProvider>
+{
+public:
+    DECLARE_CLASSFACTORY_EX(CDxDiagProviderFactory)
+    DECLARE_NO_REGISTRY()
+
+    BEGIN_COM_MAP(CDxDiagProviderClass)
+    END_COM_MAP()
+};
+
+OBJECT_ENTRY_AUTO(CLSID_DxDiagProvider, CDxDiagProviderClass);
 
 extern "C"
 {
