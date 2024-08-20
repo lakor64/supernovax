@@ -29,12 +29,17 @@
 #include "dxdiag_private.h"
 #endif
 
+#define TEST_DXDIAGN_NOT_FROM_COM 1
+
 // Microsoft broken define in latest crt
 #ifdef IDxDiagProvider_Initialize
 #undef IDxDiagProvider_Initialize
 #define IDxDiagProvider_Initialize(p,a)                       (p)->lpVtbl->Initialize(p,a)
 #endif
 
+#if TEST_DXDIAGN_NOT_FROM_COM
+typedef HRESULT(WINAPI* DllGetClassObjectCb)(_In_ REFCLSID rclsid, _In_ REFIID riid, _Out_ LPVOID* ppv);
+#endif
 
 #define ARRAY_SIZE(A) (sizeof(A)/sizeof(*(A)))
 #define wcsdup _wcsdup
@@ -259,9 +264,41 @@ struct dxdiag_information *collect_dxdiag_information(BOOL whql_check)
     HRESULT hr;
     size_t i;
 
+#if TEST_DXDIAGN_NOT_FROM_COM
+    HMODULE w = NULL;
+    DllGetClassObjectCb cb = NULL;
+    IClassFactory* cfact = NULL;
+#endif
+
+#if !TEST_DXDIAGN_NOT_FROM_COM
     /* Initialize the DxDiag COM instances. */
     hr = CoCreateInstance(&CLSID_DxDiagProvider, NULL, CLSCTX_INPROC_SERVER,
                           &IID_IDxDiagProvider, (void **)&pddp);
+#else
+    w = LoadLibraryW(L"dxdiagn_proxy.dll");
+    if (!w)
+    {
+        WINE_ERR("Cannot load dxdiagn.dll\n");
+        goto error;
+    }
+
+    cb = (DllGetClassObjectCb)GetProcAddress(w, "DllGetClassObject");
+    if (!cb)
+    {
+        WINE_ERR("Cannot load DllGetClassObject from dxdiagn.dll\n");
+        goto error;
+    }
+
+    hr = cb(&CLSID_DxDiagProvider, &IID_IClassFactory, (void**)&cfact);
+    if (FAILED(hr))
+    {
+        WINE_ERR("IClassFactory instance creation failed with 0x%08lx\n", hr);
+        goto error;
+    }
+
+    hr = cfact->lpVtbl->CreateInstance(cfact, NULL, &IID_IDxDiagProvider, (void**)&pddp);
+#endif
+
     if (FAILED(hr))
     {
         WINE_ERR("IDxDiagProvider instance creation failed with 0x%08lx\n", hr);
@@ -304,5 +341,9 @@ error:
     free_dxdiag_information(ret);
     if (root) IDxDiagContainer_Release(root);
     if (pddp) IDxDiagProvider_Release(pddp);
+#if TEST_DXDIAGN_NOT_FROM_COM
+    if (w) FreeLibrary(w);
+#endif
+
     return NULL;
 }

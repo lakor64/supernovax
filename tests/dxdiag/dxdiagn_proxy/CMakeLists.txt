@@ -11,6 +11,6 @@ add_idl_headers(dxdiagn_proxy_idl proxy.idl)
 add_iid_library(dxdiagn_proxy_iid proxy.idl)
 
 set_module_type(dxdiagn_proxy win32dll UNICODE)
-add_dependencies(dxdiagn_proxy dxdiagn_proxy_idl)
-target_link_libraries(dxdiagn_proxy dxdiagn_proxy_iid cppstl atl_classes dxguid dxsdk psdk)
+add_dependencies(dxdiagn_proxy dxdiagn_proxy_idl dxsdk)
+target_link_libraries(dxdiagn_proxy dxdiagn_proxy_iid cppstl atl_classes dxguid psdk)
 set_target_properties(dxdiagn_proxy PROPERTIES WITH_CXX_EXCEPTIONS TRUE)
