@@ -26,7 +26,6 @@ set(HOST_OUT_PATH "${REACTOS_BINARY_DIR}/bin-tools")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${REACTOS_BINARY_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${REACTOS_BINARY_DIR}/bin")
 
-
 # fake modules
 include(sdk/cmake/fake_ros.cmake)
 
@@ -315,6 +314,8 @@ elseif(SEPARATE_DBG)
     set(CMAKE_PDB_OUTPUT_DIRECTORY "${REACTOS_BINARY_DIR}/symbols")
 endif()
 
+add_subdirectory(sdk/include/dxsdk)
+add_subdirectory(sdk/lib)
 add_subdirectory(dll)
 add_subdirectory(base)
 

@@ -1,5 +1,5 @@
 /*
- * PROJECT:     ReactX Graphics Infrastructure
+ * PROJECT:     SupernovaX Graphics Infrastructure
  * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
  * PURPOSE:     Precompiled header
  * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
@@ -16,11 +16,6 @@
 #include <string>
 #include <algorithm>
 #include <unordered_map>
-
-#ifdef __REACTOS__
-extern "C" BOOL WINAPI EnumDisplaySettingsExW(_In_opt_ LPCWSTR, _In_ DWORD, _Inout_ LPDEVMODEW, _In_ DWORD);
-extern "C" BOOL WINAPI EnumDisplayDevicesW(_In_opt_ LPCWSTR, _In_ DWORD, _Inout_ PDISPLAY_DEVICEW, _In_ DWORD);
-#endif
 
 // project files
 #include "dxgitypes2.h"

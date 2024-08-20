@@ -1,5 +1,5 @@
 /*
- * PROJECT:     ReactX Graphics Infrastructure
+ * PROJECT:     SupernovaX Graphics Infrastructure
  * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
  * PURPOSE:     Factory class to access all graphics stuff
  * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>

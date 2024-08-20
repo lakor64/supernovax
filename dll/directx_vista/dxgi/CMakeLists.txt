@@ -29,5 +29,4 @@ add_library(dxgi MODULE
 set_module_type(dxgi win32dll UNICODE)
 target_link_libraries(dxgi dxguid uuid atl_classes cppstl Version)
 add_pch(dxgi pch.h SOURCE)
-add_cd_file(TARGET dxgi DESTINATION reactos/system32 FOR all)
 add_importlibs(dxgi gdi32 rpcrt4 shlwapi user32 comdlg32 msvcrt ntdll)

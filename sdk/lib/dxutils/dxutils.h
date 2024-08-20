@@ -1,7 +1,7 @@
 /*
- * PROJECT:     ReactX Utilities
+ * PROJECT:     SupernovaX Utilities
  * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
- * PURPOSE:     Utilities for ReactX implementations
+ * PURPOSE:     Utilities for SupernovaX implementations
  * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
  */
 #pragma once

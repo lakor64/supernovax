@@ -1,5 +1,5 @@
 /*
- * PROJECT:     ReactX Graphics Infrastructure Debug layer
+ * PROJECT:     SupernovaX Graphics Infrastructure Debug layer
  * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
  * PURPOSE:     DLL entrypoint
  * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
@@ -9,15 +9,7 @@
 
 class CATLDXGIDebugModule : public ATL::CAtlDllModuleT<CATLDXGIDebugModule>
 {
-public:
-	/** Custom ATL DllMain */
-	BOOL WINAPI DllMain(_In_ DWORD dwReason, _In_opt_ LPVOID lpReserved);
 };
-
-BOOL WINAPI CATLDXGIDebugModule::DllMain(_In_ DWORD dwReason, _In_opt_ LPVOID lpReserved)
-{
-	return TRUE;
-}
 
 //! Global ATL module
 CATLDXGIDebugModule _AtlModule;

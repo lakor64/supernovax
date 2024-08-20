@@ -15,4 +15,3 @@ add_library(dxgidebug SHARED
 target_link_libraries(dxgidebug atl_classes uuid)
 set_module_type(dxgidebug win32dll UNICODE)
 add_pch(dxgidebug pch.h SOURCE)
-add_cd_file(TARGET dxgidebug DESTINATION reactos/system32 FOR ALL)
