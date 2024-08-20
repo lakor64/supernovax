@@ -1,0 +1,35 @@
+/*
+ * PROJECT:     SupernovaX SDK
+ * LICENSE:     MIT (https://spdx.org/licenses/MIT)
+ * PURPOSE:     DXGI interfaces for XAML apps (Windows 8) 
+ * COPYRIGHT:   Copyright 2023 Christian Rendina <pizzaiolo100@proton.me>
+ */
+import "oaidl.idl";
+import "ocidl.idl";
+import "dxgi.idl";
+
+[
+    object,
+    local,
+    uuid(b02d7a1a-05e0-4a71-8ef4-5c5bbf475086) // TODO: verify on w8
+]
+interface IDXGISwapChainXAML : IDXGIDeviceSubObject
+{
+
+};
+
+[
+    object,
+    local,
+    uuid(ffffffff-ffff-ffff-ffff-ffffffffffea) // TODO: this UUID is invalid
+]
+interface IDXGIDeviceXAML : IDXGIDeviceSubObject
+{
+    void SetInProcessGPUPriority(
+        [in] int Priority
+    );
+
+    void GetInProcessGPUPriority(
+        [out] int* Priority
+    );
+};

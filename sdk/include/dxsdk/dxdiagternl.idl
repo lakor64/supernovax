@@ -1,0 +1,30 @@
+/*
+ * PROJECT:     SupernovaX SDK
+ * LICENSE:     MIT (https://spdx.org/licenses/MIT)
+ * PURPOSE:     DXDIAGN Internal interfac
+ * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
+ */
+
+import "oaidl.idl";
+
+cpp_quote("#define DXDIAG_INIT_RESERVED_MAGIC 0x0B")
+
+typedef struct _DXDIAG_INIT_RESERVED_DATA
+{
+	WORD wMagic;
+	char abReserved[6];
+	BOOL bUsePrivateInterface;
+} DXDIAG_INIT_RESERVED_DATA;
+
+[
+	object,
+	local,
+	uuid(7D0F462F-4064-4862-BC7F-933E5058C10E)
+]
+interface IDxDiagProviderPrivate : IUnknown
+{
+	int ExecMethod(
+		[in] LPCWSTR lpActionName,
+		[in] VARIANT* lpValue
+	);
+};

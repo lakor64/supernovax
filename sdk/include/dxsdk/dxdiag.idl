@@ -1,0 +1,76 @@
+/*
+ * PROJECT:     SupernovaX SDK
+ * LICENSE:     MIT (https://spdx.org/licenses/MIT)
+ * PURPOSE:     DXDIAGN interface
+ * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
+ */
+
+import "oaidl.idl";
+import "dxdiagternl.idl";
+
+cpp_quote("#define DXDIAG_DX9_SDK_VERSION 111")
+cpp_quote("#define #define DXDIAG_E_INSUFFICIENT_BUFFER       ((HRESULT)0x8007007AL)")
+
+typedef struct _DXDIAG_INIT_PARAMS {
+  DWORD  dwSize;
+  DWORD  dwDxDiagHeaderVersion;
+  BOOL   bAllowWHQLChecks;
+  void*  pReserved;
+} DXDIAG_INIT_PARAMS;
+
+[
+	object,
+	uuid(7d0f462f-4064-4862-bc7f-933e5058c10f),
+	local
+]
+interface IDxDiagContainer : IUnknown
+{
+		HRESULT GetNumberOfChildContainers(
+			[out] DWORD *pdwCount);
+		
+		HRESULT EnumChildContainerNames(
+			[in] DWORD dwIndex,
+			[out] LPWSTR pwszContainer,
+			[in] DWORD cchContainer);
+		
+		HRESULT GetChildContainer(
+			[in] LPCWSTR pwszConainer,
+			[out] IDxDiagContainer **ppInstance);
+			
+		HRESULT GetNumberOfProps(
+			[out] DWORD *pdwCount);
+		
+		HRESULT EnumPropNames(
+			[in] DWORD dwIndex,
+			[out] LPWSTR pwszPropName,
+			[in] DWORD cchPropName);
+		
+		HRESULT GetProp(
+			[in] LPCWSTR pwszPropName,
+			[out] VARIANT *pvarProp);
+};
+
+[
+	object,
+	uuid(9C6B4CB0-23f8-49cc-a3ed-45a55000a6d2),
+	local
+]
+interface IDxDiagProvider : IUnknown
+{
+	HRESULT Initialize(
+		[in] DXDIAG_INIT_PARAMS *pParams);
+	
+	HRESULT GetRootContainer(
+		[out] IDxDiagContainer **ppInstance);
+};
+
+[
+	uuid(a65b8071-3bfe-4213-9a5b-491da4461ca7),
+	version(1.0),
+	appobject
+]
+coclass DxDiagProvider
+{
+	[default] interface IDxDiagProvider;
+	interface IDxDiagProviderPrivate;
+};

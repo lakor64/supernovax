@@ -1,0 +1,215 @@
+/*
+ * PROJECT:     SupernovaX SDK
+ * LICENSE:     MIT (https://spdx.org/licenses/MIT)
+ * PURPOSE:     DXGI DWM interfaces
+ * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
+ * REFERENCE:
+ * - https://shchetinin.blogspot.com/2012/04/dwm-graphics-directx-win8win7.html
+ * - https://stackoverflow.com/questions/24739142/how-to-distort-manipulate-dwm-live-thumbnails-in-windows-8-or-in-any-other-way
+ */
+import "oaidl.idl";
+import "ocidl.idl";
+import "dxgi.idl";
+
+typedef struct _DXGI_OUTPUT_DWM_DESC
+{
+    BYTE unk; // undocumented
+} DXGI_OUTPUT_DWM_DESC;
+
+typedef struct _DXGI_SCROLL_RECT
+{
+    BYTE unk; // undocumented
+} DXGI_SCROLL_RECT;
+
+[
+    object,
+    local,
+    // TODO: discover/fix
+    uuid(f69f223b-45d3-4aa0-98c8-c40c2b231029)
+    // uuid(8f0f30db-446a-4282-9fa2-28f75c1f39ad)
+]
+interface IDXGISwapChainDWM : IDXGIDeviceSubObject
+{
+    HRESULT Present(
+        [in] UINT SyncInterval,
+        [in] UINT Flags
+    );
+
+    HRESULT GetBuffer(
+        [in] UINT Buffer,
+        [in] REFIID riid,
+        [out] void** ppSurface
+    );
+
+    HRESULT GetDesc(
+        [out] DXGI_SWAP_CHAIN_DESC* pDesc
+    );
+
+    HRESULT ResizeBuffers(
+        [in] UINT BufferCount, 
+        [in] UINT Width,
+        [in] UINT Height,
+        [in] DXGI_FORMAT NewFormat,
+        [in] UINT SwapChainFlags
+    );
+
+    HRESULT ResizeTarget(
+        [in] DXGI_MODE_DESC* pNewTargetParameters
+    );
+
+    HRESULT GetContainingOutput(
+        [out] IDXGIOutput** ppOutput
+    );
+
+    HRESULT GetFrameStatistics(
+        [out] DXGI_FRAME_STATISTICS* pStats
+    );
+
+    HRESULT GetLastPresentCount(
+        [out] UINT* pLastPresentCount
+    );
+
+    HRESULT SetFullscreenState(
+        [in] BOOL Fullscreen,
+        [in] IDXGIOutput* pTarget
+    );
+
+    HRESULT GetFullscreenState(
+        [out] BOOL* pFullscreen,
+        [out] IDXGIOutput** ppTarget
+    );
+}
+
+[
+    object,
+    local,
+    // TODO: might be one of those two, pls verify on w7rtm / wvsp1
+    //uuid(f69f223b-45d3-4aa0-98c8-c40c2b231029)
+    uuid(8f0f30db-446a-4282-9fa2-28f75c1f39ad)
+]
+interface IDXGISwapChainDWM1 : IDXGIDeviceSubObject
+{
+    HRESULT Present(
+        [in] UINT SyncInterval,
+        [in] UINT Flags
+    );
+
+    HRESULT GetBuffer(
+        [in] UINT Buffer,
+        [in] REFIID riid,
+        [out] void** ppSurface
+    );
+
+    HRESULT GetDesc(
+        [out] DXGI_SWAP_CHAIN_DESC* pDesc
+    );
+
+    HRESULT ResizeBuffers(
+        [in] UINT BufferCount,
+        [in] UINT Width,
+        [in] UINT Height,
+        [in] DXGI_FORMAT NewFormat,
+        [in] UINT SwapChainFlags
+    );
+
+    HRESULT ResizeTarget(
+        [in] DXGI_MODE_DESC* pNewTargetParameters
+    );
+
+    HRESULT GetContainingOutput(
+        [out] IDXGIOutput** ppOutput
+    );
+
+    HRESULT GetFrameStatistics(
+        [out] DXGI_FRAME_STATISTICS* pStats
+    );
+
+    HRESULT GetLastPresentCount(
+        [out] UINT* pLastPresentCount
+    );
+
+    HRESULT Present1(
+        UINT,
+        UINT,
+        UINT,
+        const RECT*,
+        UINT,
+        const DXGI_SCROLL_RECT*
+    );
+
+    HRESULT GetLogicalSurfaceHandle(
+        void**
+    );
+
+    HRESULT CheckDirectFlipSupport(
+        UINT,
+        IDXGIResource*,
+        INT*
+    );
+
+    HRESULT Present2(
+        UINT,
+        UINT,
+        UINT,
+        const RECT*,
+        UINT,
+        const DXGI_SCROLL_RECT*,
+        IDXGIResource*
+    );
+
+    HRESULT GetCompositionSurface(
+        [out] void** pSurface
+    );
+};
+
+[
+    object,
+    local,
+    uuid(712bd56d-86ff-4b71-91e1-c13b274ff2a3) // TODO: fix
+]
+interface IDXGIAdapterDWM : IUnknown
+{
+    HRESULT OpenKernelHandle(
+
+    );
+
+    HRESULT CloseKernelHandle(
+
+    );
+
+    HRESULT EnumOutputs2(
+
+    );
+};
+
+
+[
+    object,
+    local,
+    uuid(713f394e-92ca-47e7-ab81-1159c2791e54) // ok! windows 7 sp1
+]
+interface IDXGIFactoryDWM : IUnknown
+{
+    HRESULT CreateSwapChain(
+        [in] IUnknown* pDevice,
+        [in] DXGI_SWAP_CHAIN_DESC* pDesc,
+        [in] IDXGIOutput* pOutput,
+        [out]IDXGISwapChainDWM** ppSwapChainDWM
+    );
+}
+
+[
+    object,
+    local,
+    uuid(ffffffff-ffff-ffff-ffff-ffffffffffe8) // TODO: this UUID is invalid
+]
+interface IDXGIDeviceDWM : IUnknown
+{
+    HRESULT PinResources(
+
+    );
+
+    HRESULT UnpinResources(
+
+    );
+};

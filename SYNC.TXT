@@ -1,0 +1,60 @@
+Files from mingw-w64: (sync at version 11.0)
+sdk/include/dxsdk/d3d10.idl
+sdk/include/dxsdk/d3d10_1.idl
+sdk/include/dxsdk/d3d10effect.idl
+sdk/include/dxsdk/d3d10sdklayers.idl
+sdk/include/dxsdk/d3d10shader.idl
+sdk/include/dxsdk/d3d11.idl
+sdk/include/dxsdk/d3d11_1.idl
+sdk/include/dxsdk/d3d11_2.idl
+sdk/include/dxsdk/d3d11_3.id
+sdk/include/dxsdk/d3d11_4.idl
+sdk/include/dxsdk/d3d11on12.idl
+sdk/include/dxsdk/dxgi.idl
+sdk/include/dxsdk/dxgi1_2.idl
+sdk/include/dxsdk/dxgi1_3.idl
+sdk/include/dxsdk/dxgi1_4.idl
+sdk/include/dxsdk/dxgi1_5.idl
+sdk/include/dxsdk/dxgi1_6.idl
+
+Files from ReactOS: (sync at a532a68d40feee2422baac4d092ce8ce829e293b)
+sdk/include/host
+sdk/include/host/wine
+sdk/include/reactos
+sdk/include/reactos/mc
+sdk/include/ddk (from ReactOS Longhorn)
+sdk/cmake (with some changes marked as pff, except fake_ros.cmake)
+sdk/tools/hpp
+sdk/tools/spec2def
+sdk/tools/utf16le
+sdk/tools/widl
+base/applications/dxdiag (forked GUI code and then extended)
+
+Files from Wine: (sync at 1dfac2a252d0036c3bae08bf47f00582343a80fb)
+sdk/include/reactos/wine
+base/applications/dxdiag (forked and then extended)
+
+Files from DirectX-Headers: (sync at 9be295b3b81ce1d0ff2b44f18d0eb86ea54c5122)
+sdk/include/dxsdk/d3d12.idl
+sdk/include/dxsdk/d3d12compatibility.idl
+sdk/include/dxsdk/d3d12sdklayers.idl
+sdk/include/dxsdk/d3d12video.idl
+sdk/include/dxsdk/d3d12shader.h
+sdk/include/dxsdk/D3D12TokenizedProgramFormat.hpp
+sdk/include/dxsdk/d3dx12.h
+sdk/include/dxsdk/d3dx12_barriers.h
+sdk/include/dxsdk/d3dx12_check_feature_support.h
+sdk/include/dxsdk/d3dx12_core.h
+sdk/include/dxsdk/d3dx12_default.h
+sdk/include/dxsdk/d3dx12_pipeline_state_stream.h
+sdk/include/dxsdk/d3dx12_property_format_table.h
+sdk/include/dxsdk/d3dx12_render_pass.h
+sdk/include/dxsdk/d3dx12_resource_helpers.h
+sdk/include/dxsdk/d3dx12_root_signature.h
+sdk/include/dxsdk/d3dx12_state_object.h
+sdk/include/dxsdk/d3dcommon.idl
+sdk/include/dxsdk/DirectML.h
+sdk/include/dxsdk/dxcore.h
+sdk/include/dxsdk/dxcore_interface.h
+sdk/include/dxsdk/dxgicommon.idl
+sdk/include/dxsdk/dxgiformat.idl

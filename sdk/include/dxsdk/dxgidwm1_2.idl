@@ -1,0 +1,61 @@
+/*
+ * PROJECT:     SupernovaX SDK
+ * LICENSE:     MIT (https://spdx.org/licenses/MIT)
+ * PURPOSE:     DWM 1.2 interfaces
+ * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
+ * REFERENCE:
+ * - https://shchetinin.blogspot.com/2012/04/dwm-graphics-directx-win8win7.html
+ * - https://stackoverflow.com/questions/24739142/how-to-distort-manipulate-dwm-live-thumbnails-in-windows-8-or-in-any-other-way
+ */
+import "dxgidwm.idl";
+import "dxgi1_2.idl";
+
+[
+    object,
+    local,
+    uuid(1ddd77aa-9a4a-4cc8-9e55-98c196bafc8f) // ok! windows 7 sp1
+]
+interface IDXGIFactoryDWM2 : IUnknown
+{
+    HRESULT CreateSwapChainDWM(
+        [in] IUnknown* pDevice,
+        [in] DXGI_SWAP_CHAIN_DESC1* pSwapChainDesc1,
+        [in] DXGI_SWAP_CHAIN_FULLSCREEN_DESC* pSwapChainFullScreenDesc1,
+        [in] IDXGIOutput* pOutput,
+        [out] IDXGISwapChainDWM** ppSwapChainDWM
+    );
+
+    HRESULT CreateSwapChainDDA(
+        [in] IUnknown* pDevice,
+        [in] DXGI_SWAP_CHAIN_DESC1* pSwapChainDesc1,
+        [in] IDXGIOutput* pOutput,
+        [out] IDXGISwapChainDWM** ppSwapChainDWM
+    );
+}
+
+[
+    object,
+    local,
+    uuid(6f66a9a0-bece-4ee8-b11b-990eb38ed976) // ok (windows 7 sp1)
+]
+interface IDXGIOutputDWM : IUnknown
+{
+    HRESULT LUCCompleteLayerConstruction(
+        void
+    );
+
+    HRESULT GetDesc(
+        [out] DXGI_OUTPUT_DWM_DESC* pDesc
+    );
+   
+    HRESULT FindClosestMatchingModeFromDesktop(
+        [in] const DXGI_MODE_DESC1*,
+        DXGI_MODE_DESC1*,
+        IUnknown*
+    );
+
+    HRESULT WaitForVBlankOrObjects(
+        UINT,
+        void**
+    );
+};
