@@ -1,1 +1,1 @@
-#add_subdirectory(ddraw)
+add_subdirectory(ddraw)

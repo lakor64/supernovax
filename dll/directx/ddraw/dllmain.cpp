@@ -118,6 +118,8 @@ extern "C"
 
     HRESULT WINAPI DirectDrawCreateEx(_In_ LPGUID lpGUID, _In_ LPVOID* lplpDD, _In_ REFIID iid, _COM_Outptr_ IUnknown* pUnkOuter)
     {
+        return E_NOINTERFACE;
+#if 0
         if (iid != IID_IDirectDraw7 || !lplpDD)
             return DDERR_INVALIDPARAMS;
 
@@ -144,6 +146,7 @@ extern "C"
         *lplpDD = ddraw;
 
         return S_OK;
+#endif
     }
 
     HRESULT WINAPI DirectDrawCreateClipper(_In_ DWORD dwFlags, _COM_Outptr_ LPDIRECTDRAWCLIPPER* lplpDDClipper, IUnknown* pUnkOuter)

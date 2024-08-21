@@ -32,8 +32,6 @@ set(NORMAL_SRC
 	#d3d11on12.idl
 
     # DX headers
-    dxgicommon.idl
-    dxgiformat.idl
     #d3dcommon.idl
     #d3d12.idl
     #d3d12compatibility.idl
@@ -44,6 +42,8 @@ set(NORMAL_SRC
 set(IDLONLY_SRC
     dxgidebug.idl
     dxgitype.idl
+    dxgiformat.idl
+    dxgicommon.idl
 )
 
 add_idl_headers(dxsdk ${NORMAL_SRC} ${IDLONLY_SRC})

@@ -41,6 +41,7 @@ STDMETHODIMP CDXGIResource::SetEvictionPriority(_In_ UINT EvictionPriority)
 	return E_NOTIMPL;
 }
 
+#if DXGI_VERSION >= 2
 STDMETHODIMP CDXGIResource::CreateSubresourceSurface(_In_ UINT index, _COM_Outptr_ IDXGISurface2** ppSurface)
 {
 	if (!ppSurface)
@@ -60,3 +61,4 @@ STDMETHODIMP CDXGIResource::CreateSharedHandle(_In_opt_ const SECURITY_ATTRIBUTE
 
 	return E_NOTIMPL;
 }
+#endif

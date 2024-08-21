@@ -1,14 +1,14 @@
 /*
  * PROJECT:     SupernovaX 2D Draw
  * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
- * PURPOSE:     IDirectDraw7 object
+ * PURPOSE:     IDirectDraw object
  * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
  */
 
 #pragma once
 
 /**
-* Main IDirectDraw7 ATL object
+* Main IDirectDraw4 ATL object
 */
 class CDirectDraw :
     public CDirectDrawINT,
@@ -17,7 +17,7 @@ class CDirectDraw :
 public:
 
     BEGIN_COM_MAP(CDirectDraw)
-        COM_INTERFACE_ENTRY_IID(IID_IDirectDraw7, IDirectDraw7)
+        COM_INTERFACE_ENTRY_IID(IID_IDirectDraw, IDirectDraw)
     END_COM_MAP()
 
     /**
@@ -66,7 +66,7 @@ public:
     {
         for (; pEntries->pFunc != nullptr; pEntries++)
         {
-            if (IsEqualIID(iid, *pEntries->piid) || IsEqualIID(iid, IID_IDirectDraw4)) // TODO: THIS IS AN HACK TO PASS DX EXAMPLES, DO ADJUST PROPERLY!!
+            if (IsEqualIID(iid, *pEntries->piid))
             {
                 ATL::CComObject<CDirectDraw>* ptr;
                 auto hr = ATL::CComObject<CDirectDraw>::CreateInstance(&ptr);
@@ -126,30 +126,7 @@ public:
     constexpr const bool HaveEmulation() const { return m_gbl->dwFlags & DDRAWI_EMULATIONINITIALIZED; }
     constexpr const bool HaveHardware() const { return (m_gbl->dwFlags & DDRAWI_NOHARDWARE) == 0; }
 
-    HRESULT Initialize(const GUID& iid, LPGUID lpGuid);
-    HRESULT InitializeByLink(CDirectDraw* link);
-
 private:
-    /**
-    * Starts up the DirectDraw component. This function is responsable for the real initialization
-    *  of DirectDraw, which includes setting up HEL and HAL callbacks.
-    * @param[in] guid GPU guid or configuration
-    * @return DD_OK or DD_ERROR*
-    */
-    HRESULT Startup(LPGUID guid);
-
-    /**
-    * Starts up DirectDraw Hardware Emulation Layer (HEL)
-    * @return DD_OK or DD_ERROR*
-    */
-    HRESULT StartupHel();
-
-    /**
-    * Starts up DirectDraw Hardware Abstraction Layer (HAL)
-    * @return DD_OK or DD_ERROR*
-    */
-    HRESULT StartupHal();
-
     /**
     * Gets information from the driver
     * @param guid GUID request

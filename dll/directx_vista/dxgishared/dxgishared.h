@@ -46,12 +46,12 @@
 #include <shlwapi.h>
 
 // NDK
-#ifndef __REACTOS__
+/*#ifndef __REACTOS__
 #include <winternl.h>
 #else
 #define NTOS_MODE_USER
 #include <ndk/umtypes.h>
-#endif
+#endif*/
 
 // DXGI
 #include <dxgi.h>
@@ -79,7 +79,7 @@
 #include <dxgi1_6.h>
 #endif
 
-// DXGI DDK (the warning fixes some issues in the old ReactOS LongHorn branch, to be tested if they are still throwed)
+// DXGI DDK
 #include <d3dkmthk.h>
 
 #ifdef __WINE_D3DKMTHK_H
@@ -107,8 +107,8 @@ using DXGIObjRoot = ATL::CComObjectRootEx<ATL::CComMultiThreadModelNoCS>;
 
 // Project
 #include "dxgitypes.h"
-#include "dxgiternl.h"
-#include "dxgidwm.h"
-#include "dxgipartner.h"
+#include <dxgiternl.h>
+#include <dxgidwm.h>
+#include <dxgipartner.h>
 
 #endif

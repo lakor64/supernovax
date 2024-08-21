@@ -175,7 +175,7 @@ static_assert(offsetof(CDirectDrawLCL, lpGammaCalibrator) == sizeof(DDRAWI_DIREC
 * Note: The internal structure is implemented this way to avoid the LPVOID vftable which would break C++
 * </p>
 */
-class CDirectDrawINT : public IDirectDraw7
+class CDirectDrawINT : public IDirectDraw
 {
 public:
     /**

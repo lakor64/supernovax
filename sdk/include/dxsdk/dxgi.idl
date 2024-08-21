@@ -20,11 +20,6 @@ import "oaidl.idl";
 import "ocidl.idl";
 import "dxgitype.idl";
 
-const UINT _FACDXGI = 0x87a;
-
-cpp_quote("#define MAKE_DXGI_STATUS(x)                         MAKE_HRESULT(0, _FACDXGI, x)")
-cpp_quote("#define MAKE_DXGI_HRESULT(x)                        MAKE_HRESULT(1, _FACDXGI, x)")
-
 cpp_quote("#if 0")
 typedef HANDLE HMONITOR;
 typedef struct _LUID {

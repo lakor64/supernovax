@@ -1,3 +1,4 @@
+target_dx()
 
 list(APPEND SOURCE
     system.c

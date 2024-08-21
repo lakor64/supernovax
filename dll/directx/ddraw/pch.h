@@ -28,29 +28,17 @@
 #endif
 
  // ATL
-
-// avoid linking to MDd as we don't have the runtimes on XP potentially
-#if defined(_USING_V110_SDK71_) && defined(_DEBUG)
-#define _RESTORE_DEBUG_ATL 1
-#undef _DEBUG
-#endif
-
 #include <atlbase.h>
 #include <atlcom.h>
 #undef STATUS_NO_MEMORY
 
-#ifdef _RESTORE_DEBUG_ATL
-#define _DEBUG 1
-#undef _RESTORE_DEBUG_ATL
-#endif
-
 // NDK
-#ifndef __REACTOS__
+/*#ifndef __REACTOS__
 #include <winternl.h>
 #else
 #define NTOS_MODE_USER
 #include <ndk/umtypes.h>
-#endif
+#endif*/
 
 // C++
 #include <cstdint>
@@ -58,12 +46,11 @@
 
 // DDRAW
 #include <ddraw.h>
-#include <dvp.h>
-#include <ddrawi.h> // DDK
+//#include <dvp.h>
+//#include <ddrawi.h> // DDK
 #include <ddrawgdi.h>
-#include <d3dhal.h> // DDK
+//#include <d3dhal.h> // DDK
 #include <dxutils.h> // Library utilities
-#include <ddrawhel.h> // ReactX HEL
 
 /// ATL Object root typedef
 using DDModelRoot = ATL::CComMultiThreadModelNoCS;
@@ -73,5 +60,6 @@ using DDObjRoot = ATL::CComObjectRootEx<DDModelRoot>;
 #include "dllimports.h"
 #include "ddrawiatl.h"
 
-#define REGISTER_PATH_DDSW "Software\\Microsoft\\DirectDraw\\"
-#define PRIMARY_DISPLAY_NAME "display"
+static constexpr const char* REGISTER_PATH_DDSW = "Software\\Microsoft\\DirectDraw\\";
+static constexpr const char* PRIMARY_DISPLAY_NAME = "display";
+
