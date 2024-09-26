@@ -29,14 +29,14 @@ set(NORMAL_SRC
 	d3d11_2.idl
 	d3d11_3.idl
 	d3d11_4.idl
-	#d3d11on12.idl
+	d3d11on12.idl
 
     # DX headers
     d3dcommon.idl
-    #d3d12.idl
-    #d3d12compatibility.idl
-    #d3d12sdklayers.idl
-    #d3d12video.idl
+    d3d12.idl
+    d3d12compatibility.idl
+    d3d12sdklayers.idl
+    d3d12video.idl
 )
 
 set(IDLONLY_SRC
