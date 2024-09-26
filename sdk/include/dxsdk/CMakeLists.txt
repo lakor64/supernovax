@@ -12,6 +12,7 @@ set(NORMAL_SRC
     lockowner.idl
     usecounted.idl
     ddraw.idl
+	d3d10_1shader.idl
 
     # mingw-w64
     dxgi.idl

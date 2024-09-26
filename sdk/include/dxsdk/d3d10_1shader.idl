@@ -1,0 +1,81 @@
+/*
+ * PROJECT:     SupernovaX SDK
+ * LICENSE:     LGPL-2.1 (https://spdx.org/licenses/LGPL-2.1)
+ * PURPOSE:     D3D10.1 Shader interface
+ * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
+ *              Copyright 2010 Rico Schüller
+ * REFERENCE:   Wine
+ */
+import "d3d10shader.idl";
+
+[
+	local,
+	object,
+	uuid(c3457783-a846-47ce-9520-cea6f66e7447)
+]
+interface ID3D10ShaderReflection1 : IUnknown
+{
+    HRESULT GetDesc(
+        [out] D3D10_SHADER_DESC *desc
+    );
+
+    struct ID3D10ShaderReflectionConstantBuffer * GetConstantBufferByIndex(
+        [in] UINT index
+    );
+
+    struct ID3D10ShaderReflectionConstantBuffer * GetConstantBufferByName(
+        [in] const char *name
+    );
+
+    HRESULT GetResourceBindingDesc(
+        [in] UINT index,
+        [out] D3D10_SHADER_INPUT_BIND_DESC *desc
+    );
+
+    HRESULT GetInputParameterDesc(
+        [in] UINT index,
+        [out] D3D10_SIGNATURE_PARAMETER_DESC *desc
+    );
+
+    HRESULT GetOutputParameterDesc(
+        [in] UINT index,
+        [out] D3D10_SIGNATURE_PARAMETER_DESC *desc
+    );
+
+    struct ID3D10ShaderReflectionVariable * GetVariableByName(
+        [in] const char *name
+    );
+
+    HRESULT GetResourceBindingDescByName(
+        [in] const char *name,
+        [out] D3D10_SHADER_INPUT_BIND_DESC *desc
+    );
+
+    HRESULT GetMovInstructionCount(
+        [out] UINT *count
+    );
+
+    HRESULT GetMovcInstructionCount(
+        [out] UINT *count
+    );
+
+    HRESULT GetConversionInstructionCount(
+        [out] UINT *count
+    );
+
+    HRESULT GetBitwiseInstructionCount(
+        [out] UINT *count
+    );
+
+    HRESULT GetGSInputPrimitive(
+        [out] D3D10_PRIMITIVE *prim
+    );
+
+    HRESULT IsLevel9Shader(
+        [out] BOOL*level9shader
+    );
+
+    HRESULT IsSampleFrequencyShader(
+        [out] BOOL *samplefrequency
+    );
+};
