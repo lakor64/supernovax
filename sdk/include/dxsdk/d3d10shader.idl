@@ -201,17 +201,17 @@ interface ID3D10ShaderReflection : IUnknown
 };
 
 
-HRESULT __stdcall D3D10CompileShader(const char *data, SIZE_T data_size, const char *filename,
-        const D3D10_SHADER_MACRO *defines, ID3D10Include *include, const char *entrypoint,
-        const char *profile, UINT flags, ID3D10Blob **shader, ID3D10Blob **error_messages);
-HRESULT __stdcall D3D10DisassembleShader(const void *data, SIZE_T data_size,
-        BOOL color_code, const char *comments, ID3D10Blob **disassembly);
-const char * __stdcall D3D10GetVertexShaderProfile(ID3D10Device *device);
-const char * __stdcall D3D10GetGeometryShaderProfile(ID3D10Device *device);
-const char * __stdcall D3D10GetPixelShaderProfile(ID3D10Device *device);
+[local] HRESULT __stdcall D3D10CompileShader(const char *data, SIZE_T data_size, const char *filename,
+        const D3D10_SHADER_MACRO *defines, ID3D10Include *inc, const char *entrypoint,
+        const char *profile, UINT flags, ID3DBlob **shader, ID3DBlob**error_messages);
+[local] HRESULT __stdcall D3D10DisassembleShader(const void *data, SIZE_T data_size,
+        BOOL color_code, const char *comments, ID3DBlob **disassembly);
+[local] const char * __stdcall D3D10GetVertexShaderProfile(ID3D10Device *device);
+[local] const char * __stdcall D3D10GetGeometryShaderProfile(ID3D10Device *device);
+[local] const char * __stdcall D3D10GetPixelShaderProfile(ID3D10Device *device);
 
-HRESULT __stdcall D3D10ReflectShader(const void *data, SIZE_T data_size, ID3D10ShaderReflection **reflector);
-HRESULT __stdcall D3D10GetInputSignatureBlob(const void *data, SIZE_T data_size, ID3D10Blob **blob);
-HRESULT __stdcall D3D10GetOutputSignatureBlob(const void *data, SIZE_T data_size, ID3D10Blob **blob);
-HRESULT __stdcall D3D10GetInputAndOutputSignatureBlob(const void *data, SIZE_T data_size, ID3D10Blob **blob);
-HRESULT __stdcall D3D10GetShaderDebugInfo(const void *data, SIZE_T data_size, ID3D10Blob **blob);
+[local] HRESULT __stdcall D3D10ReflectShader(const void *data, SIZE_T data_size, ID3D10ShaderReflection **reflector);
+[local] HRESULT __stdcall D3D10GetInputSignatureBlob(const void *data, SIZE_T data_size, ID3DBlob**blob);
+[local] HRESULT __stdcall D3D10GetOutputSignatureBlob(const void *data, SIZE_T data_size, ID3DBlob**blob);
+[local] HRESULT __stdcall D3D10GetInputAndOutputSignatureBlob(const void *data, SIZE_T data_size, ID3DBlob**blob);
+[local] HRESULT __stdcall D3D10GetShaderDebugInfo(const void *data, SIZE_T data_size, ID3DBlob**blob);

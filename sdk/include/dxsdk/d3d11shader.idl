@@ -14,11 +14,35 @@ cpp_quote("#ifndef D3D_COMPILER_VERSION")
 cpp_quote("#define D3D_COMPILER_VERSION 47")
 cpp_quote("#endif")
 
+cpp_quote("#if 0")
+typedef void ID3DBlob;
+cpp_quote("#endif")
+
+cpp_quote("#define D3D_SHADER_REQUIRES_DOUBLES                         0x00000001")
+cpp_quote("#define D3D_SHADER_REQUIRES_EARLY_DEPTH_STENCIL             0x00000002")
+cpp_quote("#define D3D_SHADER_REQUIRES_UAVS_AT_EVERY_STAGE             0x00000004")
+cpp_quote("#define D3D_SHADER_REQUIRES_64_UAVS                         0x00000008")
+cpp_quote("#define D3D_SHADER_REQUIRES_MINIMUM_PRECISION               0x00000010")
+cpp_quote("#define D3D_SHADER_REQUIRES_11_1_DOUBLE_EXTENSIONS          0x00000020")
+cpp_quote("#define D3D_SHADER_REQUIRES_11_1_SHADER_EXTENSIONS          0x00000040")
+cpp_quote("#define D3D_SHADER_REQUIRES_LEVEL_9_COMPARISON_FILTERING    0x00000080")
+cpp_quote("#define D3D_SHADER_REQUIRES_TILED_RESOURCES                 0x00000100")
+
+/* These are defined as version-neutral in d3dcommon.h */
+typedef D3D_CBUFFER_TYPE D3D11_CBUFFER_TYPE;
+
+typedef D3D_RESOURCE_RETURN_TYPE D3D11_RESOURCE_RETURN_TYPE;
+
+typedef D3D_TESSELLATOR_DOMAIN D3D11_TESSELLATOR_DOMAIN;
+
+typedef D3D_TESSELLATOR_PARTITIONING D3D11_TESSELLATOR_PARTITIONING;
+
+typedef D3D_TESSELLATOR_OUTPUT_PRIMITIVE D3D11_TESSELLATOR_OUTPUT_PRIMITIVE;
 
 typedef struct _D3D11_SHADER_DESC
 {
     UINT Version;
-    const char *Creator;
+    const char* Creator;
     UINT Flags;
     UINT ConstantBuffers;
     UINT BoundResources;
@@ -59,11 +83,11 @@ typedef struct _D3D11_SHADER_DESC
 
 typedef struct _D3D11_SHADER_VARIABLE_DESC
 {
-    const char *Name;
+    const char* Name;
     UINT StartOffset;
     UINT Size;
     UINT uFlags;
-    void *DefaultValue;
+    void* DefaultValue;
     UINT StartTexture;
     UINT TextureSize;
     UINT StartSampler;
@@ -79,12 +103,12 @@ typedef struct _D3D11_SHADER_TYPE_DESC
     UINT Elements;
     UINT Members;
     UINT Offset;
-    const char *Name;
+    const char* Name;
 } D3D11_SHADER_TYPE_DESC;
 
 typedef struct _D3D11_SHADER_BUFFER_DESC
 {
-    const char *Name;
+    const char* Name;
     D3D_CBUFFER_TYPE Type;
     UINT Variables;
     UINT Size;
@@ -93,7 +117,7 @@ typedef struct _D3D11_SHADER_BUFFER_DESC
 
 typedef struct _D3D11_SHADER_INPUT_BIND_DESC
 {
-    const char *Name;
+    const char* Name;
     D3D_SHADER_INPUT_TYPE Type;
     UINT BindPoint;
     UINT BindCount;
@@ -105,7 +129,7 @@ typedef struct _D3D11_SHADER_INPUT_BIND_DESC
 
 typedef struct _D3D11_SIGNATURE_PARAMETER_DESC
 {
-    const char *SemanticName;
+    const char* SemanticName;
     UINT SemanticIndex;
     UINT Register;
     D3D_NAME SystemValueType;
@@ -113,9 +137,9 @@ typedef struct _D3D11_SIGNATURE_PARAMETER_DESC
     BYTE Mask;
     BYTE ReadWriteMask;
     UINT Stream;
-#if D3D_COMPILER_VERSION >= 46
+//cpp_quote("#if D3D_COMPILER_VERSION >= 46")
     D3D_MIN_PRECISION MinPrecision;
-#endif
+//cpp_quote("#endif")
 } D3D11_SIGNATURE_PARAMETER_DESC;
 
 [
@@ -126,7 +150,7 @@ typedef struct _D3D11_SIGNATURE_PARAMETER_DESC
 interface ID3D11ShaderReflectionType
 {
     HRESULT GetDesc(
-        [out] D3D11_SHARED_TYPE_DESC *desc
+        [out] D3D11_SHADER_TYPE_DESC *desc
     );
 
     ID3D11ShaderReflectionType *GetMemberTypeByIndex(
@@ -207,13 +231,14 @@ interface ID3D11ShaderReflectionConstantBuffer
     );
 };
 
-
 [
     local,
     object,
-    uuid(17f27486-a342-4d10-8842-ab6874e7f670)
+    //uuid(17f27486-a342-4d10-8842-ab6874e7f670) // <= 42
+    //uuid(0a233719-3960-4578-9d7c-203b8b1d9cc1) // == 43
+    uuid(8d536ca1-0cca-4956-a837-786963755584) // 44
 ]
-interface ID3D11ShaderReflection42 : IUnknown
+interface ID3D11ShaderReflection : IUnknown
 {
     HRESULT GetDesc(
         [out] D3D11_SHADER_DESC *desc
@@ -253,84 +278,9 @@ interface ID3D11ShaderReflection42 : IUnknown
 
     HRESULT GetResourceBindingDescByName(
         [in] LPCSTR name,
-        [ouut] D3D11_SHADER_INPUT_BIND_DESC *desc
-    );
-
-    UINT GetMovInstructionCount();
-
-    UINT GetMovcInstructionCount();
-
-    UINT GetConversionInstructionCount();
-
-    UINT GetBitwiseInstructionCount();
-
-    D3D_PRIMITIVE GetGSInputPrimitive();
-
-    BOOL IsSampleFrequencyShader();
-
-    UINT GetNumInterfaceSlots();
-
-    HRESULT GetMinFeatureLevel(
-        [out] D3D_FEATURE_LEVEL *level
-    );
-
-    UINT GetThreadGroupSize(
-        [out, optional] UINT *sizex,
-        [out, optional] UINT *sizey,
-        [out, optional] UINT *sizez
-    );
-
-    UINT64 GetRequiresFlags();
-};
-
-[
-    local,
-    object,
-    uuid(0a233719-3960-4578-9d7c-203b8b1d9cc1)
-]
-interface ID3D11ShaderReflection43 : IUnknown
-{
-    HRESULT GetDesc(
-        [out] D3D11_SHADER_DESC *desc
-    );
-
-    ID3D11ShaderReflectionConstantBuffer *GetConstantBufferByIndex(
-        [in] UINT index
-    );
-
-    ID3D11ShaderReflectionConstantBuffer *GetConstantBufferByName(
-        [in] LPCSTR name
-    );
-
-    HRESULT GetResourceBindingDesc(
-        [in] UINT index,
         [out] D3D11_SHADER_INPUT_BIND_DESC *desc
     );
 
-    HRESULT GetInputParameterDesc(
-        [in] UINT index,
-        [out] D3D11_SIGNATURE_PARAMETER_DESC *desc
-    );
-
-    HRESULT GetOutputParameterDesc(
-        [in] UINT index,
-        [out] D3D11_SIGNATURE_PARAMETER_DESC *desc
-    );
-
-    HRESULT GetPatchConstantParameterDesc(
-        [in] UINT index,
-        [out] D3D11_SIGNATURE_PARAMETER_DESC *desc
-    );
-
-    ID3D11ShaderReflectionVariable* GetVariableByName(
-        [in] LPCSTR name
-    );
-
-    HRESULT GetResourceBindingDescByName(
-        [in] LPCSTR name,
-        [ouut] D3D11_SHADER_INPUT_BIND_DESC *desc
-    );
-
     UINT GetMovInstructionCount();
 
     UINT GetMovcInstructionCount();
@@ -357,95 +307,6 @@ interface ID3D11ShaderReflection43 : IUnknown
 
     UINT64 GetRequiresFlags();
 };
-
-[
-    local,
-    object,
-    uuid(8d536ca1-0cca-4956-a837-786963755584)
-]
-interface ID3D11ShaderReflection44 : IUnknown
-{
-    HRESULT GetDesc(
-        [out] D3D11_SHADER_DESC *desc
-    );
-
-    ID3D11ShaderReflectionConstantBuffer *GetConstantBufferByIndex(
-        [in] UINT index
-    );
-
-    ID3D11ShaderReflectionConstantBuffer *GetConstantBufferByName(
-        [in] LPCSTR name
-    );
-
-    HRESULT GetResourceBindingDesc(
-        [in] UINT index,
-        [out] D3D11_SHADER_INPUT_BIND_DESC *desc
-    );
-
-    HRESULT GetInputParameterDesc(
-        [in] UINT index,
-        [out] D3D11_SIGNATURE_PARAMETER_DESC *desc
-    );
-
-    HRESULT GetOutputParameterDesc(
-        [in] UINT index,
-        [out] D3D11_SIGNATURE_PARAMETER_DESC *desc
-    );
-
-    HRESULT GetPatchConstantParameterDesc(
-        [in] UINT index,
-        [out] D3D11_SIGNATURE_PARAMETER_DESC *desc
-    );
-
-    ID3D11ShaderReflectionVariable* GetVariableByName(
-        [in] LPCSTR name
-    );
-
-    HRESULT GetResourceBindingDescByName(
-        [in] LPCSTR name,
-        [ouut] D3D11_SHADER_INPUT_BIND_DESC *desc
-    );
-
-    UINT GetMovInstructionCount();
-
-    UINT GetMovcInstructionCount();
-
-    UINT GetConversionInstructionCount();
-
-    UINT GetBitwiseInstructionCount();
-
-    D3D_PRIMITIVE GetGSInputPrimitive();
-
-    BOOL IsSampleFrequencyShader();
-
-    UINT GetNumInterfaceSlots();
-
-    HRESULT GetMinFeatureLevel(
-        [out] D3D_FEATURE_LEVEL *level
-    );
-
-    UINT GetThreadGroupSize(
-        [out, optional] UINT *sizex,
-        [out, optional] UINT *sizey,
-        [out, optional] UINT *sizez
-    );
-
-    UINT64 GetRequiresFlags();
-};
-
-/*
-    Allows for switching between different versions of ID3D11ShaderReflection
-*/
-cpp_quote("#if D3D_COMPILER_VERSION <= 42")
-cpp_quote("typedef ID3D11ShaderReflection42 ID3D11ShaderReflection;")
-cpp_quote("#define IID_ID3D11ShaderReflection IID_ID3D11ShaderReflection42")
-cpp_quote("#elif D3D_COMPILER_VERSION == 43")
-cpp_quote("typedef ID3D11ShaderReflection43 ID3D11ShaderReflection;")
-cpp_quote("#define IID_ID3D11ShaderReflection IID_ID3D11ShaderReflection43")
-cpp_quote("#else")
-cpp_quote("typedef ID3D11ShaderReflection44 ID3D11ShaderReflection;")
-cpp_quote("#define IID_ID3D11ShaderReflection IID_ID3D11ShaderReflection44")
-cpp_quote("#endif")
 
 [
     local,
@@ -523,7 +384,7 @@ interface ID3D11ModuleInstance : IUnknown
 interface ID3D11Module : IUnknown
 {
     HRESULT CreateInstance(
-        [in, optional] LPCStR instnamespace,
+        [in] LPCSTR instnamespace,
         [out] ID3D11ModuleInstance** moduleinstance
     );
 };

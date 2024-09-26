@@ -378,6 +378,7 @@ typedef struct _DDSCAPSEX {
 } DDSCAPSEX, * LPDDSCAPSEX;
 
 #define DD_ROP_SPACE  (256 / 32)	/* space required to store ROP array */
+cpp_quote("#define DD_ROP_SPACE  (256 / 32)")
 
 typedef struct _DDCAPS_DX7		/* DirectX 7 version of caps struct */
 {

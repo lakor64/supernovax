@@ -11,7 +11,6 @@ set(NORMAL_SRC
     dxgixaml.idl
     lockowner.idl
     usecounted.idl
-    #d3d11shader.idl
     ddraw.idl
 
     # mingw-w64
@@ -21,16 +20,15 @@ set(NORMAL_SRC
     dxgi1_4.idl
     dxgi1_5.idl
     dxgi1_6.idl
-	#d3d10.idl
-	#d3d10_1.idl
-	#d3d10effect.idl
-	#d3d10sdklayers.idl
-	#d3d10shader.idl
-	#d3d11.idl
-	#d3d11_1.idl
-	#d3d11_2.idl
-	#d3d11_3.idl
-	#d3d11_4.idl
+	d3d10.idl
+	d3d10_1.idl
+	d3d10sdklayers.idl
+	d3d10shader.idl
+	d3d11.idl
+	d3d11_1.idl
+	d3d11_2.idl
+	d3d11_3.idl
+	d3d11_4.idl
 	#d3d11on12.idl
 
     # DX headers
