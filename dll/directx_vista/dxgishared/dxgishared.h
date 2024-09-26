@@ -24,7 +24,8 @@
 #define DXGKDDI_INTERFACE_VERSION DXGKDDI_INTERFACE_VERSION_WIN8
 #define DXGI_VERSION 3
 #elif _WIN32_WINNT >= 0x601
-#define DXGKDDI_INTERFACE_VERSION DXGKDDI_INTERFACE_VERSION_WIN7
+//#define DXGKDDI_INTERFACE_VERSION DXGKDDI_INTERFACE_VERSION_WIN7
+#define DXGKDDI_INTERFACE_VERSION DXGKDDI_INTERFACE_VERSION_VISTA // TODO: Adjust when reactos d3dkmthk.h is ok
 #define DXGI_VERSION 2
 #else
 #define DXGKDDI_INTERFACE_VERSION DXGKDDI_INTERFACE_VERSION_VISTA
@@ -44,14 +45,6 @@
 #include <winuser.h>
 #include <wingdi.h>
 #include <shlwapi.h>
-
-// NDK
-/*#ifndef __REACTOS__
-#include <winternl.h>
-#else
-#define NTOS_MODE_USER
-#include <ndk/umtypes.h>
-#endif*/
 
 // DXGI
 #include <dxgi.h>
@@ -79,11 +72,32 @@
 #include <dxgi1_6.h>
 #endif
 
+/* IRQL annotations are only valid when included from kernelspecs.h */
+#define _IRQL_requires_max_(irql)
+#define _IRQL_requires_(irql)
+
 // DXGI DDK
 #include <d3dkmthk.h>
 
-#ifdef __WINE_D3DKMTHK_H
-#error "Do not use wine d3dkmthk.h"
+#ifdef __WINE_D3DUKMDT_H
+ // TODO: wait for fix (this are from winsdk)
+#define D3DGPU_NULL 0
+#define D3DDDI_ID_UNINITIALIZED (UINT)(~0)
+typedef struct _D3DKMT_UMDFILENAMEINFO {
+    UINT Version;
+    WCHAR         UmdFileName[MAX_PATH];
+} D3DKMT_UMDFILENAMEINFO;
+typedef struct _D3DKMT_SEGMENTSIZEINFO {
+    D3DKMT_ALIGN64 ULONGLONG DedicatedVideoMemorySize;
+    D3DKMT_ALIGN64 ULONGLONG DedicatedSystemMemorySize;
+    D3DKMT_ALIGN64 ULONGLONG SharedSystemMemorySize;
+} D3DKMT_SEGMENTSIZEINFO;
+typedef struct _D3DKMT_ADAPTERREGISTRYINFO {
+    WCHAR AdapterString[MAX_PATH];
+    WCHAR BiosString[MAX_PATH];
+    WCHAR DacType[MAX_PATH];
+    WCHAR ChipType[MAX_PATH];
+} D3DKMT_ADAPTERREGISTRYINFO;
 #endif
 
 // Maximum enum outputs
@@ -100,6 +114,12 @@
 #endif
 #ifndef STATUS_INVALID_PARAMETER
 #define STATUS_INVALID_PARAMETER 0xC000000D 
+#endif
+#ifndef NT_SUCCESS
+#define NT_SUCCESS(Status)              (((NTSTATUS)(Status)) >= 0)
+#endif
+#ifndef NT_ERROR
+#define NT_ERROR(Status)                ((((ULONG)(Status)) >> 30) == 3)
 #endif
 
 /// ATL Object root typedef

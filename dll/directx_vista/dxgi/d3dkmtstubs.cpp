@@ -63,7 +63,7 @@ extern "C"
 			if (ai->PrivateDriverDataSize != sizeof(D3DKMT_UMDFILENAMEINFO))
 				return STATUS_INVALID_PARAMETER;
 
-			wcscpy(((D3DKMT_UMDFILENAMEINFO*)ai->pPrivateDriverData)->UmdFileName, L"dxgi.dll");
+			wcscpy_s(((D3DKMT_UMDFILENAMEINFO*)ai->pPrivateDriverData)->UmdFileName, _countof(((D3DKMT_UMDFILENAMEINFO*)ai->pPrivateDriverData)->UmdFileName), L"dxgi.dll");
 			((D3DKMT_UMDFILENAMEINFO*)ai->pPrivateDriverData)->Version = KMTUMDVERSION_DX10;
 		}
 		else if (ai->Type == KMTQAITYPE_UMDRIVERPRIVATE)

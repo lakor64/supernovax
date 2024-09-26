@@ -29,8 +29,8 @@ add_library(dxgi MODULE
 )
 
 set_module_type(dxgi win32dll UNICODE)
-target_link_libraries(dxgi uuid atl_classes cppstl Version dxgishared)
+target_link_libraries(dxgi uuid atl_classes cppstl Version dxgishared gdi32 rpcrt4 shlwapi user32 comdlg32 msvcrt)
 add_pch(dxgi pch.h SOURCE)
-add_importlibs(dxgi gdi32 rpcrt4 shlwapi user32 comdlg32 msvcrt ntdll)
 add_dependencies(dxgi dxsdk)
-set_target_properties(dxgi PROPERTIES WITH_CXX_EXCEPTIONS TRUE)
+set_target_properties(dxgi PROPERTIES WITH_CXX_EXCEPTIONS TRUE WITH_CXX_RTTI TRUE)
+add_importlibs(dxgi fakewine)

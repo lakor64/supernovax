@@ -8,6 +8,8 @@
  */
 import "oaidl.idl";
 import "ocidl.idl";
+import "d3dcommon.idl";
+import "d3d10.idl";
 
 typedef enum D3D10_DRIVER_TYPE {
     D3D10_DRIVER_TYPE_HARDWARE  = 0,

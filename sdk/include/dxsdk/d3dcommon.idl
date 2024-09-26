@@ -392,8 +392,10 @@ interface ID3DBlob : IUnknown // NOTE: out of spec but it fixes compilation on w
     SIZE_T GetBufferSize();
 };
 
-cpp_quote("typedef interface ID3D10Blob* LPD3D10BLOB;")
-cpp_quote("typedef ID3DBlob ID3D10Blob;")
+cpp_quote("typedef interface ID3DBlob ID3D10Blob;")
+cpp_quote("typedef ID3D10Blob* LPD3D10BLOB;")
+//cpp_quote("typedef ID3DBlob ID3D10Blob;")
+
 cpp_quote("typedef ID3DBlob* LPD3DBLOB;")
 cpp_quote("#define IID_ID3DBlob IID_ID3D10Blob")
 

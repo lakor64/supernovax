@@ -389,7 +389,7 @@ STDMETHODIMP CDXGIAdapter::GetDesc1(_Out_ DXGI_ADAPTER_DESC1* pDesc)
 	pDesc->DedicatedSystemMemory = m_desc.DedicatedSystemMemory;
 	pDesc->DedicatedVideoMemory = m_desc.DedicatedVideoMemory;
 	pDesc->SharedSystemMemory = m_desc.SharedSystemMemory;
-	wcscpy(pDesc->Description, m_desc.Description);
+	wcscpy_s(pDesc->Description, _countof(pDesc->Description), m_desc.Description);
 	pDesc->DeviceId = m_desc.DeviceId;
 	pDesc->Revision = m_desc.Revision;
 	pDesc->SubSysId = m_desc.SubSysId;
@@ -413,7 +413,7 @@ STDMETHODIMP CDXGIAdapter::GetDesc2(_Out_ DXGI_ADAPTER_DESC2* pDesc)
 	pDesc->DedicatedSystemMemory = m_desc.DedicatedSystemMemory;
 	pDesc->DedicatedVideoMemory = m_desc.DedicatedVideoMemory;
 	pDesc->SharedSystemMemory = m_desc.SharedSystemMemory;
-	wcscpy(pDesc->Description, m_desc.Description);
+	wcscpy_s(pDesc->Description, _countof(pDesc->Description), m_desc.Description);
 	pDesc->DeviceId = m_desc.DeviceId;
 	pDesc->Revision = m_desc.Revision;
 	pDesc->SubSysId = m_desc.SubSysId;

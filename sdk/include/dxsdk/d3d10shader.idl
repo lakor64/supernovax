@@ -17,6 +17,7 @@
  */
 
 import "d3d10.idl";
+import "d3d10misc.idl";
 
 const unsigned int D3D10_SHADER_DEBUG                           = 0x00001;
 const unsigned int D3D10_SHADER_SKIP_VALIDATION                 = 0x00002;
@@ -60,9 +61,11 @@ typedef D3D_SHADER_INPUT_TYPE *LPD3D10_SHADER_INPUT_TYPE;
 typedef D3D_SHADER_VARIABLE_TYPE D3D10_SHADER_VARIABLE_TYPE;
 typedef D3D_SHADER_VARIABLE_TYPE *LPD3D10_SHADER_VARIABLE_TYPE;
 
+interface ID3D10Include;
+
 typedef D3D_INCLUDE_TYPE D3D10_INCLUDE_TYPE;
-typedef ID3DInclude ID3D10Include;
-typedef ID3DInclude *LPD3D10INCLUDE;
+cpp_quote("typedef ID3DInclude ID3D10Include;")
+cpp_quote("typedef ID3DInclude *LPD3D10INCLUDE;")
 cpp_quote("#define IID_ID3D10Include IID_ID3DInclude")
 
 typedef struct _D3D10_SHADER_INPUT_BIND_DESC

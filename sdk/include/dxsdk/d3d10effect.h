@@ -193,6 +193,7 @@ interface ID3D10StateBlock;
 
 #include <d3d10.h>
 #include <d3d10shader.h>
+#include <d3d10misc.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -397,7 +398,7 @@ typedef struct _D3D10_STATE_BLOCK_MASK {
     BYTE Predication;
 } D3D10_STATE_BLOCK_MASK;
 typedef struct _D3D10_EFFECT_DESC {
-    WINBOOL IsChildEffect;
+    BOOL IsChildEffect;
     UINT ConstantBuffers;
     UINT SharedConstantBuffers;
     UINT GlobalVariables;
@@ -406,7 +407,7 @@ typedef struct _D3D10_EFFECT_DESC {
 } D3D10_EFFECT_DESC;
 typedef struct _D3D10_EFFECT_SHADER_DESC {
     const BYTE *pInputSignature;
-    WINBOOL IsInline;
+    BOOL IsInline;
     const BYTE *pBytecode;
     UINT BytecodeLength;
     const char *SODecl;
@@ -446,7 +447,7 @@ ID3D10EffectType
 
     BEGIN_INTERFACE
 
-    virtual WINBOOL STDMETHODCALLTYPE IsValid(
+    virtual BOOL STDMETHODCALLTYPE IsValid(
         ) = 0;
 
     virtual HRESULT STDMETHODCALLTYPE GetDesc(
@@ -478,7 +479,7 @@ typedef struct ID3D10EffectTypeVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectType methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectType *This);
 
     HRESULT (STDMETHODCALLTYPE *GetDesc)(
@@ -524,7 +525,7 @@ interface ID3D10EffectType {
 #define ID3D10EffectType_GetMemberSemantic(This,index) (This)->lpVtbl->GetMemberSemantic(This,index)
 #else
 /*** ID3D10EffectType methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectType_IsValid(ID3D10EffectType* This) {
+static __WIDL_INLINE BOOL ID3D10EffectType_IsValid(ID3D10EffectType* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE HRESULT ID3D10EffectType_GetDesc(ID3D10EffectType* This,D3D10_EFFECT_TYPE_DESC *desc) {
@@ -567,7 +568,7 @@ ID3D10EffectVariable
 
     BEGIN_INTERFACE
 
-    virtual WINBOOL STDMETHODCALLTYPE IsValid(
+    virtual BOOL STDMETHODCALLTYPE IsValid(
         ) = 0;
 
     virtual ID3D10EffectType * STDMETHODCALLTYPE GetType(
@@ -657,7 +658,7 @@ typedef struct ID3D10EffectVariableVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectVariable *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -782,7 +783,7 @@ interface ID3D10EffectVariable {
 #define ID3D10EffectVariable_GetRawValue(This,data,offset,count) (This)->lpVtbl->GetRawValue(This,data,offset,count)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectVariable_IsValid(ID3D10EffectVariable* This) {
+static __WIDL_INLINE BOOL ID3D10EffectVariable_IsValid(ID3D10EffectVariable* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectVariable_GetType(ID3D10EffectVariable* This) {
@@ -897,7 +898,7 @@ typedef struct ID3D10EffectConstantBufferVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectConstantBuffer *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -1044,7 +1045,7 @@ interface ID3D10EffectConstantBuffer {
 #define ID3D10EffectConstantBuffer_GetTextureBuffer(This,view) (This)->lpVtbl->GetTextureBuffer(This,view)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectConstantBuffer_IsValid(ID3D10EffectConstantBuffer* This) {
+static __WIDL_INLINE BOOL ID3D10EffectConstantBuffer_IsValid(ID3D10EffectConstantBuffer* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectConstantBuffer_GetType(ID3D10EffectConstantBuffer* This) {
@@ -1184,18 +1185,18 @@ ID3D10EffectScalarVariable : public ID3D10EffectVariable
         UINT count) = 0;
 
     virtual HRESULT STDMETHODCALLTYPE SetBool(
-        WINBOOL value) = 0;
+        BOOL value) = 0;
 
     virtual HRESULT STDMETHODCALLTYPE GetBool(
-        WINBOOL *value) = 0;
+        BOOL *value) = 0;
 
     virtual HRESULT STDMETHODCALLTYPE SetBoolArray(
-        WINBOOL *values,
+        BOOL *values,
         UINT offset,
         UINT count) = 0;
 
     virtual HRESULT STDMETHODCALLTYPE GetBoolArray(
-        WINBOOL *values,
+        BOOL *values,
         UINT offset,
         UINT count) = 0;
 
@@ -1208,7 +1209,7 @@ typedef struct ID3D10EffectScalarVariableVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectScalarVariable *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -1339,21 +1340,21 @@ typedef struct ID3D10EffectScalarVariableVtbl {
 
     HRESULT (STDMETHODCALLTYPE *SetBool)(
         ID3D10EffectScalarVariable *This,
-        WINBOOL value);
+        BOOL value);
 
     HRESULT (STDMETHODCALLTYPE *GetBool)(
         ID3D10EffectScalarVariable *This,
-        WINBOOL *value);
+        BOOL *value);
 
     HRESULT (STDMETHODCALLTYPE *SetBoolArray)(
         ID3D10EffectScalarVariable *This,
-        WINBOOL *values,
+        BOOL *values,
         UINT offset,
         UINT count);
 
     HRESULT (STDMETHODCALLTYPE *GetBoolArray)(
         ID3D10EffectScalarVariable *This,
-        WINBOOL *values,
+        BOOL *values,
         UINT offset,
         UINT count);
 
@@ -1407,7 +1408,7 @@ interface ID3D10EffectScalarVariable {
 #define ID3D10EffectScalarVariable_GetBoolArray(This,values,offset,count) (This)->lpVtbl->GetBoolArray(This,values,offset,count)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectScalarVariable_IsValid(ID3D10EffectScalarVariable* This) {
+static __WIDL_INLINE BOOL ID3D10EffectScalarVariable_IsValid(ID3D10EffectScalarVariable* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectScalarVariable_GetType(ID3D10EffectScalarVariable* This) {
@@ -1507,16 +1508,16 @@ static __WIDL_INLINE HRESULT ID3D10EffectScalarVariable_SetIntArray(ID3D10Effect
 static __WIDL_INLINE HRESULT ID3D10EffectScalarVariable_GetIntArray(ID3D10EffectScalarVariable* This,int *values,UINT offset,UINT count) {
     return This->lpVtbl->GetIntArray(This,values,offset,count);
 }
-static __WIDL_INLINE HRESULT ID3D10EffectScalarVariable_SetBool(ID3D10EffectScalarVariable* This,WINBOOL value) {
+static __WIDL_INLINE HRESULT ID3D10EffectScalarVariable_SetBool(ID3D10EffectScalarVariable* This,BOOL value) {
     return This->lpVtbl->SetBool(This,value);
 }
-static __WIDL_INLINE HRESULT ID3D10EffectScalarVariable_GetBool(ID3D10EffectScalarVariable* This,WINBOOL *value) {
+static __WIDL_INLINE HRESULT ID3D10EffectScalarVariable_GetBool(ID3D10EffectScalarVariable* This,BOOL *value) {
     return This->lpVtbl->GetBool(This,value);
 }
-static __WIDL_INLINE HRESULT ID3D10EffectScalarVariable_SetBoolArray(ID3D10EffectScalarVariable* This,WINBOOL *values,UINT offset,UINT count) {
+static __WIDL_INLINE HRESULT ID3D10EffectScalarVariable_SetBoolArray(ID3D10EffectScalarVariable* This,BOOL *values,UINT offset,UINT count) {
     return This->lpVtbl->SetBoolArray(This,values,offset,count);
 }
-static __WIDL_INLINE HRESULT ID3D10EffectScalarVariable_GetBoolArray(ID3D10EffectScalarVariable* This,WINBOOL *values,UINT offset,UINT count) {
+static __WIDL_INLINE HRESULT ID3D10EffectScalarVariable_GetBoolArray(ID3D10EffectScalarVariable* This,BOOL *values,UINT offset,UINT count) {
     return This->lpVtbl->GetBoolArray(This,values,offset,count);
 }
 #endif
@@ -1539,7 +1540,7 @@ MIDL_INTERFACE("62b98c44-1f82-4c67-bcd0-72cf8f217e81")
 ID3D10EffectVectorVariable : public ID3D10EffectVariable
 {
     virtual HRESULT STDMETHODCALLTYPE SetBoolVector(
-        WINBOOL *value) = 0;
+        BOOL *value) = 0;
 
     virtual HRESULT STDMETHODCALLTYPE SetIntVector(
         int *value) = 0;
@@ -1548,7 +1549,7 @@ ID3D10EffectVectorVariable : public ID3D10EffectVariable
         float *value) = 0;
 
     virtual HRESULT STDMETHODCALLTYPE GetBoolVector(
-        WINBOOL *value) = 0;
+        BOOL *value) = 0;
 
     virtual HRESULT STDMETHODCALLTYPE GetIntVector(
         int *value) = 0;
@@ -1557,7 +1558,7 @@ ID3D10EffectVectorVariable : public ID3D10EffectVariable
         float *value) = 0;
 
     virtual HRESULT STDMETHODCALLTYPE SetBoolVectorArray(
-        WINBOOL *values,
+        BOOL *values,
         UINT offset,
         UINT count) = 0;
 
@@ -1572,7 +1573,7 @@ ID3D10EffectVectorVariable : public ID3D10EffectVariable
         UINT count) = 0;
 
     virtual HRESULT STDMETHODCALLTYPE GetBoolVectorArray(
-        WINBOOL *values,
+        BOOL *values,
         UINT offset,
         UINT count) = 0;
 
@@ -1595,7 +1596,7 @@ typedef struct ID3D10EffectVectorVariableVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectVectorVariable *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -1686,7 +1687,7 @@ typedef struct ID3D10EffectVectorVariableVtbl {
     /*** ID3D10EffectVectorVariable methods ***/
     HRESULT (STDMETHODCALLTYPE *SetBoolVector)(
         ID3D10EffectVectorVariable *This,
-        WINBOOL *value);
+        BOOL *value);
 
     HRESULT (STDMETHODCALLTYPE *SetIntVector)(
         ID3D10EffectVectorVariable *This,
@@ -1698,7 +1699,7 @@ typedef struct ID3D10EffectVectorVariableVtbl {
 
     HRESULT (STDMETHODCALLTYPE *GetBoolVector)(
         ID3D10EffectVectorVariable *This,
-        WINBOOL *value);
+        BOOL *value);
 
     HRESULT (STDMETHODCALLTYPE *GetIntVector)(
         ID3D10EffectVectorVariable *This,
@@ -1710,7 +1711,7 @@ typedef struct ID3D10EffectVectorVariableVtbl {
 
     HRESULT (STDMETHODCALLTYPE *SetBoolVectorArray)(
         ID3D10EffectVectorVariable *This,
-        WINBOOL *values,
+        BOOL *values,
         UINT offset,
         UINT count);
 
@@ -1728,7 +1729,7 @@ typedef struct ID3D10EffectVectorVariableVtbl {
 
     HRESULT (STDMETHODCALLTYPE *GetBoolVectorArray)(
         ID3D10EffectVectorVariable *This,
-        WINBOOL *values,
+        BOOL *values,
         UINT offset,
         UINT count);
 
@@ -1794,7 +1795,7 @@ interface ID3D10EffectVectorVariable {
 #define ID3D10EffectVectorVariable_GetFloatVectorArray(This,values,offset,count) (This)->lpVtbl->GetFloatVectorArray(This,values,offset,count)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectVectorVariable_IsValid(ID3D10EffectVectorVariable* This) {
+static __WIDL_INLINE BOOL ID3D10EffectVectorVariable_IsValid(ID3D10EffectVectorVariable* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectVectorVariable_GetType(ID3D10EffectVectorVariable* This) {
@@ -1870,7 +1871,7 @@ static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_GetRawValue(ID3D10Effect
     return This->lpVtbl->GetRawValue(This,data,offset,count);
 }
 /*** ID3D10EffectVectorVariable methods ***/
-static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_SetBoolVector(ID3D10EffectVectorVariable* This,WINBOOL *value) {
+static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_SetBoolVector(ID3D10EffectVectorVariable* This,BOOL *value) {
     return This->lpVtbl->SetBoolVector(This,value);
 }
 static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_SetIntVector(ID3D10EffectVectorVariable* This,int *value) {
@@ -1879,7 +1880,7 @@ static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_SetIntVector(ID3D10Effec
 static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_SetFloatVector(ID3D10EffectVectorVariable* This,float *value) {
     return This->lpVtbl->SetFloatVector(This,value);
 }
-static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_GetBoolVector(ID3D10EffectVectorVariable* This,WINBOOL *value) {
+static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_GetBoolVector(ID3D10EffectVectorVariable* This,BOOL *value) {
     return This->lpVtbl->GetBoolVector(This,value);
 }
 static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_GetIntVector(ID3D10EffectVectorVariable* This,int *value) {
@@ -1888,7 +1889,7 @@ static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_GetIntVector(ID3D10Effec
 static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_GetFloatVector(ID3D10EffectVectorVariable* This,float *value) {
     return This->lpVtbl->GetFloatVector(This,value);
 }
-static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_SetBoolVectorArray(ID3D10EffectVectorVariable* This,WINBOOL *values,UINT offset,UINT count) {
+static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_SetBoolVectorArray(ID3D10EffectVectorVariable* This,BOOL *values,UINT offset,UINT count) {
     return This->lpVtbl->SetBoolVectorArray(This,values,offset,count);
 }
 static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_SetIntVectorArray(ID3D10EffectVectorVariable* This,int *values,UINT offset,UINT count) {
@@ -1897,7 +1898,7 @@ static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_SetIntVectorArray(ID3D10
 static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_SetFloatVectorArray(ID3D10EffectVectorVariable* This,float *values,UINT offset,UINT count) {
     return This->lpVtbl->SetFloatVectorArray(This,values,offset,count);
 }
-static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_GetBoolVectorArray(ID3D10EffectVectorVariable* This,WINBOOL *values,UINT offset,UINT count) {
+static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_GetBoolVectorArray(ID3D10EffectVectorVariable* This,BOOL *values,UINT offset,UINT count) {
     return This->lpVtbl->GetBoolVectorArray(This,values,offset,count);
 }
 static __WIDL_INLINE HRESULT ID3D10EffectVectorVariable_GetIntVectorArray(ID3D10EffectVectorVariable* This,int *values,UINT offset,UINT count) {
@@ -1966,7 +1967,7 @@ typedef struct ID3D10EffectMatrixVariableVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectMatrixVariable *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -2141,7 +2142,7 @@ interface ID3D10EffectMatrixVariable {
 #define ID3D10EffectMatrixVariable_GetMatrixTransposeArray(This,data,offset,count) (This)->lpVtbl->GetMatrixTransposeArray(This,data,offset,count)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectMatrixVariable_IsValid(ID3D10EffectMatrixVariable* This) {
+static __WIDL_INLINE BOOL ID3D10EffectMatrixVariable_IsValid(ID3D10EffectMatrixVariable* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectMatrixVariable_GetType(ID3D10EffectMatrixVariable* This) {
@@ -2277,7 +2278,7 @@ typedef struct ID3D10EffectStringVariableVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectStringVariable *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -2416,7 +2417,7 @@ interface ID3D10EffectStringVariable {
 #define ID3D10EffectStringVariable_GetStringArray(This,strs,offset,count) (This)->lpVtbl->GetStringArray(This,strs,offset,count)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectStringVariable_IsValid(ID3D10EffectStringVariable* This) {
+static __WIDL_INLINE BOOL ID3D10EffectStringVariable_IsValid(ID3D10EffectStringVariable* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectStringVariable_GetType(ID3D10EffectStringVariable* This) {
@@ -2542,7 +2543,7 @@ typedef struct ID3D10EffectShaderResourceVariableVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectShaderResourceVariable *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -2693,7 +2694,7 @@ interface ID3D10EffectShaderResourceVariable {
 #define ID3D10EffectShaderResourceVariable_GetResourceArray(This,resources,offset,count) (This)->lpVtbl->GetResourceArray(This,resources,offset,count)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectShaderResourceVariable_IsValid(ID3D10EffectShaderResourceVariable* This) {
+static __WIDL_INLINE BOOL ID3D10EffectShaderResourceVariable_IsValid(ID3D10EffectShaderResourceVariable* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectShaderResourceVariable_GetType(ID3D10EffectShaderResourceVariable* This) {
@@ -2825,7 +2826,7 @@ typedef struct ID3D10EffectRenderTargetViewVariableVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectRenderTargetViewVariable *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -2976,7 +2977,7 @@ interface ID3D10EffectRenderTargetViewVariable {
 #define ID3D10EffectRenderTargetViewVariable_GetRenderTargetArray(This,views,offset,count) (This)->lpVtbl->GetRenderTargetArray(This,views,offset,count)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectRenderTargetViewVariable_IsValid(ID3D10EffectRenderTargetViewVariable* This) {
+static __WIDL_INLINE BOOL ID3D10EffectRenderTargetViewVariable_IsValid(ID3D10EffectRenderTargetViewVariable* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectRenderTargetViewVariable_GetType(ID3D10EffectRenderTargetViewVariable* This) {
@@ -3108,7 +3109,7 @@ typedef struct ID3D10EffectDepthStencilViewVariableVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectDepthStencilViewVariable *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -3259,7 +3260,7 @@ interface ID3D10EffectDepthStencilViewVariable {
 #define ID3D10EffectDepthStencilViewVariable_GetDepthStencilArray(This,views,offset,count) (This)->lpVtbl->GetDepthStencilArray(This,views,offset,count)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectDepthStencilViewVariable_IsValid(ID3D10EffectDepthStencilViewVariable* This) {
+static __WIDL_INLINE BOOL ID3D10EffectDepthStencilViewVariable_IsValid(ID3D10EffectDepthStencilViewVariable* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectDepthStencilViewVariable_GetType(ID3D10EffectDepthStencilViewVariable* This) {
@@ -3401,7 +3402,7 @@ typedef struct ID3D10EffectShaderVariableVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectShaderVariable *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -3566,7 +3567,7 @@ interface ID3D10EffectShaderVariable {
 #define ID3D10EffectShaderVariable_GetOutputSignatureElementDesc(This,shader_index,element_index,desc) (This)->lpVtbl->GetOutputSignatureElementDesc(This,shader_index,element_index,desc)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectShaderVariable_IsValid(ID3D10EffectShaderVariable* This) {
+static __WIDL_INLINE BOOL ID3D10EffectShaderVariable_IsValid(ID3D10EffectShaderVariable* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectShaderVariable_GetType(ID3D10EffectShaderVariable* This) {
@@ -3696,7 +3697,7 @@ typedef struct ID3D10EffectBlendVariableVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectBlendVariable *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -3835,7 +3836,7 @@ interface ID3D10EffectBlendVariable {
 #define ID3D10EffectBlendVariable_GetBackingStore(This,index,desc) (This)->lpVtbl->GetBackingStore(This,index,desc)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectBlendVariable_IsValid(ID3D10EffectBlendVariable* This) {
+static __WIDL_INLINE BOOL ID3D10EffectBlendVariable_IsValid(ID3D10EffectBlendVariable* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectBlendVariable_GetType(ID3D10EffectBlendVariable* This) {
@@ -3953,7 +3954,7 @@ typedef struct ID3D10EffectDepthStencilVariableVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectDepthStencilVariable *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -4092,7 +4093,7 @@ interface ID3D10EffectDepthStencilVariable {
 #define ID3D10EffectDepthStencilVariable_GetBackingStore(This,index,desc) (This)->lpVtbl->GetBackingStore(This,index,desc)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectDepthStencilVariable_IsValid(ID3D10EffectDepthStencilVariable* This) {
+static __WIDL_INLINE BOOL ID3D10EffectDepthStencilVariable_IsValid(ID3D10EffectDepthStencilVariable* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectDepthStencilVariable_GetType(ID3D10EffectDepthStencilVariable* This) {
@@ -4210,7 +4211,7 @@ typedef struct ID3D10EffectRasterizerVariableVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectRasterizerVariable *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -4349,7 +4350,7 @@ interface ID3D10EffectRasterizerVariable {
 #define ID3D10EffectRasterizerVariable_GetBackingStore(This,index,desc) (This)->lpVtbl->GetBackingStore(This,index,desc)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectRasterizerVariable_IsValid(ID3D10EffectRasterizerVariable* This) {
+static __WIDL_INLINE BOOL ID3D10EffectRasterizerVariable_IsValid(ID3D10EffectRasterizerVariable* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectRasterizerVariable_GetType(ID3D10EffectRasterizerVariable* This) {
@@ -4467,7 +4468,7 @@ typedef struct ID3D10EffectSamplerVariableVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectVariable methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectSamplerVariable *This);
 
     ID3D10EffectType * (STDMETHODCALLTYPE *GetType)(
@@ -4606,7 +4607,7 @@ interface ID3D10EffectSamplerVariable {
 #define ID3D10EffectSamplerVariable_GetBackingStore(This,index,desc) (This)->lpVtbl->GetBackingStore(This,index,desc)
 #else
 /*** ID3D10EffectVariable methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectSamplerVariable_IsValid(ID3D10EffectSamplerVariable* This) {
+static __WIDL_INLINE BOOL ID3D10EffectSamplerVariable_IsValid(ID3D10EffectSamplerVariable* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE ID3D10EffectType * ID3D10EffectSamplerVariable_GetType(ID3D10EffectSamplerVariable* This) {
@@ -4710,7 +4711,7 @@ ID3D10EffectTechnique
 
     BEGIN_INTERFACE
 
-    virtual WINBOOL STDMETHODCALLTYPE IsValid(
+    virtual BOOL STDMETHODCALLTYPE IsValid(
         ) = 0;
 
     virtual HRESULT STDMETHODCALLTYPE GetDesc(
@@ -4742,7 +4743,7 @@ typedef struct ID3D10EffectTechniqueVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectTechnique methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectTechnique *This);
 
     HRESULT (STDMETHODCALLTYPE *GetDesc)(
@@ -4788,7 +4789,7 @@ interface ID3D10EffectTechnique {
 #define ID3D10EffectTechnique_ComputeStateBlockMask(This,mask) (This)->lpVtbl->ComputeStateBlockMask(This,mask)
 #else
 /*** ID3D10EffectTechnique methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectTechnique_IsValid(ID3D10EffectTechnique* This) {
+static __WIDL_INLINE BOOL ID3D10EffectTechnique_IsValid(ID3D10EffectTechnique* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE HRESULT ID3D10EffectTechnique_GetDesc(ID3D10EffectTechnique* This,D3D10_TECHNIQUE_DESC *desc) {
@@ -4828,10 +4829,10 @@ DEFINE_GUID(IID_ID3D10Effect, 0x51b0ca8b, 0xec0b, 0x4519, 0x87,0x0d, 0x8e,0xe1,0
 MIDL_INTERFACE("51b0ca8b-ec0b-4519-870d-8ee1cb5017c7")
 ID3D10Effect : public IUnknown
 {
-    virtual WINBOOL STDMETHODCALLTYPE IsValid(
+    virtual BOOL STDMETHODCALLTYPE IsValid(
         ) = 0;
 
-    virtual WINBOOL STDMETHODCALLTYPE IsPool(
+    virtual BOOL STDMETHODCALLTYPE IsPool(
         ) = 0;
 
     virtual HRESULT STDMETHODCALLTYPE GetDevice(
@@ -4864,7 +4865,7 @@ ID3D10Effect : public IUnknown
     virtual HRESULT STDMETHODCALLTYPE Optimize(
         ) = 0;
 
-    virtual WINBOOL STDMETHODCALLTYPE IsOptimized(
+    virtual BOOL STDMETHODCALLTYPE IsOptimized(
         ) = 0;
 
 };
@@ -4888,10 +4889,10 @@ typedef struct ID3D10EffectVtbl {
         ID3D10Effect *This);
 
     /*** ID3D10Effect methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10Effect *This);
 
-    WINBOOL (STDMETHODCALLTYPE *IsPool)(
+    BOOL (STDMETHODCALLTYPE *IsPool)(
         ID3D10Effect *This);
 
     HRESULT (STDMETHODCALLTYPE *GetDevice)(
@@ -4933,7 +4934,7 @@ typedef struct ID3D10EffectVtbl {
     HRESULT (STDMETHODCALLTYPE *Optimize)(
         ID3D10Effect *This);
 
-    WINBOOL (STDMETHODCALLTYPE *IsOptimized)(
+    BOOL (STDMETHODCALLTYPE *IsOptimized)(
         ID3D10Effect *This);
 
     END_INTERFACE
@@ -4975,10 +4976,10 @@ static __WIDL_INLINE ULONG ID3D10Effect_Release(ID3D10Effect* This) {
     return This->lpVtbl->Release(This);
 }
 /*** ID3D10Effect methods ***/
-static __WIDL_INLINE WINBOOL ID3D10Effect_IsValid(ID3D10Effect* This) {
+static __WIDL_INLINE BOOL ID3D10Effect_IsValid(ID3D10Effect* This) {
     return This->lpVtbl->IsValid(This);
 }
-static __WIDL_INLINE WINBOOL ID3D10Effect_IsPool(ID3D10Effect* This) {
+static __WIDL_INLINE BOOL ID3D10Effect_IsPool(ID3D10Effect* This) {
     return This->lpVtbl->IsPool(This);
 }
 static __WIDL_INLINE HRESULT ID3D10Effect_GetDevice(ID3D10Effect* This,ID3D10Device **device) {
@@ -5011,7 +5012,7 @@ static __WIDL_INLINE ID3D10EffectTechnique * ID3D10Effect_GetTechniqueByName(ID3
 static __WIDL_INLINE HRESULT ID3D10Effect_Optimize(ID3D10Effect* This) {
     return This->lpVtbl->Optimize(This);
 }
-static __WIDL_INLINE WINBOOL ID3D10Effect_IsOptimized(ID3D10Effect* This) {
+static __WIDL_INLINE BOOL ID3D10Effect_IsOptimized(ID3D10Effect* This) {
     return This->lpVtbl->IsOptimized(This);
 }
 #endif
@@ -5112,7 +5113,7 @@ ID3D10EffectPass
 
     BEGIN_INTERFACE
 
-    virtual WINBOOL STDMETHODCALLTYPE IsValid(
+    virtual BOOL STDMETHODCALLTYPE IsValid(
         ) = 0;
 
     virtual HRESULT STDMETHODCALLTYPE GetDesc(
@@ -5150,7 +5151,7 @@ typedef struct ID3D10EffectPassVtbl {
     BEGIN_INTERFACE
 
     /*** ID3D10EffectPass methods ***/
-    WINBOOL (STDMETHODCALLTYPE *IsValid)(
+    BOOL (STDMETHODCALLTYPE *IsValid)(
         ID3D10EffectPass *This);
 
     HRESULT (STDMETHODCALLTYPE *GetDesc)(
@@ -5206,7 +5207,7 @@ interface ID3D10EffectPass {
 #define ID3D10EffectPass_ComputeStateBlockMask(This,mask) (This)->lpVtbl->ComputeStateBlockMask(This,mask)
 #else
 /*** ID3D10EffectPass methods ***/
-static __WIDL_INLINE WINBOOL ID3D10EffectPass_IsValid(ID3D10EffectPass* This) {
+static __WIDL_INLINE BOOL ID3D10EffectPass_IsValid(ID3D10EffectPass* This) {
     return This->lpVtbl->IsValid(This);
 }
 static __WIDL_INLINE HRESULT ID3D10EffectPass_GetDesc(ID3D10EffectPass* This,D3D10_PASS_DESC *desc) {
@@ -5366,7 +5367,7 @@ HRESULT __stdcall  D3D10StateBlockMaskEnableAll(D3D10_STATE_BLOCK_MASK *mask);
 
 HRESULT __stdcall  D3D10StateBlockMaskEnableCapture(D3D10_STATE_BLOCK_MASK *mask,D3D10_DEVICE_STATE_TYPES state_type,UINT start_idx,UINT count);
 
-WINBOOL __stdcall  D3D10StateBlockMaskGetSetting(D3D10_STATE_BLOCK_MASK *mask,D3D10_DEVICE_STATE_TYPES state_type,UINT idx);
+BOOL __stdcall  D3D10StateBlockMaskGetSetting(D3D10_STATE_BLOCK_MASK *mask,D3D10_DEVICE_STATE_TYPES state_type,UINT idx);
 
 HRESULT __stdcall  D3D10StateBlockMaskIntersect(D3D10_STATE_BLOCK_MASK *mask_x,D3D10_STATE_BLOCK_MASK *mask_y,D3D10_STATE_BLOCK_MASK *result);
 
