@@ -3,7 +3,7 @@ sdk/include/dxsdk/ddrawi.h
 sdk/include/dxsdk/ddrawgdi.h
 sdk/include/dxsdk/d3d10.idl
 sdk/include/dxsdk/d3d10_1.idl
-sdk/include/dxsdk/d3d10effect.idl
+sdk/include/dxsdk/d3d10effect.h
 sdk/include/dxsdk/d3d10sdklayers.idl
 sdk/include/dxsdk/d3d10shader.idl
 sdk/include/dxsdk/d3d11.idl
