@@ -1,0 +1,2116 @@
+/*
+ * PROJECT:     SupernovaX SDK
+ * LICENSE:     LGPL-2.1 (https://spdx.org/licenses/LGPL-2.1)
+ * PURPOSE:     DDraw interface
+ * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
+ *              Copyright The Wine Project
+ * REFERENCE:   Wine
+ */
+import "oaidl.idl";
+import "ocidl.idl";
+
+cpp_quote("#ifndef DIRECTDRAW_VERSION")
+cpp_quote("#define DIRECTDRAW_VERSION 0x0700")
+cpp_quote("#endif")
+
+cpp_quote("#if 0")
+typedef HANDLE HMONITOR;
+typedef struct _RGNDATA* LPRGNDATA;
+cpp_quote("#endif")
+
+typedef struct IDirectDraw* LPDIRECTDRAW;
+typedef struct IDirectDraw2* LPDIRECTDRAW2;
+typedef struct IDirectDraw3* LPDIRECTDRAW3;
+typedef struct IDirectDraw4* LPDIRECTDRAW4;
+typedef struct IDirectDraw7* LPDIRECTDRAW7;
+typedef struct IDirectDrawClipper* LPDIRECTDRAWCLIPPER;
+typedef struct IDirectDrawPalette* LPDIRECTDRAWPALETTE;
+typedef struct IDirectDrawSurface* LPDIRECTDRAWSURFACE;
+typedef struct IDirectDrawSurface2* LPDIRECTDRAWSURFACE2;
+typedef struct IDirectDrawSurface3* LPDIRECTDRAWSURFACE3;
+typedef struct IDirectDrawSurface4* LPDIRECTDRAWSURFACE4;
+typedef struct IDirectDrawSurface7* LPDIRECTDRAWSURFACE7;
+typedef struct IDirectDrawColorControl* LPDIRECTDRAWCOLORCONTROL;
+typedef struct IDirectDrawGammaControl* LPDIRECTDRAWGAMMACONTROL;
+
+cpp_quote("#define DDENUMRET_CANCEL 0")
+cpp_quote("#define DDENUMRET_OK 1")
+
+cpp_quote("#define DD_OK S_OK")
+cpp_quote("#define DD_FALSE S_FALSE")
+
+cpp_quote("#define _FACDD		0x876")
+cpp_quote("#define MAKE_DDHRESULT( code )  MAKE_HRESULT( 1, _FACDD, code )")
+
+cpp_quote("#define DDERR_ALREADYINITIALIZED		MAKE_DDHRESULT( 5 )")
+cpp_quote("#define DDERR_CANNOTATTACHSURFACE		MAKE_DDHRESULT( 10 )")
+cpp_quote("#define DDERR_CANNOTDETACHSURFACE		MAKE_DDHRESULT( 20 )")
+cpp_quote("#define DDERR_CURRENTLYNOTAVAIL			MAKE_DDHRESULT( 40 )")
+cpp_quote("#define DDERR_EXCEPTION				MAKE_DDHRESULT( 55 )")
+cpp_quote("#define DDERR_GENERIC				E_FAIL")
+cpp_quote("#define DDERR_HEIGHTALIGN			MAKE_DDHRESULT( 90 )")
+cpp_quote("#define DDERR_INCOMPATIBLEPRIMARY		MAKE_DDHRESULT( 95 )")
+cpp_quote("#define DDERR_INVALIDCAPS			MAKE_DDHRESULT( 100 )")
+cpp_quote("#define DDERR_INVALIDCLIPLIST			MAKE_DDHRESULT( 110 )")
+cpp_quote("#define DDERR_INVALIDMODE			MAKE_DDHRESULT( 120 )")
+cpp_quote("#define DDERR_INVALIDOBJECT			MAKE_DDHRESULT( 130 )")
+cpp_quote("#define DDERR_INVALIDPARAMS			E_INVALIDARG")
+cpp_quote("#define DDERR_INVALIDPIXELFORMAT		MAKE_DDHRESULT( 145 )")
+cpp_quote("#define DDERR_INVALIDRECT			MAKE_DDHRESULT( 150 )")
+cpp_quote("#define DDERR_LOCKEDSURFACES			MAKE_DDHRESULT( 160 )")
+cpp_quote("#define DDERR_NO3D				MAKE_DDHRESULT( 170 )")
+cpp_quote("#define DDERR_NOALPHAHW				MAKE_DDHRESULT( 180 )")
+cpp_quote("#define DDERR_NOSTEREOHARDWARE          	MAKE_DDHRESULT( 181 )")
+cpp_quote("#define DDERR_NOSURFACELEFT                     MAKE_DDHRESULT( 182 )")
+cpp_quote("#define DDERR_NOCLIPLIST			MAKE_DDHRESULT( 205 )")
+cpp_quote("#define DDERR_NOCOLORCONVHW			MAKE_DDHRESULT( 210 )")
+cpp_quote("#define DDERR_NOCOOPERATIVELEVELSET		MAKE_DDHRESULT( 212 )")
+cpp_quote("#define DDERR_NOCOLORKEY			MAKE_DDHRESULT( 215 )")
+cpp_quote("#define DDERR_NOCOLORKEYHW			MAKE_DDHRESULT( 220 )")
+cpp_quote("#define DDERR_NODIRECTDRAWSUPPORT		MAKE_DDHRESULT( 222 )")
+cpp_quote("#define DDERR_NOEXCLUSIVEMODE			MAKE_DDHRESULT( 225 )")
+cpp_quote("#define DDERR_NOFLIPHW				MAKE_DDHRESULT( 230 )")
+cpp_quote("#define DDERR_NOGDI				MAKE_DDHRESULT( 240 )")
+cpp_quote("#define DDERR_NOMIRRORHW			MAKE_DDHRESULT( 250 )")
+cpp_quote("#define DDERR_NOTFOUND				MAKE_DDHRESULT( 255 )")
+cpp_quote("#define DDERR_NOOVERLAYHW			MAKE_DDHRESULT( 260 )")
+cpp_quote("#define DDERR_OVERLAPPINGRECTS                  MAKE_DDHRESULT( 270 )")
+cpp_quote("#define DDERR_NORASTEROPHW			MAKE_DDHRESULT( 280 )")
+cpp_quote("#define DDERR_NOROTATIONHW			MAKE_DDHRESULT( 290 )")
+cpp_quote("#define DDERR_NOSTRETCHHW			MAKE_DDHRESULT( 310 )")
+cpp_quote("#define DDERR_NOT4BITCOLOR			MAKE_DDHRESULT( 316 )")
+cpp_quote("#define DDERR_NOT4BITCOLORINDEX			MAKE_DDHRESULT( 317 )")
+cpp_quote("#define DDERR_NOT8BITCOLOR			MAKE_DDHRESULT( 320 )")
+cpp_quote("#define DDERR_NOTEXTUREHW			MAKE_DDHRESULT( 330 )")
+cpp_quote("#define DDERR_NOVSYNCHW				MAKE_DDHRESULT( 335 )")
+cpp_quote("#define DDERR_NOZBUFFERHW			MAKE_DDHRESULT( 340 )")
+cpp_quote("#define DDERR_NOZOVERLAYHW			MAKE_DDHRESULT( 350 )")
+cpp_quote("#define DDERR_OUTOFCAPS				MAKE_DDHRESULT( 360 )")
+cpp_quote("#define DDERR_OUTOFMEMORY			E_OUTOFMEMORY")
+cpp_quote("#define DDERR_OUTOFVIDEOMEMORY			MAKE_DDHRESULT( 380 )")
+cpp_quote("#define DDERR_OVERLAYCANTCLIP			MAKE_DDHRESULT( 382 )")
+cpp_quote("#define DDERR_OVERLAYCOLORKEYONLYONEACTIVE	MAKE_DDHRESULT( 384 )")
+cpp_quote("#define DDERR_PALETTEBUSY			MAKE_DDHRESULT( 387 )")
+cpp_quote("#define DDERR_COLORKEYNOTSET			MAKE_DDHRESULT( 400 )")
+cpp_quote("#define DDERR_SURFACEALREADYATTACHED		MAKE_DDHRESULT( 410 )")
+cpp_quote("#define DDERR_SURFACEALREADYDEPENDENT		MAKE_DDHRESULT( 420 )")
+cpp_quote("#define DDERR_SURFACEBUSY			MAKE_DDHRESULT( 430 )")
+cpp_quote("#define DDERR_CANTLOCKSURFACE			MAKE_DDHRESULT( 435 )")
+cpp_quote("#define DDERR_SURFACEISOBSCURED			MAKE_DDHRESULT( 440 )")
+cpp_quote("#define DDERR_SURFACELOST			MAKE_DDHRESULT( 450 )")
+cpp_quote("#define DDERR_SURFACENOTATTACHED		MAKE_DDHRESULT( 460 )")
+cpp_quote("#define DDERR_TOOBIGHEIGHT			MAKE_DDHRESULT( 470 )")
+cpp_quote("#define DDERR_TOOBIGSIZE			MAKE_DDHRESULT( 480 )")
+cpp_quote("#define DDERR_TOOBIGWIDTH			MAKE_DDHRESULT( 490 )")
+cpp_quote("#define DDERR_UNSUPPORTED			E_NOTIMPL")
+cpp_quote("#define DDERR_UNSUPPORTEDFORMAT			MAKE_DDHRESULT( 510 )")
+cpp_quote("#define DDERR_UNSUPPORTEDMASK			MAKE_DDHRESULT( 520 )")
+cpp_quote("#define DDERR_INVALIDSTREAM                     MAKE_DDHRESULT( 521 )")
+cpp_quote("#define DDERR_VERTICALBLANKINPROGRESS		MAKE_DDHRESULT( 537 )")
+cpp_quote("#define DDERR_WASSTILLDRAWING			MAKE_DDHRESULT( 540 )")
+cpp_quote("#define DDERR_DDSCAPSCOMPLEXREQUIRED            MAKE_DDHRESULT( 542 )")
+cpp_quote("#define DDERR_XALIGN				MAKE_DDHRESULT( 560 )")
+cpp_quote("#define DDERR_INVALIDDIRECTDRAWGUID		MAKE_DDHRESULT( 561 )")
+cpp_quote("#define DDERR_DIRECTDRAWALREADYCREATED		MAKE_DDHRESULT( 562 )")
+cpp_quote("#define DDERR_NODIRECTDRAWHW			MAKE_DDHRESULT( 563 )")
+cpp_quote("#define DDERR_PRIMARYSURFACEALREADYEXISTS	MAKE_DDHRESULT( 564 )")
+cpp_quote("#define DDERR_NOEMULATION			MAKE_DDHRESULT( 565 )")
+cpp_quote("#define DDERR_REGIONTOOSMALL			MAKE_DDHRESULT( 566 )")
+cpp_quote("#define DDERR_CLIPPERISUSINGHWND		MAKE_DDHRESULT( 567 )")
+cpp_quote("#define DDERR_NOCLIPPERATTACHED			MAKE_DDHRESULT( 568 )")
+cpp_quote("#define DDERR_NOHWND				MAKE_DDHRESULT( 569 )")
+cpp_quote("#define DDERR_HWNDSUBCLASSED			MAKE_DDHRESULT( 570 )")
+cpp_quote("#define DDERR_HWNDALREADYSET			MAKE_DDHRESULT( 571 )")
+cpp_quote("#define DDERR_NOPALETTEATTACHED			MAKE_DDHRESULT( 572 )")
+cpp_quote("#define DDERR_NOPALETTEHW			MAKE_DDHRESULT( 573 )")
+cpp_quote("#define DDERR_BLTFASTCANTCLIP			MAKE_DDHRESULT( 574 )")
+cpp_quote("#define DDERR_NOBLTHW				MAKE_DDHRESULT( 575 )")
+cpp_quote("#define DDERR_NODDROPSHW			MAKE_DDHRESULT( 576 )")
+cpp_quote("#define DDERR_OVERLAYNOTVISIBLE			MAKE_DDHRESULT( 577 )")
+cpp_quote("#define DDERR_NOOVERLAYDEST			MAKE_DDHRESULT( 578 )")
+cpp_quote("#define DDERR_INVALIDPOSITION			MAKE_DDHRESULT( 579 )")
+cpp_quote("#define DDERR_NOTAOVERLAYSURFACE		MAKE_DDHRESULT( 580 )")
+cpp_quote("#define DDERR_EXCLUSIVEMODEALREADYSET		MAKE_DDHRESULT( 581 )")
+cpp_quote("#define DDERR_NOTFLIPPABLE			MAKE_DDHRESULT( 582 )")
+cpp_quote("#define DDERR_CANTDUPLICATE			MAKE_DDHRESULT( 583 )")
+cpp_quote("#define DDERR_NOTLOCKED				MAKE_DDHRESULT( 584 )")
+cpp_quote("#define DDERR_CANTCREATEDC			MAKE_DDHRESULT( 585 )")
+cpp_quote("#define DDERR_NODC				MAKE_DDHRESULT( 586 )")
+cpp_quote("#define DDERR_WRONGMODE				MAKE_DDHRESULT( 587 )")
+cpp_quote("#define DDERR_IMPLICITLYCREATED			MAKE_DDHRESULT( 588 )")
+cpp_quote("#define DDERR_NOTPALETTIZED			MAKE_DDHRESULT( 589 )")
+cpp_quote("#define DDERR_UNSUPPORTEDMODE			MAKE_DDHRESULT( 590 )")
+cpp_quote("#define DDERR_NOMIPMAPHW			MAKE_DDHRESULT( 591 )")
+cpp_quote("#define DDERR_INVALIDSURFACETYPE		MAKE_DDHRESULT( 592 )")
+cpp_quote("#define DDERR_NOOPTIMIZEHW			MAKE_DDHRESULT( 600 )")
+cpp_quote("#define DDERR_NOTLOADED				MAKE_DDHRESULT( 601 )")
+cpp_quote("#define DDERR_NOFOCUSWINDOW			MAKE_DDHRESULT( 602 )")
+cpp_quote("#define DDERR_NOTONMIPMAPSUBLEVEL               MAKE_DDHRESULT( 603 )")
+cpp_quote("#define DDERR_DCALREADYCREATED			MAKE_DDHRESULT( 620 )")
+cpp_quote("#define DDERR_NONONLOCALVIDMEM			MAKE_DDHRESULT( 630 )")
+cpp_quote("#define DDERR_CANTPAGELOCK			MAKE_DDHRESULT( 640 )")
+cpp_quote("#define DDERR_CANTPAGEUNLOCK			MAKE_DDHRESULT( 660 )")
+cpp_quote("#define DDERR_NOTPAGELOCKED			MAKE_DDHRESULT( 680 )")
+cpp_quote("#define DDERR_MOREDATA				MAKE_DDHRESULT( 690 )")
+cpp_quote("#define DDERR_EXPIRED                           MAKE_DDHRESULT( 691 )")
+cpp_quote("#define DDERR_TESTFINISHED                      MAKE_DDHRESULT( 692 )")
+cpp_quote("#define DDERR_NEWMODE                           MAKE_DDHRESULT( 693 )")
+cpp_quote("#define DDERR_D3DNOTINITIALIZED                 MAKE_DDHRESULT( 694 )")
+cpp_quote("#define DDERR_VIDEONOTACTIVE			MAKE_DDHRESULT( 695 )")
+cpp_quote("#define DDERR_NOMONITORINFORMATION              MAKE_DDHRESULT( 696 )")
+cpp_quote("#define DDERR_NODRIVERSUPPORT                   MAKE_DDHRESULT( 697 )")
+cpp_quote("#define DDERR_DEVICEDOESNTOWNSURFACE		MAKE_DDHRESULT( 699 )")
+cpp_quote("#define DDERR_NOTINITIALIZED			CO_E_NOTINITIALIZED")
+
+/* dwFlags for Blt* */
+cpp_quote("#define DDBLT_ALPHADEST				0x00000001")
+cpp_quote("#define DDBLT_ALPHADESTCONSTOVERRIDE		0x00000002")
+cpp_quote("#define DDBLT_ALPHADESTNEG			0x00000004")
+cpp_quote("#define DDBLT_ALPHADESTSURFACEOVERRIDE		0x00000008")
+cpp_quote("#define DDBLT_ALPHAEDGEBLEND			0x00000010")
+cpp_quote("#define DDBLT_ALPHASRC				0x00000020")
+cpp_quote("#define DDBLT_ALPHASRCCONSTOVERRIDE		0x00000040")
+cpp_quote("#define DDBLT_ALPHASRCNEG			0x00000080")
+cpp_quote("#define DDBLT_ALPHASRCSURFACEOVERRIDE		0x00000100")
+cpp_quote("#define DDBLT_ASYNC				0x00000200")
+cpp_quote("#define DDBLT_COLORFILL				0x00000400")
+cpp_quote("#define DDBLT_DDFX				0x00000800")
+cpp_quote("#define DDBLT_DDROPS				0x00001000")
+cpp_quote("#define DDBLT_KEYDEST				0x00002000")
+cpp_quote("#define DDBLT_KEYDESTOVERRIDE			0x00004000")
+cpp_quote("#define DDBLT_KEYSRC				0x00008000")
+cpp_quote("#define DDBLT_KEYSRCOVERRIDE			0x00010000")
+cpp_quote("#define DDBLT_ROP				0x00020000")
+cpp_quote("#define DDBLT_ROTATIONANGLE			0x00040000")
+cpp_quote("#define DDBLT_ZBUFFER				0x00080000")
+cpp_quote("#define DDBLT_ZBUFFERDESTCONSTOVERRIDE		0x00100000")
+cpp_quote("#define DDBLT_ZBUFFERDESTOVERRIDE		0x00200000")
+cpp_quote("#define DDBLT_ZBUFFERSRCCONSTOVERRIDE		0x00400000")
+cpp_quote("#define DDBLT_ZBUFFERSRCOVERRIDE		0x00800000")
+cpp_quote("#define DDBLT_WAIT				0x01000000")
+cpp_quote("#define DDBLT_DEPTHFILL				0x02000000")
+cpp_quote("#define DDBLT_DONOTWAIT                         0x08000000")
+cpp_quote("#define DDBLT_PRESENTATION                      0x10000000")
+cpp_quote("#define DDBLT_LAST_PRESENTATION                 0x20000000")
+cpp_quote("#define DDBLT_EXTENDED_FLAGS                    0x40000000")
+cpp_quote("#define DDBLT_EXTENDED_LINEAR_CONTENT           0x00000004")
+
+/* dwTrans for BltFast */
+cpp_quote("#define DDBLTFAST_NOCOLORKEY			0x00000000")
+cpp_quote("#define DDBLTFAST_SRCCOLORKEY			0x00000001")
+cpp_quote("#define DDBLTFAST_DESTCOLORKEY			0x00000002")
+cpp_quote("#define DDBLTFAST_WAIT				0x00000010")
+cpp_quote("#define DDBLTFAST_DONOTWAIT                     0x00000020")
+
+/* dwFlags for Flip */
+cpp_quote("#define DDFLIP_WAIT		0x00000001")
+cpp_quote("#define DDFLIP_EVEN		0x00000002") /* only valid for overlay */
+cpp_quote("#define DDFLIP_ODD		0x00000004") /* only valid for overlay */
+cpp_quote("#define DDFLIP_NOVSYNC		0x00000008")
+cpp_quote("#define DDFLIP_STEREO		0x00000010")
+cpp_quote("#define DDFLIP_DONOTWAIT	0x00000020")
+cpp_quote("#define DDFLIP_INTERVAL2	0x02000000")
+cpp_quote("#define DDFLIP_INTERVAL3	0x03000000")
+cpp_quote("#define DDFLIP_INTERVAL4	0x04000000")
+
+
+/* dwFlags for GetBltStatus */
+cpp_quote("#define DDGBS_CANBLT				0x00000001")
+cpp_quote("#define DDGBS_ISBLTDONE				0x00000002")
+
+/* dwFlags for IDirectDrawSurface7::GetFlipStatus */
+cpp_quote("#define DDGFS_CANFLIP           __MSABI_LONG(1)")
+cpp_quote("#define DDGFS_ISFLIPDONE        __MSABI_LONG(2)")
+
+/* dwFlags for IDirectDrawSurface7::SetPrivateData */
+cpp_quote("#define DDSPD_IUNKNOWNPOINTER   __MSABI_LONG(1)")
+cpp_quote("#define DDSPD_VOLATILE          __MSABI_LONG(2)")
+
+/* DDSCAPS.dwCaps */
+/* reserved1, was 3d capable */
+cpp_quote("#define DDSCAPS_RESERVED1		0x00000001")
+/* surface contains alpha information */
+cpp_quote("#define DDSCAPS_ALPHA			0x00000002")
+/* this surface is a backbuffer */
+cpp_quote("#define DDSCAPS_BACKBUFFER		0x00000004")
+/* complex surface structure */
+cpp_quote("#define DDSCAPS_COMPLEX			0x00000008")
+/* part of surface flipping structure */
+cpp_quote("#define DDSCAPS_FLIP			0x00000010")
+/* this surface is the frontbuffer surface */
+cpp_quote("#define DDSCAPS_FRONTBUFFER		0x00000020")
+/* this is a plain offscreen surface */
+cpp_quote("#define DDSCAPS_OFFSCREENPLAIN		0x00000040")
+/* overlay */
+cpp_quote("#define DDSCAPS_OVERLAY			0x00000080")
+/* palette objects can be created and attached to us */
+cpp_quote("#define DDSCAPS_PALETTE			0x00000100")
+/* primary surface (the one the user looks at currently)(right eye)*/
+cpp_quote("#define DDSCAPS_PRIMARYSURFACE		0x00000200")
+/* primary surface for left eye */
+cpp_quote("#define DDSCAPS_PRIMARYSURFACELEFT	0x00000400")
+/* surface exists in systemmemory */
+cpp_quote("#define DDSCAPS_SYSTEMMEMORY		0x00000800")
+/* surface can be used as a texture */
+cpp_quote("#define DDSCAPS_TEXTURE		        0x00001000")
+/* surface may be destination for 3d rendering */
+cpp_quote("#define DDSCAPS_3DDEVICE		0x00002000")
+/* surface exists in videomemory */
+cpp_quote("#define DDSCAPS_VIDEOMEMORY		0x00004000")
+/* surface changes immediately visible */
+cpp_quote("#define DDSCAPS_VISIBLE			0x00008000")
+/* write only surface */
+cpp_quote("#define DDSCAPS_WRITEONLY		0x00010000")
+/* zbuffer surface */
+cpp_quote("#define DDSCAPS_ZBUFFER			0x00020000")
+/* has its own DC */
+cpp_quote("#define DDSCAPS_OWNDC			0x00040000")
+/* surface should be able to receive live video */
+cpp_quote("#define DDSCAPS_LIVEVIDEO		0x00080000")
+/* should be able to have a hw codec decompress stuff into it */
+cpp_quote("#define DDSCAPS_HWCODEC			0x00100000")
+/* mode X (320x200 or 320x240) surface */
+cpp_quote("#define DDSCAPS_MODEX			0x00200000")
+/* one mipmap surface (1 level) */
+cpp_quote("#define DDSCAPS_MIPMAP			0x00400000")
+cpp_quote("#define DDSCAPS_RESERVED2		0x00800000")
+/* memory allocation delayed until Load() */
+cpp_quote("#define DDSCAPS_ALLOCONLOAD		0x04000000")
+/* Indicates that the surface will receive data from a video port */
+cpp_quote("#define DDSCAPS_VIDEOPORT		0x08000000")
+/* surface is in local videomemory */
+cpp_quote("#define DDSCAPS_LOCALVIDMEM		0x10000000")
+/* surface is in nonlocal videomemory */
+cpp_quote("#define DDSCAPS_NONLOCALVIDMEM		0x20000000")
+/* surface is a standard VGA mode surface (NOT ModeX) */
+cpp_quote("#define DDSCAPS_STANDARDVGAMODE		0x40000000")
+/* optimized? surface */
+cpp_quote("#define DDSCAPS_OPTIMIZED		0x80000000")
+
+typedef struct _DDSCAPS {
+    DWORD	dwCaps;	/* capabilities of surface wanted */
+} DDSCAPS, * LPDDSCAPS;
+
+/* DDSCAPS2.dwCaps2 */
+/* indicates the surface will receive data from a video port using
+   deinterlacing hardware. */
+cpp_quote("#define DDSCAPS2_HARDWAREDEINTERLACE	0x00000002")
+/* indicates the surface will be locked very frequently. */
+cpp_quote("#define DDSCAPS2_HINTDYNAMIC		0x00000004")
+/* indicates surface can be re-ordered or retiled on load() */
+cpp_quote("#define DDSCAPS2_HINTSTATIC             0x00000008")
+/* indicates surface to be managed by directdraw/direct3D */
+cpp_quote("#define DDSCAPS2_TEXTUREMANAGE          0x00000010")
+/* reserved bits */
+cpp_quote("#define DDSCAPS2_RESERVED1              0x00000020")
+cpp_quote("#define DDSCAPS2_RESERVED2              0x00000040")
+/* indicates surface will never be locked again */
+cpp_quote("#define DDSCAPS2_OPAQUE                 0x00000080")
+/* set at CreateSurface() time to indicate antialiasing will be used */
+cpp_quote("#define DDSCAPS2_HINTANTIALIASING       0x00000100")
+/* set at CreateSurface() time to indicate cubic environment map */
+cpp_quote("#define DDSCAPS2_CUBEMAP                0x00000200")
+/* face flags for cube maps */
+cpp_quote("#define DDSCAPS2_CUBEMAP_POSITIVEX      0x00000400")
+cpp_quote("#define DDSCAPS2_CUBEMAP_NEGATIVEX      0x00000800")
+cpp_quote("#define DDSCAPS2_CUBEMAP_POSITIVEY      0x00001000")
+cpp_quote("#define DDSCAPS2_CUBEMAP_NEGATIVEY      0x00002000")
+cpp_quote("#define DDSCAPS2_CUBEMAP_POSITIVEZ      0x00004000")
+cpp_quote("#define DDSCAPS2_CUBEMAP_NEGATIVEZ      0x00008000")
+/* specifies all faces of a cube for CreateSurface() */
+cpp_quote("#define DDSCAPS2_CUBEMAP_ALLFACES ( DDSCAPS2_CUBEMAP_POSITIVEX |\
+DDSCAPS2_CUBEMAP_NEGATIVEX | \
+DDSCAPS2_CUBEMAP_POSITIVEY | \
+DDSCAPS2_CUBEMAP_NEGATIVEY | \
+DDSCAPS2_CUBEMAP_POSITIVEZ | \
+DDSCAPS2_CUBEMAP_NEGATIVEZ)")
+/* set for mipmap sublevels on DirectX7 and later.  ignored by CreateSurface() */
+cpp_quote("#define DDSCAPS2_MIPMAPSUBLEVEL         0x00010000")
+/* indicates texture surface to be managed by Direct3D *only* */
+cpp_quote("#define DDSCAPS2_D3DTEXTUREMANAGE       0x00020000")
+/* indicates managed surface that can safely be lost */
+cpp_quote("#define DDSCAPS2_DONOTPERSIST           0x00040000")
+/* indicates surface is part of a stereo flipping chain */
+cpp_quote("#define DDSCAPS2_STEREOSURFACELEFT      0x00080000")
+cpp_quote("#define DDSCAPS2_VOLUME                 0x00200000")
+cpp_quote("#define DDSCAPS2_NOTUSERLOCKABLE        0x00400000")
+cpp_quote("#define DDSCAPS2_POINTS                 0x00800000")
+cpp_quote("#define DDSCAPS2_RTPATCHES              0x01000000")
+cpp_quote("#define DDSCAPS2_NPATCHES               0x02000000")
+cpp_quote("#define DDSCAPS2_RESERVED3              0x04000000")
+cpp_quote("#define DDSCAPS2_DISCARDBACKBUFFER      0x10000000")
+cpp_quote("#define DDSCAPS2_ENABLEALPHACHANNEL     0x20000000")
+cpp_quote("#define DDSCAPS2_EXTENDEDFORMATPRIMARY  0x40000000")
+cpp_quote("#define DDSCAPS2_ADDITIONALPRIMARY      0x80000000")
+
+/* DDSCAPS2.dwCaps3 */
+cpp_quote("#define DDSCAPS3_MULTISAMPLE_MASK               0x0000001f")
+cpp_quote("#define DDSCAPS3_MULTISAMPLE_QUALITY_MASK       0x000000e0")
+cpp_quote("#define DDSCAPS3_MULTISAMPLE_QUALITY_SHIFT      5")
+cpp_quote("#define DDSCAPS3_RESERVED1                      0x00000100")
+cpp_quote("#define DDSCAPS3_RESERVED2                      0x00000200")
+cpp_quote("#define DDSCAPS3_LIGHTWEIGHTMIPMAP              0x00000400")
+cpp_quote("#define DDSCAPS3_AUTOGENMIPMAP                  0x00000800")
+cpp_quote("#define DDSCAPS3_DMAP                           0x00001000")
+cpp_quote("#ifndef D3D_DISABLE_9EX")
+cpp_quote("#define DDSCAPS3_CREATESHAREDRESOURCE           0x00002000")
+cpp_quote("#define DDSCAPS3_READONLYRESOURCE               0x00004000")
+cpp_quote("#define DDSCAPS3_OPENSHAREDRESOURCE             0x00008000")
+cpp_quote("#endif /* !D3D_DISABLE_9EX */")
+
+typedef struct _DDSCAPS2 {
+    DWORD	dwCaps;	/* capabilities of surface wanted */
+    DWORD   dwCaps2; /* additional capabilities */
+    DWORD   dwCaps3; /* reserved capabilities */
+    union {
+        DWORD dwCaps4; /* low word is the depth for a volume texture */
+        DWORD dwVolumeDepth;
+    };
+} DDSCAPS2, * LPDDSCAPS2;
+
+typedef struct _DDSCAPSEX {
+    DWORD	dwCaps2;
+    DWORD	dwCaps3;
+    union {
+        DWORD	dwCaps4;
+        DWORD	dwVolumeDepth;
+    };
+} DDSCAPSEX, * LPDDSCAPSEX;
+
+#define DD_ROP_SPACE  (256 / 32)	/* space required to store ROP array */
+
+typedef struct _DDCAPS_DX7		/* DirectX 7 version of caps struct */
+{
+    DWORD	dwSize;                 /* size of the DDDRIVERCAPS structure */
+    DWORD	dwCaps;                 /* driver specific capabilities */
+    DWORD	dwCaps2;                /* more driver specific capabilities */
+    DWORD	dwCKeyCaps;             /* color key capabilities of the surface */
+    DWORD	dwFXCaps;               /* driver specific stretching and effects capabilities */
+    DWORD	dwFXAlphaCaps;          /* alpha driver specific capabilities */
+    DWORD	dwPalCaps;              /* palette capabilities */
+    DWORD	dwSVCaps;               /* stereo vision capabilities */
+    DWORD	dwAlphaBltConstBitDepths;       /* DDBD_2,4,8 */
+    DWORD	dwAlphaBltPixelBitDepths;       /* DDBD_1,2,4,8 */
+    DWORD	dwAlphaBltSurfaceBitDepths;     /* DDBD_1,2,4,8 */
+    DWORD	dwAlphaOverlayConstBitDepths;   /* DDBD_2,4,8 */
+    DWORD	dwAlphaOverlayPixelBitDepths;   /* DDBD_1,2,4,8 */
+    DWORD	dwAlphaOverlaySurfaceBitDepths; /* DDBD_1,2,4,8 */
+    DWORD	dwZBufferBitDepths;             /* DDBD_8,16,24,32 */
+    DWORD	dwVidMemTotal;          /* total amount of video memory */
+    DWORD	dwVidMemFree;           /* amount of free video memory */
+    DWORD	dwMaxVisibleOverlays;   /* maximum number of visible overlays */
+    DWORD	dwCurrVisibleOverlays;  /* current number of visible overlays */
+    DWORD	dwNumFourCCCodes;       /* number of four cc codes */
+    DWORD	dwAlignBoundarySrc;     /* source rectangle alignment */
+    DWORD	dwAlignSizeSrc;         /* source rectangle byte size */
+    DWORD	dwAlignBoundaryDest;    /* dest rectangle alignment */
+    DWORD	dwAlignSizeDest;        /* dest rectangle byte size */
+    DWORD	dwAlignStrideAlign;     /* stride alignment */
+    DWORD	dwRops[DD_ROP_SPACE];   /* ROPs supported */
+    DDSCAPS	ddsOldCaps;             /* old DDSCAPS - superseded for DirectX6+ */
+    DWORD	dwMinOverlayStretch;    /* minimum overlay stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMaxOverlayStretch;    /* maximum overlay stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMinLiveVideoStretch;  /* minimum live video stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMaxLiveVideoStretch;  /* maximum live video stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMinHwCodecStretch;    /* minimum hardware codec stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMaxHwCodecStretch;    /* maximum hardware codec stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwReserved1;
+    DWORD	dwReserved2;
+    DWORD	dwReserved3;
+    DWORD	dwSVBCaps;              /* driver specific capabilities for System->Vmem blts */
+    DWORD	dwSVBCKeyCaps;          /* driver color key capabilities for System->Vmem blts */
+    DWORD	dwSVBFXCaps;            /* driver FX capabilities for System->Vmem blts */
+    DWORD	dwSVBRops[DD_ROP_SPACE];/* ROPs supported for System->Vmem blts */
+    DWORD	dwVSBCaps;              /* driver specific capabilities for Vmem->System blts */
+    DWORD	dwVSBCKeyCaps;          /* driver color key capabilities for Vmem->System blts */
+    DWORD	dwVSBFXCaps;            /* driver FX capabilities for Vmem->System blts */
+    DWORD	dwVSBRops[DD_ROP_SPACE];/* ROPs supported for Vmem->System blts */
+    DWORD	dwSSBCaps;              /* driver specific capabilities for System->System blts */
+    DWORD	dwSSBCKeyCaps;          /* driver color key capabilities for System->System blts */
+    DWORD	dwSSBFXCaps;            /* driver FX capabilities for System->System blts */
+    DWORD	dwSSBRops[DD_ROP_SPACE];/* ROPs supported for System->System blts */
+    DWORD       dwMaxVideoPorts;        /* maximum number of usable video ports */
+    DWORD   	dwCurrVideoPorts;       /* current number of video ports used */
+    DWORD   	dwSVBCaps2;             /* more driver specific capabilities for System->Vmem blts */
+    DWORD   	dwNLVBCaps;             /* driver specific capabilities for non-local->local vidmem blts */
+    DWORD   	dwNLVBCaps2;            /* more driver specific capabilities non-local->local vidmem blts */
+    DWORD   	dwNLVBCKeyCaps;         /* driver color key capabilities for non-local->local vidmem blts */
+    DWORD   	dwNLVBFXCaps;           /* driver FX capabilities for non-local->local blts */
+    DWORD   	dwNLVBRops[DD_ROP_SPACE]; /* ROPs supported for non-local->local blts */
+    DDSCAPS2    ddsCaps;		/* surface capabilities */
+} DDCAPS_DX7, * LPDDCAPS_DX7;
+
+typedef struct _DDCAPS_DX6		/* DirectX 6 version of caps struct */
+{
+    DWORD	dwSize;                 /* size of the DDDRIVERCAPS structure */
+    DWORD	dwCaps;                 /* driver specific capabilities */
+    DWORD	dwCaps2;                /* more driver specific capabilities */
+    DWORD	dwCKeyCaps;             /* color key capabilities of the surface */
+    DWORD	dwFXCaps;               /* driver specific stretching and effects capabilities */
+    DWORD	dwFXAlphaCaps;          /* alpha driver specific capabilities */
+    DWORD	dwPalCaps;              /* palette capabilities */
+    DWORD	dwSVCaps;               /* stereo vision capabilities */
+    DWORD	dwAlphaBltConstBitDepths;       /* DDBD_2,4,8 */
+    DWORD	dwAlphaBltPixelBitDepths;       /* DDBD_1,2,4,8 */
+    DWORD	dwAlphaBltSurfaceBitDepths;     /* DDBD_1,2,4,8 */
+    DWORD	dwAlphaOverlayConstBitDepths;   /* DDBD_2,4,8 */
+    DWORD	dwAlphaOverlayPixelBitDepths;   /* DDBD_1,2,4,8 */
+    DWORD	dwAlphaOverlaySurfaceBitDepths; /* DDBD_1,2,4,8 */
+    DWORD	dwZBufferBitDepths;             /* DDBD_8,16,24,32 */
+    DWORD	dwVidMemTotal;          /* total amount of video memory */
+    DWORD	dwVidMemFree;           /* amount of free video memory */
+    DWORD	dwMaxVisibleOverlays;   /* maximum number of visible overlays */
+    DWORD	dwCurrVisibleOverlays;  /* current number of visible overlays */
+    DWORD	dwNumFourCCCodes;       /* number of four cc codes */
+    DWORD	dwAlignBoundarySrc;     /* source rectangle alignment */
+    DWORD	dwAlignSizeSrc;         /* source rectangle byte size */
+    DWORD	dwAlignBoundaryDest;    /* dest rectangle alignment */
+    DWORD	dwAlignSizeDest;        /* dest rectangle byte size */
+    DWORD	dwAlignStrideAlign;     /* stride alignment */
+    DWORD	dwRops[DD_ROP_SPACE];   /* ROPs supported */
+    DDSCAPS	ddsOldCaps;             /* old DDSCAPS - superseded for DirectX6+ */
+    DWORD	dwMinOverlayStretch;    /* minimum overlay stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMaxOverlayStretch;    /* maximum overlay stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMinLiveVideoStretch;  /* minimum live video stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMaxLiveVideoStretch;  /* maximum live video stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMinHwCodecStretch;    /* minimum hardware codec stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMaxHwCodecStretch;    /* maximum hardware codec stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwReserved1;
+    DWORD	dwReserved2;
+    DWORD	dwReserved3;
+    DWORD	dwSVBCaps;              /* driver specific capabilities for System->Vmem blts */
+    DWORD	dwSVBCKeyCaps;          /* driver color key capabilities for System->Vmem blts */
+    DWORD	dwSVBFXCaps;            /* driver FX capabilities for System->Vmem blts */
+    DWORD	dwSVBRops[DD_ROP_SPACE];/* ROPs supported for System->Vmem blts */
+    DWORD	dwVSBCaps;              /* driver specific capabilities for Vmem->System blts */
+    DWORD	dwVSBCKeyCaps;          /* driver color key capabilities for Vmem->System blts */
+    DWORD	dwVSBFXCaps;            /* driver FX capabilities for Vmem->System blts */
+    DWORD	dwVSBRops[DD_ROP_SPACE];/* ROPs supported for Vmem->System blts */
+    DWORD	dwSSBCaps;              /* driver specific capabilities for System->System blts */
+    DWORD	dwSSBCKeyCaps;          /* driver color key capabilities for System->System blts */
+    DWORD	dwSSBFXCaps;            /* driver FX capabilities for System->System blts */
+    DWORD	dwSSBRops[DD_ROP_SPACE];/* ROPs supported for System->System blts */
+    DWORD       dwMaxVideoPorts;        /* maximum number of usable video ports */
+    DWORD   	dwCurrVideoPorts;       /* current number of video ports used */
+    DWORD   	dwSVBCaps2;             /* more driver specific capabilities for System->Vmem blts */
+    DWORD   	dwNLVBCaps;             /* driver specific capabilities for non-local->local vidmem blts */
+    DWORD   	dwNLVBCaps2;            /* more driver specific capabilities non-local->local vidmem blts */
+    DWORD   	dwNLVBCKeyCaps;         /* driver color key capabilities for non-local->local vidmem blts */
+    DWORD   	dwNLVBFXCaps;           /* driver FX capabilities for non-local->local blts */
+    DWORD   	dwNLVBRops[DD_ROP_SPACE]; /* ROPs supported for non-local->local blts */
+    /* and one new member for DirectX 6 */
+    DDSCAPS2    ddsCaps;		/* surface capabilities */
+} DDCAPS_DX6, * LPDDCAPS_DX6;
+
+typedef struct _DDCAPS_DX5		/* DirectX5 version of caps struct */
+{
+    DWORD	dwSize;                 /* size of the DDDRIVERCAPS structure */
+    DWORD	dwCaps;                 /* driver specific capabilities */
+    DWORD	dwCaps2;                /* more driver specific capabilities */
+    DWORD	dwCKeyCaps;             /* color key capabilities of the surface */
+    DWORD	dwFXCaps;               /* driver specific stretching and effects capabilities */
+    DWORD	dwFXAlphaCaps;          /* alpha driver specific capabilities */
+    DWORD	dwPalCaps;              /* palette capabilities */
+    DWORD	dwSVCaps;               /* stereo vision capabilities */
+    DWORD	dwAlphaBltConstBitDepths;       /* DDBD_2,4,8 */
+    DWORD	dwAlphaBltPixelBitDepths;       /* DDBD_1,2,4,8 */
+    DWORD	dwAlphaBltSurfaceBitDepths;     /* DDBD_1,2,4,8 */
+    DWORD	dwAlphaOverlayConstBitDepths;   /* DDBD_2,4,8 */
+    DWORD	dwAlphaOverlayPixelBitDepths;   /* DDBD_1,2,4,8 */
+    DWORD	dwAlphaOverlaySurfaceBitDepths; /* DDBD_1,2,4,8 */
+    DWORD	dwZBufferBitDepths;             /* DDBD_8,16,24,32 */
+    DWORD	dwVidMemTotal;          /* total amount of video memory */
+    DWORD	dwVidMemFree;           /* amount of free video memory */
+    DWORD	dwMaxVisibleOverlays;   /* maximum number of visible overlays */
+    DWORD	dwCurrVisibleOverlays;  /* current number of visible overlays */
+    DWORD	dwNumFourCCCodes;       /* number of four cc codes */
+    DWORD	dwAlignBoundarySrc;     /* source rectangle alignment */
+    DWORD	dwAlignSizeSrc;         /* source rectangle byte size */
+    DWORD	dwAlignBoundaryDest;    /* dest rectangle alignment */
+    DWORD	dwAlignSizeDest;        /* dest rectangle byte size */
+    DWORD	dwAlignStrideAlign;     /* stride alignment */
+    DWORD	dwRops[DD_ROP_SPACE];   /* ROPs supported */
+    DDSCAPS	ddsCaps;                /* DDSCAPS structure has all the general capabilities */
+    DWORD	dwMinOverlayStretch;    /* minimum overlay stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMaxOverlayStretch;    /* maximum overlay stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMinLiveVideoStretch;  /* minimum live video stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMaxLiveVideoStretch;  /* maximum live video stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMinHwCodecStretch;    /* minimum hardware codec stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMaxHwCodecStretch;    /* maximum hardware codec stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwReserved1;
+    DWORD	dwReserved2;
+    DWORD	dwReserved3;
+    DWORD	dwSVBCaps;              /* driver specific capabilities for System->Vmem blts */
+    DWORD	dwSVBCKeyCaps;          /* driver color key capabilities for System->Vmem blts */
+    DWORD	dwSVBFXCaps;            /* driver FX capabilities for System->Vmem blts */
+    DWORD	dwSVBRops[DD_ROP_SPACE];/* ROPs supported for System->Vmem blts */
+    DWORD	dwVSBCaps;              /* driver specific capabilities for Vmem->System blts */
+    DWORD	dwVSBCKeyCaps;          /* driver color key capabilities for Vmem->System blts */
+    DWORD	dwVSBFXCaps;            /* driver FX capabilities for Vmem->System blts */
+    DWORD	dwVSBRops[DD_ROP_SPACE];/* ROPs supported for Vmem->System blts */
+    DWORD	dwSSBCaps;              /* driver specific capabilities for System->System blts */
+    DWORD	dwSSBCKeyCaps;          /* driver color key capabilities for System->System blts */
+    DWORD	dwSSBFXCaps;            /* driver FX capabilities for System->System blts */
+    DWORD	dwSSBRops[DD_ROP_SPACE];/* ROPs supported for System->System blts */
+    /* the following are the new DirectX 5 members */
+    DWORD       dwMaxVideoPorts;        /* maximum number of usable video ports */
+    DWORD   	dwCurrVideoPorts;       /* current number of video ports used */
+    DWORD   	dwSVBCaps2;             /* more driver specific capabilities for System->Vmem blts */
+    DWORD   	dwNLVBCaps;             /* driver specific capabilities for non-local->local vidmem blts */
+    DWORD   	dwNLVBCaps2;            /* more driver specific capabilities non-local->local vidmem blts */
+    DWORD   	dwNLVBCKeyCaps;         /* driver color key capabilities for non-local->local vidmem blts */
+    DWORD   	dwNLVBFXCaps;           /* driver FX capabilities for non-local->local blts */
+    DWORD   	dwNLVBRops[DD_ROP_SPACE]; /* ROPs supported for non-local->local blts */
+} DDCAPS_DX5, * LPDDCAPS_DX5;
+
+typedef struct _DDCAPS_DX3		/* DirectX3 version of caps struct */
+{
+    DWORD	dwSize;                 /* size of the DDDRIVERCAPS structure */
+    DWORD	dwCaps;                 /* driver specific capabilities */
+    DWORD	dwCaps2;                /* more driver specific capabilities */
+    DWORD	dwCKeyCaps;             /* color key capabilities of the surface */
+    DWORD	dwFXCaps;               /* driver specific stretching and effects capabilities */
+    DWORD	dwFXAlphaCaps;          /* alpha driver specific capabilities */
+    DWORD	dwPalCaps;              /* palette capabilities */
+    DWORD	dwSVCaps;               /* stereo vision capabilities */
+    DWORD	dwAlphaBltConstBitDepths;       /* DDBD_2,4,8 */
+    DWORD	dwAlphaBltPixelBitDepths;       /* DDBD_1,2,4,8 */
+    DWORD	dwAlphaBltSurfaceBitDepths;     /* DDBD_1,2,4,8 */
+    DWORD	dwAlphaOverlayConstBitDepths;   /* DDBD_2,4,8 */
+    DWORD	dwAlphaOverlayPixelBitDepths;   /* DDBD_1,2,4,8 */
+    DWORD	dwAlphaOverlaySurfaceBitDepths; /* DDBD_1,2,4,8 */
+    DWORD	dwZBufferBitDepths;             /* DDBD_8,16,24,32 */
+    DWORD	dwVidMemTotal;          /* total amount of video memory */
+    DWORD	dwVidMemFree;           /* amount of free video memory */
+    DWORD	dwMaxVisibleOverlays;   /* maximum number of visible overlays */
+    DWORD	dwCurrVisibleOverlays;  /* current number of visible overlays */
+    DWORD	dwNumFourCCCodes;       /* number of four cc codes */
+    DWORD	dwAlignBoundarySrc;     /* source rectangle alignment */
+    DWORD	dwAlignSizeSrc;         /* source rectangle byte size */
+    DWORD	dwAlignBoundaryDest;    /* dest rectangle alignment */
+    DWORD	dwAlignSizeDest;        /* dest rectangle byte size */
+    DWORD	dwAlignStrideAlign;     /* stride alignment */
+    DWORD	dwRops[DD_ROP_SPACE];   /* ROPs supported */
+    DDSCAPS	ddsCaps;                /* DDSCAPS structure has all the general capabilities */
+    DWORD	dwMinOverlayStretch;    /* minimum overlay stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMaxOverlayStretch;    /* maximum overlay stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMinLiveVideoStretch;  /* minimum live video stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMaxLiveVideoStretch;  /* maximum live video stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMinHwCodecStretch;    /* minimum hardware codec stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwMaxHwCodecStretch;    /* maximum hardware codec stretch factor multiplied by 1000, eg 1000 == 1.0, 1300 == 1.3 */
+    DWORD	dwReserved1;
+    DWORD	dwReserved2;
+    DWORD	dwReserved3;
+    DWORD	dwSVBCaps;              /* driver specific capabilities for System->Vmem blts */
+    DWORD	dwSVBCKeyCaps;          /* driver color key capabilities for System->Vmem blts */
+    DWORD	dwSVBFXCaps;            /* driver FX capabilities for System->Vmem blts */
+    DWORD	dwSVBRops[DD_ROP_SPACE];/* ROPs supported for System->Vmem blts */
+    DWORD	dwVSBCaps;              /* driver specific capabilities for Vmem->System blts */
+    DWORD	dwVSBCKeyCaps;          /* driver color key capabilities for Vmem->System blts */
+    DWORD	dwVSBFXCaps;            /* driver FX capabilities for Vmem->System blts */
+    DWORD	dwVSBRops[DD_ROP_SPACE];/* ROPs supported for Vmem->System blts */
+    DWORD	dwSSBCaps;              /* driver specific capabilities for System->System blts */
+    DWORD	dwSSBCKeyCaps;          /* driver color key capabilities for System->System blts */
+    DWORD	dwSSBFXCaps;            /* driver FX capabilities for System->System blts */
+    DWORD	dwSSBRops[DD_ROP_SPACE];/* ROPs supported for System->System blts */
+    DWORD	dwReserved4;
+    DWORD	dwReserved5;
+    DWORD	dwReserved6;
+} DDCAPS_DX3, * LPDDCAPS_DX3;
+
+cpp_quote("#if DIRECTDRAW_VERSION <= 0x300")
+cpp_quote("typedef DDCAPS_DX3 DDCAPS;")
+cpp_quote("#elif DIRECTDRAW_VERSION <= 0x500")
+cpp_quote("typedef DDCAPS_DX5 DDCAPS;")
+cpp_quote("#elif DIRECTDRAW_VERSION <= 0x600")
+cpp_quote("typedef DDCAPS_DX6 DDCAPS;")
+cpp_quote("#else")
+cpp_quote("typedef DDCAPS_DX7 DDCAPS;")
+cpp_quote("#endif")
+
+typedef DDCAPS* LPDDCAPS;
+
+/* DDCAPS.dwCaps */
+cpp_quote("#define DDCAPS_3D			0x00000001")
+cpp_quote("#define DDCAPS_ALIGNBOUNDARYDEST	0x00000002")
+cpp_quote("#define DDCAPS_ALIGNSIZEDEST		0x00000004")
+cpp_quote("#define DDCAPS_ALIGNBOUNDARYSRC		0x00000008")
+cpp_quote("#define DDCAPS_ALIGNSIZESRC		0x00000010")
+cpp_quote("#define DDCAPS_ALIGNSTRIDE		0x00000020")
+cpp_quote("#define DDCAPS_BLT			0x00000040")
+cpp_quote("#define DDCAPS_BLTQUEUE			0x00000080")
+cpp_quote("#define DDCAPS_BLTFOURCC		0x00000100")
+cpp_quote("#define DDCAPS_BLTSTRETCH		0x00000200")
+cpp_quote("#define DDCAPS_GDI			0x00000400")
+cpp_quote("#define DDCAPS_OVERLAY			0x00000800")
+cpp_quote("#define DDCAPS_OVERLAYCANTCLIP		0x00001000")
+cpp_quote("#define DDCAPS_OVERLAYFOURCC		0x00002000")
+cpp_quote("#define DDCAPS_OVERLAYSTRETCH		0x00004000")
+cpp_quote("#define DDCAPS_PALETTE			0x00008000")
+cpp_quote("#define DDCAPS_PALETTEVSYNC		0x00010000")
+cpp_quote("#define DDCAPS_READSCANLINE		0x00020000")
+cpp_quote("#define DDCAPS_STEREOVIEW		0x00040000")
+cpp_quote("#define DDCAPS_VBI			0x00080000")
+cpp_quote("#define DDCAPS_ZBLTS			0x00100000")
+cpp_quote("#define DDCAPS_ZOVERLAYS		0x00200000")
+cpp_quote("#define DDCAPS_COLORKEY			0x00400000")
+cpp_quote("#define DDCAPS_ALPHA			0x00800000")
+cpp_quote("#define DDCAPS_COLORKEYHWASSIST		0x01000000")
+cpp_quote("#define DDCAPS_NOHARDWARE		0x02000000")
+cpp_quote("#define DDCAPS_BLTCOLORFILL		0x04000000")
+cpp_quote("#define DDCAPS_BANKSWITCHED		0x08000000")
+cpp_quote("#define DDCAPS_BLTDEPTHFILL		0x10000000")
+cpp_quote("#define DDCAPS_CANCLIP			0x20000000")
+cpp_quote("#define DDCAPS_CANCLIPSTRETCHED		0x40000000")
+cpp_quote("#define DDCAPS_CANBLTSYSMEM		0x80000000")
+
+/* DDCAPS.dwCaps2 */
+cpp_quote("#define DDCAPS2_CERTIFIED		0x00000001")
+cpp_quote("#define DDCAPS2_NO2DDURING3DSCENE       0x00000002")
+cpp_quote("#define DDCAPS2_VIDEOPORT		0x00000004")
+cpp_quote("#define DDCAPS2_AUTOFLIPOVERLAY		0x00000008")
+cpp_quote("#define DDCAPS2_CANBOBINTERLEAVED	0x00000010")
+cpp_quote("#define DDCAPS2_CANBOBNONINTERLEAVED	0x00000020")
+cpp_quote("#define DDCAPS2_COLORCONTROLOVERLAY	0x00000040")
+cpp_quote("#define DDCAPS2_COLORCONTROLPRIMARY	0x00000080")
+cpp_quote("#define DDCAPS2_CANDROPZ16BIT		0x00000100")
+cpp_quote("#define DDCAPS2_NONLOCALVIDMEM		0x00000200")
+cpp_quote("#define DDCAPS2_NONLOCALVIDMEMCAPS	0x00000400")
+cpp_quote("#define DDCAPS2_NOPAGELOCKREQUIRED	0x00000800")
+cpp_quote("#define DDCAPS2_WIDESURFACES		0x00001000")
+cpp_quote("#define DDCAPS2_CANFLIPODDEVEN		0x00002000")
+cpp_quote("#define DDCAPS2_CANBOBHARDWARE		0x00004000")
+cpp_quote("#define DDCAPS2_COPYFOURCC              0x00008000")
+cpp_quote("#define DDCAPS2_PRIMARYGAMMA            0x00020000")
+cpp_quote("#define DDCAPS2_CANRENDERWINDOWED       0x00080000")
+cpp_quote("#define DDCAPS2_CANCALIBRATEGAMMA       0x00100000")
+cpp_quote("#define DDCAPS2_FLIPINTERVAL            0x00200000")
+cpp_quote("#define DDCAPS2_FLIPNOVSYNC             0x00400000")
+cpp_quote("#define DDCAPS2_CANMANAGETEXTURE        0x00800000")
+cpp_quote("#define DDCAPS2_TEXMANINNONLOCALVIDMEM  0x01000000")
+cpp_quote("#define DDCAPS2_STEREO                  0x02000000")
+cpp_quote("#define DDCAPS2_SYSTONONLOCAL_AS_SYSTOLOCAL   0x04000000")
+
+
+/* Set/Get Colour Key Flags */
+cpp_quote("#define DDCKEY_COLORSPACE  0x00000001")  /* Struct is single colour space */
+cpp_quote("#define DDCKEY_DESTBLT     0x00000002")  /* To be used as dest for blt */
+cpp_quote("#define DDCKEY_DESTOVERLAY 0x00000004")  /* To be used as dest for CK overlays */
+cpp_quote("#define DDCKEY_SRCBLT      0x00000008")  /* To be used as src for blt */
+cpp_quote("#define DDCKEY_SRCOVERLAY  0x00000010")  /* To be used as src for CK overlays */
+
+typedef struct _DDCOLORKEY
+{
+    DWORD	dwColorSpaceLowValue;/* low boundary of color space that is to
+                                      * be treated as Color Key, inclusive
+                      */
+    DWORD	dwColorSpaceHighValue;/* high boundary of color space that is
+                                       * to be treated as Color Key, inclusive
+                       */
+} DDCOLORKEY, * LPDDCOLORKEY;
+
+/* ddCKEYCAPS bits */
+cpp_quote("#define DDCKEYCAPS_DESTBLT			0x00000001")
+cpp_quote("#define DDCKEYCAPS_DESTBLTCLRSPACE		0x00000002")
+cpp_quote("#define DDCKEYCAPS_DESTBLTCLRSPACEYUV		0x00000004")
+cpp_quote("#define DDCKEYCAPS_DESTBLTYUV			0x00000008")
+cpp_quote("#define DDCKEYCAPS_DESTOVERLAY			0x00000010")
+cpp_quote("#define DDCKEYCAPS_DESTOVERLAYCLRSPACE		0x00000020")
+cpp_quote("#define DDCKEYCAPS_DESTOVERLAYCLRSPACEYUV	0x00000040")
+cpp_quote("#define DDCKEYCAPS_DESTOVERLAYONEACTIVE		0x00000080")
+cpp_quote("#define DDCKEYCAPS_DESTOVERLAYYUV		0x00000100")
+cpp_quote("#define DDCKEYCAPS_SRCBLT			0x00000200")
+cpp_quote("#define DDCKEYCAPS_SRCBLTCLRSPACE		0x00000400")
+cpp_quote("#define DDCKEYCAPS_SRCBLTCLRSPACEYUV		0x00000800")
+cpp_quote("#define DDCKEYCAPS_SRCBLTYUV			0x00001000")
+cpp_quote("#define DDCKEYCAPS_SRCOVERLAY			0x00002000")
+cpp_quote("#define DDCKEYCAPS_SRCOVERLAYCLRSPACE		0x00004000")
+cpp_quote("#define DDCKEYCAPS_SRCOVERLAYCLRSPACEYUV	0x00008000")
+cpp_quote("#define DDCKEYCAPS_SRCOVERLAYONEACTIVE		0x00010000")
+cpp_quote("#define DDCKEYCAPS_SRCOVERLAYYUV		0x00020000")
+cpp_quote("#define DDCKEYCAPS_NOCOSTOVERLAY		0x00040000")
+
+cpp_quote("#ifndef _DDPIXELFORMAT_DEFINED")
+cpp_quote("#define _DDPIXELFORMAT_DEFINED")
+typedef struct _DDPIXELFORMAT {
+    DWORD	dwSize;                 /* 0: size of structure */
+    DWORD	dwFlags;                /* 4: pixel format flags */
+    DWORD	dwFourCC;               /* 8: (FOURCC code) */
+    union {
+        DWORD	dwRGBBitCount;          /* C: how many bits per pixel */
+        DWORD	dwYUVBitCount;          /* C: how many bits per pixel */
+        DWORD	dwZBufferBitDepth;      /* C: how many bits for z buffers */
+        DWORD	dwAlphaBitDepth;        /* C: how many bits for alpha channels*/
+        DWORD	dwLuminanceBitCount;
+        DWORD	dwBumpBitCount;
+        DWORD	dwPrivateFormatBitCount;
+    };
+    union {
+        DWORD	dwRBitMask;             /* 10: mask for red bit*/
+        DWORD	dwYBitMask;             /* 10: mask for Y bits*/
+        DWORD	dwStencilBitDepth;
+        DWORD	dwLuminanceBitMask;
+        DWORD	dwBumpDuBitMask;
+        DWORD	dwOperations;
+    };
+    union {
+        DWORD	dwGBitMask;             /* 14: mask for green bits*/
+        DWORD	dwUBitMask;             /* 14: mask for U bits*/
+        DWORD	dwZBitMask;
+        DWORD	dwBumpDvBitMask;
+        struct {
+            WORD	wFlipMSTypes;
+            WORD	wBltMSTypes;
+        } MultiSampleCaps;
+    };
+    union {
+        DWORD   dwBBitMask;             /* 18: mask for blue bits*/
+        DWORD   dwVBitMask;             /* 18: mask for V bits*/
+        DWORD	dwStencilBitMask;
+        DWORD	dwBumpLuminanceBitMask;
+    };
+    union {
+        DWORD	dwRGBAlphaBitMask;	/* 1C: mask for alpha channel */
+        DWORD	dwYUVAlphaBitMask;	/* 1C: mask for alpha channel */
+        DWORD	dwLuminanceAlphaBitMask;
+        DWORD	dwRGBZBitMask;		/* 1C: mask for Z channel */
+        DWORD	dwYUVZBitMask;		/* 1C: mask for Z channel */
+    };
+    /* 20: next structure */
+} DDPIXELFORMAT, * LPDDPIXELFORMAT;
+cpp_quote("#endif") /* _DDPIXELFORMAT_DEFINED */
+
+/* DDCAPS.dwFXCaps */
+cpp_quote("#define DDFXCAPS_BLTALPHA               0x00000001")
+cpp_quote("#define DDFXCAPS_OVERLAYALPHA           0x00000004")
+cpp_quote("#define DDFXCAPS_BLTARITHSTRETCHYN	0x00000010")
+cpp_quote("#define DDFXCAPS_BLTARITHSTRETCHY	0x00000020")
+cpp_quote("#define DDFXCAPS_BLTMIRRORLEFTRIGHT	0x00000040")
+cpp_quote("#define DDFXCAPS_BLTMIRRORUPDOWN	0x00000080")
+cpp_quote("#define DDFXCAPS_BLTROTATION		0x00000100")
+cpp_quote("#define DDFXCAPS_BLTROTATION90		0x00000200")
+cpp_quote("#define DDFXCAPS_BLTSHRINKX		0x00000400")
+cpp_quote("#define DDFXCAPS_BLTSHRINKXN		0x00000800")
+cpp_quote("#define DDFXCAPS_BLTSHRINKY		0x00001000")
+cpp_quote("#define DDFXCAPS_BLTSHRINKYN		0x00002000")
+cpp_quote("#define DDFXCAPS_BLTSTRETCHX		0x00004000")
+cpp_quote("#define DDFXCAPS_BLTSTRETCHXN		0x00008000")
+cpp_quote("#define DDFXCAPS_BLTSTRETCHY		0x00010000")
+cpp_quote("#define DDFXCAPS_BLTSTRETCHYN		0x00020000")
+cpp_quote("#define DDFXCAPS_OVERLAYARITHSTRETCHY	0x00040000")
+cpp_quote("#define DDFXCAPS_OVERLAYARITHSTRETCHYN	0x00000008")
+cpp_quote("#define DDFXCAPS_OVERLAYSHRINKX		0x00080000")
+cpp_quote("#define DDFXCAPS_OVERLAYSHRINKXN	0x00100000")
+cpp_quote("#define DDFXCAPS_OVERLAYSHRINKY		0x00200000")
+cpp_quote("#define DDFXCAPS_OVERLAYSHRINKYN	0x00400000")
+cpp_quote("#define DDFXCAPS_OVERLAYSTRETCHX	0x00800000")
+cpp_quote("#define DDFXCAPS_OVERLAYSTRETCHXN	0x01000000")
+cpp_quote("#define DDFXCAPS_OVERLAYSTRETCHY	0x02000000")
+cpp_quote("#define DDFXCAPS_OVERLAYSTRETCHYN	0x04000000")
+cpp_quote("#define DDFXCAPS_OVERLAYMIRRORLEFTRIGHT	0x08000000")
+cpp_quote("#define DDFXCAPS_OVERLAYMIRRORUPDOWN	0x10000000")
+
+cpp_quote("#define DDFXCAPS_OVERLAYFILTER          DDFXCAPS_OVERLAYARITHSTRETCHY")
+
+/* DDCAPS.dwFXAlphaCaps */
+cpp_quote("#define DDFXALPHACAPS_BLTALPHAEDGEBLEND		0x00000001")
+cpp_quote("#define DDFXALPHACAPS_BLTALPHAPIXELS		0x00000002")
+cpp_quote("#define DDFXALPHACAPS_BLTALPHAPIXELSNEG		0x00000004")
+cpp_quote("#define DDFXALPHACAPS_BLTALPHASURFACES		0x00000008")
+cpp_quote("#define DDFXALPHACAPS_BLTALPHASURFACESNEG	0x00000010")
+cpp_quote("#define DDFXALPHACAPS_OVERLAYALPHAEDGEBLEND	0x00000020")
+cpp_quote("#define DDFXALPHACAPS_OVERLAYALPHAPIXELS	0x00000040")
+cpp_quote("#define DDFXALPHACAPS_OVERLAYALPHAPIXELSNEG	0x00000080")
+cpp_quote("#define DDFXALPHACAPS_OVERLAYALPHASURFACES	0x00000100")
+cpp_quote("#define DDFXALPHACAPS_OVERLAYALPHASURFACESNEG	0x00000200")
+
+/* DDCAPS.dwPalCaps */
+cpp_quote("#define DDPCAPS_4BIT			0x00000001")
+cpp_quote("#define DDPCAPS_8BITENTRIES		0x00000002")
+cpp_quote("#define DDPCAPS_8BIT			0x00000004")
+cpp_quote("#define DDPCAPS_INITIALIZE		0x00000008")
+cpp_quote("#define DDPCAPS_PRIMARYSURFACE		0x00000010")
+cpp_quote("#define DDPCAPS_PRIMARYSURFACELEFT	0x00000020")
+cpp_quote("#define DDPCAPS_ALLOW256		0x00000040")
+cpp_quote("#define DDPCAPS_VSYNC			0x00000080")
+cpp_quote("#define DDPCAPS_1BIT			0x00000100")
+cpp_quote("#define DDPCAPS_2BIT			0x00000200")
+cpp_quote("#define DDPCAPS_ALPHA                   0x00000400")
+
+/* DDCAPS.dwSVCaps */
+/* the first 4 of these are now obsolete */
+cpp_quote("#if DIRECTDRAW_VERSION >= 0x700")	/* FIXME: I'm not sure when this switch occurred */
+cpp_quote("#define DDSVCAPS_RESERVED1		0x00000001")
+cpp_quote("#define DDSVCAPS_RESERVED2		0x00000002")
+cpp_quote("#define DDSVCAPS_RESERVED3		0x00000004")
+cpp_quote("#define DDSVCAPS_RESERVED4		0x00000008")
+cpp_quote("#else")
+cpp_quote("#define DDSVCAPS_ENIGMA			0x00000001")
+cpp_quote("#define DDSVCAPS_FLICKER		0x00000002")
+cpp_quote("#define DDSVCAPS_REDBLUE		0x00000004")
+cpp_quote("#define DDSVCAPS_SPLIT			0x00000008")
+cpp_quote("#endif")
+cpp_quote("#define DDSVCAPS_STEREOSEQUENTIAL       0x00000010")
+
+/* BitDepths */
+cpp_quote("#define DDBD_1				0x00004000")
+cpp_quote("#define DDBD_2				0x00002000")
+cpp_quote("#define DDBD_4				0x00001000")
+cpp_quote("#define DDBD_8				0x00000800")
+cpp_quote("#define DDBD_16				0x00000400")
+cpp_quote("#define DDBD_24				0x00000200")
+cpp_quote("#define DDBD_32				0x00000100")
+
+/* DDOVERLAYFX.dwDDFX */
+cpp_quote("#define DDOVERFX_ARITHSTRETCHY		0x00000001")
+cpp_quote("#define DDOVERFX_MIRRORLEFTRIGHT	0x00000002")
+cpp_quote("#define DDOVERFX_MIRRORUPDOWN		0x00000004")
+
+/* UpdateOverlay flags */
+cpp_quote("#define DDOVER_ALPHADEST                        0x00000001")
+cpp_quote("#define DDOVER_ALPHADESTCONSTOVERRIDE           0x00000002")
+cpp_quote("#define DDOVER_ALPHADESTNEG                     0x00000004")
+cpp_quote("#define DDOVER_ALPHADESTSURFACEOVERRIDE         0x00000008")
+cpp_quote("#define DDOVER_ALPHAEDGEBLEND                   0x00000010")
+cpp_quote("#define DDOVER_ALPHASRC                         0x00000020")
+cpp_quote("#define DDOVER_ALPHASRCCONSTOVERRIDE            0x00000040")
+cpp_quote("#define DDOVER_ALPHASRCNEG                      0x00000080")
+cpp_quote("#define DDOVER_ALPHASRCSURFACEOVERRIDE          0x00000100")
+cpp_quote("#define DDOVER_HIDE                             0x00000200")
+cpp_quote("#define DDOVER_KEYDEST                          0x00000400")
+cpp_quote("#define DDOVER_KEYDESTOVERRIDE                  0x00000800")
+cpp_quote("#define DDOVER_KEYSRC                           0x00001000")
+cpp_quote("#define DDOVER_KEYSRCOVERRIDE                   0x00002000")
+cpp_quote("#define DDOVER_SHOW                             0x00004000")
+cpp_quote("#define DDOVER_ADDDIRTYRECT                     0x00008000")
+cpp_quote("#define DDOVER_REFRESHDIRTYRECTS                0x00010000")
+cpp_quote("#define DDOVER_REFRESHALL                       0x00020000")
+cpp_quote("#define DDOVER_DDFX                             0x00080000")
+cpp_quote("#define DDOVER_AUTOFLIP                         0x00100000")
+cpp_quote("#define DDOVER_BOB                              0x00200000")
+cpp_quote("#define DDOVER_OVERRIDEBOBWEAVE                 0x00400000")
+cpp_quote("#define DDOVER_INTERLEAVED                      0x00800000")
+cpp_quote("#define DDOVER_BOBHARDWARE                      0x01000000")
+cpp_quote("#define DDOVER_ARGBSCALEFACTORS                 0x02000000")
+cpp_quote("#define DDOVER_DEGRADEARGBSCALING               0x04000000")
+
+/* DDPIXELFORMAT.dwFlags */
+cpp_quote("#define DDPF_ALPHAPIXELS		0x00000001")
+cpp_quote("#define DDPF_ALPHA			0x00000002")
+cpp_quote("#define DDPF_FOURCC			0x00000004")
+cpp_quote("#define DDPF_PALETTEINDEXED4		0x00000008")
+cpp_quote("#define DDPF_PALETTEINDEXEDTO8		0x00000010")
+cpp_quote("#define DDPF_PALETTEINDEXED8		0x00000020")
+cpp_quote("#define DDPF_RGB			0x00000040")
+cpp_quote("#define DDPF_COMPRESSED			0x00000080")
+cpp_quote("#define DDPF_RGBTOYUV			0x00000100")
+cpp_quote("#define DDPF_YUV			0x00000200")
+cpp_quote("#define DDPF_ZBUFFER			0x00000400")
+cpp_quote("#define DDPF_PALETTEINDEXED1		0x00000800")
+cpp_quote("#define DDPF_PALETTEINDEXED2		0x00001000")
+cpp_quote("#define DDPF_ZPIXELS			0x00002000")
+cpp_quote("#define DDPF_STENCILBUFFER              0x00004000")
+cpp_quote("#define DDPF_ALPHAPREMULT               0x00008000")
+cpp_quote("#define DDPF_LUMINANCE                  0x00020000")
+cpp_quote("#define DDPF_BUMPLUMINANCE              0x00040000")
+cpp_quote("#define DDPF_BUMPDUDV                   0x00080000")
+
+/* SetCooperativeLevel dwFlags */
+cpp_quote("#define DDSCL_FULLSCREEN		0x00000001")
+cpp_quote("#define DDSCL_ALLOWREBOOT		0x00000002")
+cpp_quote("#define DDSCL_NOWINDOWCHANGES		0x00000004")
+cpp_quote("#define DDSCL_NORMAL			0x00000008")
+cpp_quote("#define DDSCL_EXCLUSIVE			0x00000010")
+cpp_quote("#define DDSCL_ALLOWMODEX		0x00000040")
+cpp_quote("#define DDSCL_SETFOCUSWINDOW		0x00000080")
+cpp_quote("#define DDSCL_SETDEVICEWINDOW		0x00000100")
+cpp_quote("#define DDSCL_CREATEDEVICEWINDOW	0x00000200")
+cpp_quote("#define DDSCL_MULTITHREADED             0x00000400")
+cpp_quote("#define DDSCL_FPUSETUP                  0x00000800")
+cpp_quote("#define DDSCL_FPUPRESERVE               0x00001000")
+
+
+/* DDSURFACEDESC.dwFlags */
+cpp_quote("#define	DDSD_CAPS		0x00000001")
+cpp_quote("#define	DDSD_HEIGHT		0x00000002")
+cpp_quote("#define	DDSD_WIDTH		0x00000004")
+cpp_quote("#define	DDSD_PITCH		0x00000008")
+cpp_quote("#define	DDSD_BACKBUFFERCOUNT	0x00000020")
+cpp_quote("#define	DDSD_ZBUFFERBITDEPTH	0x00000040")
+cpp_quote("#define	DDSD_ALPHABITDEPTH	0x00000080")
+cpp_quote("#define	DDSD_LPSURFACE		0x00000800")
+cpp_quote("#define	DDSD_PIXELFORMAT	0x00001000")
+cpp_quote("#define	DDSD_CKDESTOVERLAY	0x00002000")
+cpp_quote("#define	DDSD_CKDESTBLT		0x00004000")
+cpp_quote("#define	DDSD_CKSRCOVERLAY	0x00008000")
+cpp_quote("#define	DDSD_CKSRCBLT		0x00010000")
+cpp_quote("#define	DDSD_MIPMAPCOUNT	0x00020000")
+cpp_quote("#define	DDSD_REFRESHRATE	0x00040000")
+cpp_quote("#define	DDSD_LINEARSIZE		0x00080000")
+cpp_quote("#define DDSD_TEXTURESTAGE       0x00100000")
+cpp_quote("#define DDSD_FVF                0x00200000")
+cpp_quote("#define DDSD_SRCVBHANDLE        0x00400000")
+cpp_quote("#define DDSD_DEPTH              0x00800000")
+cpp_quote("#define DDSD_ALL                0x00fff9ee")
+
+/* EnumSurfaces flags */
+cpp_quote("#define DDENUMSURFACES_ALL          0x00000001")
+cpp_quote("#define DDENUMSURFACES_MATCH        0x00000002")
+cpp_quote("#define DDENUMSURFACES_NOMATCH      0x00000004")
+cpp_quote("#define DDENUMSURFACES_CANBECREATED 0x00000008")
+cpp_quote("#define DDENUMSURFACES_DOESEXIST    0x00000010")
+
+/* SetDisplayMode flags */
+cpp_quote("#define DDSDM_STANDARDVGAMODE	0x00000001")
+
+/* EnumDisplayModes flags */
+cpp_quote("#define DDEDM_REFRESHRATES	0x00000001")
+cpp_quote("#define DDEDM_STANDARDVGAMODES	0x00000002")
+
+/* WaitForVerticalDisplay flags */
+
+cpp_quote("#define DDWAITVB_BLOCKBEGIN		0x00000001")
+cpp_quote("#define DDWAITVB_BLOCKBEGINEVENT	0x00000002")
+cpp_quote("#define DDWAITVB_BLOCKEND		0x00000004")
+
+typedef struct _DDSURFACEDESC
+{
+    DWORD	dwSize;		/* 0: size of the DDSURFACEDESC structure*/
+    DWORD	dwFlags;	/* 4: determines what fields are valid*/
+    DWORD	dwHeight;	/* 8: height of surface to be created*/
+    DWORD	dwWidth;	/* C: width of input surface*/
+    union {
+        LONG	lPitch;	/* 10: distance to start of next line (return value only)*/
+        DWORD	dwLinearSize;
+    };
+    DWORD	dwBackBufferCount;/* 14: number of back buffers requested*/
+    union {
+        DWORD	dwMipMapCount;/* 18:number of mip-map levels requested*/
+        DWORD	dwZBufferBitDepth;/*18: depth of Z buffer requested*/
+        DWORD	dwRefreshRate;/* 18:refresh rate (used when display mode is described)*/
+    };
+    DWORD	dwAlphaBitDepth;/* 1C:depth of alpha buffer requested*/
+    DWORD	dwReserved;	/* 20:reserved*/
+    LPVOID	lpSurface;	/* 24:pointer to the associated surface memory*/
+    DDCOLORKEY	ddckCKDestOverlay;/* 28: CK for dest overlay use*/
+    DDCOLORKEY	ddckCKDestBlt;	/* 30: CK for destination blt use*/
+    DDCOLORKEY	ddckCKSrcOverlay;/* 38: CK for source overlay use*/
+    DDCOLORKEY	ddckCKSrcBlt;	/* 40: CK for source blt use*/
+    DDPIXELFORMAT	ddpfPixelFormat;/* 48: pixel format description of the surface*/
+    DDSCAPS		ddsCaps;	/* 68: direct draw surface caps */
+} DDSURFACEDESC, * LPDDSURFACEDESC;
+
+typedef struct _DDSURFACEDESC2
+{
+    DWORD	dwSize;		/* 0: size of the DDSURFACEDESC2 structure*/
+    DWORD	dwFlags;	/* 4: determines what fields are valid*/
+    DWORD	dwHeight;	/* 8: height of surface to be created*/
+    DWORD	dwWidth;	/* C: width of input surface*/
+    union {
+        LONG	lPitch;	      /*10: distance to start of next line (return value only)*/
+        DWORD   dwLinearSize; /*10: formless late-allocated optimized surface size */
+    };
+    union {
+        DWORD dwBackBufferCount;/* 14: number of back buffers requested */
+        DWORD dwDepth;          /* The bit-depth if this is a volume texture. */
+    };
+    union {
+        DWORD	dwMipMapCount;/* 18:number of mip-map levels requested*/
+        DWORD	dwRefreshRate;/* 18:refresh rate (used when display mode is described)*/
+        DWORD   dwSrcVBHandle;/* 18:source used in VB::Optimize */
+    };
+    DWORD	dwAlphaBitDepth;/* 1C:depth of alpha buffer requested*/
+    DWORD	dwReserved;	/* 20:reserved*/
+    LPVOID	lpSurface;	/* 24:pointer to the associated surface memory*/
+    union {
+        DDCOLORKEY	ddckCKDestOverlay; /* 28: CK for dest overlay use*/
+        DWORD 		dwEmptyFaceColor;  /* 28: color for empty cubemap faces */
+    };
+    DDCOLORKEY	ddckCKDestBlt;	/* 30: CK for destination blt use*/
+    DDCOLORKEY	ddckCKSrcOverlay;/* 38: CK for source overlay use*/
+    DDCOLORKEY	ddckCKSrcBlt;	/* 40: CK for source blt use*/
+
+    union {
+        DDPIXELFORMAT	ddpfPixelFormat;/* 48: pixel format description of the surface*/
+        DWORD 		dwFVF;	/* 48: vertex format description of vertex buffers */
+    };
+    DDSCAPS2	ddsCaps;  /* 68: DDraw surface caps */
+    DWORD		dwTextureStage; /* 78: stage in multitexture cascade */
+} DDSURFACEDESC2, * LPDDSURFACEDESC2;
+
+typedef struct _DDARGB {
+    BYTE	blue;
+    BYTE	green;
+    BYTE	red;
+    BYTE	alpha;
+} DDARGB, * LPDDARGB;
+
+typedef struct _DDRGBA {
+    BYTE	red;
+    BYTE	green;
+    BYTE	blue;
+    BYTE	alpha;
+} DDRGBA, * LPDDRGBA;
+
+
+/* DDCOLORCONTROL.dwFlags */
+cpp_quote("#define DDCOLOR_BRIGHTNESS	0x00000001")
+cpp_quote("#define DDCOLOR_CONTRAST	0x00000002")
+cpp_quote("#define DDCOLOR_HUE		0x00000004")
+cpp_quote("#define DDCOLOR_SATURATION	0x00000008")
+cpp_quote("#define DDCOLOR_SHARPNESS	0x00000010")
+cpp_quote("#define DDCOLOR_GAMMA		0x00000020")
+cpp_quote("#define DDCOLOR_COLORENABLE	0x00000040")
+
+typedef struct {
+    DWORD	dwSize;
+    DWORD	dwFlags;
+    LONG	lBrightness;
+    LONG	lContrast;
+    LONG	lHue;
+    LONG	lSaturation;
+    LONG	lSharpness;
+    LONG	lGamma;
+    LONG	lColorEnable;
+    DWORD	dwReserved1;
+} DDCOLORCONTROL, * LPDDCOLORCONTROL;
+
+typedef struct {
+    WORD	red[256];
+    WORD	green[256];
+    WORD	blue[256];
+} DDGAMMARAMP, * LPDDGAMMARAMP;
+
+typedef BOOL(__stdcall* LPDDENUMCALLBACKA)(GUID*, LPSTR, LPSTR, LPVOID);
+typedef BOOL(__stdcall* LPDDENUMCALLBACKW)(GUID*, LPWSTR, LPWSTR, LPVOID);
+cpp_quote("DECL_WINELIB_TYPE_AW(LPDDENUMCALLBACK)")
+
+typedef HRESULT(__stdcall* LPDDENUMMODESCALLBACK)(LPDDSURFACEDESC, LPVOID);
+typedef HRESULT(__stdcall* LPDDENUMMODESCALLBACK2)(LPDDSURFACEDESC2, LPVOID);
+typedef HRESULT(__stdcall* LPDDENUMSURFACESCALLBACK)(LPDIRECTDRAWSURFACE, LPDDSURFACEDESC, LPVOID);
+typedef HRESULT(__stdcall* LPDDENUMSURFACESCALLBACK2)(LPDIRECTDRAWSURFACE4, LPDDSURFACEDESC2, LPVOID);
+typedef HRESULT(__stdcall* LPDDENUMSURFACESCALLBACK7)(LPDIRECTDRAWSURFACE7, LPDDSURFACEDESC2, LPVOID);
+
+cpp_quote("#if (WINVER < 0x0500) && !defined(HMONITOR_DECLARED)")
+cpp_quote("DECLARE_HANDLE(HMONITOR);")
+cpp_quote("#define HMONITOR_DECLARED 1")
+cpp_quote("#endif")
+typedef BOOL(__stdcall* LPDDENUMCALLBACKEXA)(GUID*, LPSTR, LPSTR, LPVOID, HMONITOR);
+typedef BOOL(__stdcall* LPDDENUMCALLBACKEXW)(GUID*, LPWSTR, LPWSTR, LPVOID, HMONITOR);
+cpp_quote("DECL_WINELIB_TYPE_AW(LPDDENUMCALLBACKEX)")
+
+cpp_quote("HRESULT WINAPI DirectDrawEnumerateA(LPDDENUMCALLBACKA, LPVOID);")
+cpp_quote("HRESULT WINAPI DirectDrawEnumerateW(LPDDENUMCALLBACKW, LPVOID);")
+cpp_quote("#define DirectDrawEnumerate WINELIB_NAME_AW(DirectDrawEnumerate)")
+
+cpp_quote("HRESULT WINAPI DirectDrawEnumerateExA(LPDDENUMCALLBACKEXA lpCallback, LPVOID lpContext, DWORD dwFlags);")
+cpp_quote("HRESULT WINAPI DirectDrawEnumerateExW(LPDDENUMCALLBACKEXW lpCallback, LPVOID lpContext, DWORD dwFlags);")
+cpp_quote("#define DirectDrawEnumerateEx WINELIB_NAME_AW(DirectDrawEnumerateEx)")
+
+typedef HRESULT(__stdcall* LPDIRECTDRAWENUMERATEEXA)(LPDDENUMCALLBACKEXA lpCallback, LPVOID lpContext, DWORD dwFlags);
+typedef HRESULT(__stdcall* LPDIRECTDRAWENUMERATEEXW)(LPDDENUMCALLBACKEXW lpCallback, LPVOID lpContext, DWORD dwFlags);
+cpp_quote("DECL_WINELIB_TYPE_AW(LPDIRECTDRAWENUMERATEEX)")
+
+/* flags for DirectDrawEnumerateEx */
+cpp_quote("#define DDENUM_ATTACHEDSECONDARYDEVICES	0x00000001")
+cpp_quote("#define DDENUM_DETACHEDSECONDARYDEVICES	0x00000002")
+cpp_quote("#define DDENUM_NONDISPLAYDEVICES	0x00000004")
+
+/* flags for DirectDrawCreate or IDirectDraw::Initialize */
+cpp_quote("#define DDCREATE_HARDWAREONLY   __MSABI_LONG(1)")
+cpp_quote("#define DDCREATE_EMULATIONONLY  __MSABI_LONG(2)")
+
+typedef struct _DDBLTFX
+{
+    DWORD       dwSize;                         /* size of structure */
+    DWORD       dwDDFX;                         /* FX operations */
+    DWORD       dwROP;                          /* Win32 raster operations */
+    DWORD       dwDDROP;                        /* Raster operations new for DirectDraw */
+    DWORD       dwRotationAngle;                /* Rotation angle for blt */
+    DWORD       dwZBufferOpCode;                /* ZBuffer compares */
+    DWORD       dwZBufferLow;                   /* Low limit of Z buffer */
+    DWORD       dwZBufferHigh;                  /* High limit of Z buffer */
+    DWORD       dwZBufferBaseDest;              /* Destination base value */
+    DWORD       dwZDestConstBitDepth;           /* Bit depth used to specify Z constant for destination */
+    union {
+        DWORD   dwZDestConst;                   /* Constant to use as Z buffer for dest */
+        LPDIRECTDRAWSURFACE lpDDSZBufferDest;   /* Surface to use as Z buffer for dest */
+    };
+    DWORD       dwZSrcConstBitDepth;            /* Bit depth used to specify Z constant for source */
+    union {
+        DWORD   dwZSrcConst;                    /* Constant to use as Z buffer for src */
+        LPDIRECTDRAWSURFACE lpDDSZBufferSrc;    /* Surface to use as Z buffer for src */
+    };
+    DWORD       dwAlphaEdgeBlendBitDepth;       /* Bit depth used to specify constant for alpha edge blend */
+    DWORD       dwAlphaEdgeBlend;               /* Alpha for edge blending */
+    DWORD       dwReserved;
+    DWORD       dwAlphaDestConstBitDepth;       /* Bit depth used to specify alpha constant for destination */
+    union {
+        DWORD   dwAlphaDestConst;               /* Constant to use as Alpha Channel */
+        LPDIRECTDRAWSURFACE lpDDSAlphaDest;     /* Surface to use as Alpha Channel */
+    };
+    DWORD       dwAlphaSrcConstBitDepth;        /* Bit depth used to specify alpha constant for source */
+    union {
+        DWORD   dwAlphaSrcConst;                /* Constant to use as Alpha Channel */
+        LPDIRECTDRAWSURFACE lpDDSAlphaSrc;      /* Surface to use as Alpha Channel */
+    };
+    union {
+        DWORD   dwFillColor;                    /* color in RGB or Palettized */
+        DWORD   dwFillDepth;                    /* depth value for z-buffer */
+        DWORD   dwFillPixel;			/* pixel val for RGBA or RGBZ */
+        LPDIRECTDRAWSURFACE lpDDSPattern;       /* Surface to use as pattern */
+    };
+    DDCOLORKEY  ddckDestColorkey;               /* DestColorkey override */
+    DDCOLORKEY  ddckSrcColorkey;                /* SrcColorkey override */
+} DDBLTFX, * LPDDBLTFX;
+
+/* dwDDFX */
+/* arithmetic stretching along y axis */
+cpp_quote("#define DDBLTFX_ARITHSTRETCHY			0x00000001")
+/* mirror on y axis */
+cpp_quote("#define DDBLTFX_MIRRORLEFTRIGHT			0x00000002")
+/* mirror on x axis */
+cpp_quote("#define DDBLTFX_MIRRORUPDOWN			0x00000004")
+/* do not tear */
+cpp_quote("#define DDBLTFX_NOTEARING			0x00000008")
+/* 180 degrees clockwise rotation */
+cpp_quote("#define DDBLTFX_ROTATE180			0x00000010")
+/* 270 degrees clockwise rotation */
+cpp_quote("#define DDBLTFX_ROTATE270			0x00000020")
+/* 90 degrees clockwise rotation */
+cpp_quote("#define DDBLTFX_ROTATE90			0x00000040")
+/* dwZBufferLow and dwZBufferHigh specify limits to the copied Z values */
+cpp_quote("#define DDBLTFX_ZBUFFERRANGE			0x00000080")
+/* add dwZBufferBaseDest to every source z value before compare */
+cpp_quote("#define DDBLTFX_ZBUFFERBASEDEST			0x00000100")
+
+typedef struct _DDOVERLAYFX
+{
+    DWORD       dwSize;                         /* size of structure */
+    DWORD       dwAlphaEdgeBlendBitDepth;       /* Bit depth used to specify constant for alpha edge blend */
+    DWORD       dwAlphaEdgeBlend;               /* Constant to use as alpha for edge blend */
+    DWORD       dwReserved;
+    DWORD       dwAlphaDestConstBitDepth;       /* Bit depth used to specify alpha constant for destination */
+    union {
+        DWORD   dwAlphaDestConst;               /* Constant to use as alpha channel for dest */
+        LPDIRECTDRAWSURFACE lpDDSAlphaDest;     /* Surface to use as alpha channel for dest */
+    };
+    DWORD       dwAlphaSrcConstBitDepth;        /* Bit depth used to specify alpha constant for source */
+    union {
+        DWORD   dwAlphaSrcConst;                /* Constant to use as alpha channel for src */
+        LPDIRECTDRAWSURFACE lpDDSAlphaSrc;      /* Surface to use as alpha channel for src */
+    };
+    DDCOLORKEY  dckDestColorkey;                /* DestColorkey override */
+    DDCOLORKEY  dckSrcColorkey;                 /* DestColorkey override */
+    DWORD       dwDDFX;                         /* Overlay FX */
+    DWORD       dwFlags;                        /* flags */
+} DDOVERLAYFX, * LPDDOVERLAYFX;
+
+typedef struct _DDBLTBATCH
+{
+    LPRECT		lprDest;
+    LPDIRECTDRAWSURFACE	lpDDSSrc;
+    LPRECT		lprSrc;
+    DWORD		dwFlags;
+    LPDDBLTFX		lpDDBltFx;
+} DDBLTBATCH, * LPDDBLTBATCH;
+
+#define MAX_DDDEVICEID_STRING          512
+
+#define DDGDI_GETHOSTIDENTIFIER 1
+
+typedef struct tagDDDEVICEIDENTIFIER {
+    char    szDriver[MAX_DDDEVICEID_STRING];
+    char    szDescription[MAX_DDDEVICEID_STRING];
+    LARGE_INTEGER  liDriverVersion;
+    DWORD   dwVendorId;
+    DWORD   dwDeviceId;
+    DWORD   dwSubSysId;
+    DWORD   dwRevision;
+    GUID    guidDeviceIdentifier;
+} DDDEVICEIDENTIFIER, * LPDDDEVICEIDENTIFIER;
+
+typedef struct tagDDDEVICEIDENTIFIER2 {
+    char    szDriver[MAX_DDDEVICEID_STRING];	/* user readable driver name */
+    char    szDescription[MAX_DDDEVICEID_STRING]; /* user readable description */
+    LARGE_INTEGER  liDriverVersion;		/* driver version */
+    DWORD   dwVendorId;				/* vendor ID, zero if unknown */
+    DWORD   dwDeviceId;				/* chipset ID, zero if unknown */
+    DWORD   dwSubSysId;				/* board ID, zero if unknown */
+    DWORD   dwRevision;				/* chipset version, zero if unknown */
+    GUID    guidDeviceIdentifier;			/* unique ID for this driver/chipset combination */
+    DWORD   dwWHQLLevel;				/* Windows Hardware Quality Lab certification level */
+} DDDEVICEIDENTIFIER2, * LPDDDEVICEIDENTIFIER2;
+
+/* flags for Lock() */
+cpp_quote("#define DDLOCK_SURFACEMEMORYPTR         __MSABI_LONG(0x00000000)")
+cpp_quote("#define DDLOCK_WAIT                     __MSABI_LONG(0x00000001)")
+cpp_quote("#define DDLOCK_EVENT                    __MSABI_LONG(0x00000002)")
+cpp_quote("#define DDLOCK_READONLY                 __MSABI_LONG(0x00000010)")
+cpp_quote("#define DDLOCK_WRITEONLY                __MSABI_LONG(0x00000020)")
+cpp_quote("#define DDLOCK_NOSYSLOCK                __MSABI_LONG(0x00000800)")
+cpp_quote("#define DDLOCK_NOOVERWRITE              __MSABI_LONG(0x00001000)")
+cpp_quote("#define DDLOCK_DISCARDCONTENTS          __MSABI_LONG(0x00002000)")
+cpp_quote("#define DDLOCK_OKTOSWAP                 __MSABI_LONG(0x00002000)")
+cpp_quote("#define DDLOCK_DONOTWAIT                __MSABI_LONG(0x00004000)")
+cpp_quote("#define DDLOCK_HASVOLUMETEXTUREBOXRECT  __MSABI_LONG(0x00008000)")
+cpp_quote("#define DDLOCK_NODIRTYUPDATE            __MSABI_LONG(0x00010000)")
+
+[
+    local,
+    object,
+    uuid(6C14DB84-A733-11CE-A521-0020AF0BE560)
+]
+interface IDirectDrawPalette : IUnknown
+{
+    HRESULT GetCaps(
+        [out] LPDWORD lpdwCaps
+    );
+
+    HRESULT GetEntries(
+        [in] DWORD dwFlags,
+        [in] DWORD dwBase,
+        [in] DWORD dwNumEntries,
+        [out] LPPALETTEENTRY lpEntries
+    );
+
+    HRESULT Initialize(
+        [in] LPDIRECTDRAW lpDD,
+        [in] DWORD dwFlags,
+        [out] LPPALETTEENTRY lpDDColorTable
+    );
+
+    HRESULT SetEntries(
+        [in] DWORD dwFlags,
+        [in] DWORD dwStartingEntry,
+        [in] DWORD dwCount,
+        [in] LPPALETTEENTRY lpEntries
+    );
+};
+
+[
+    local,
+    object,
+    uuid(6C14DB85-A733-11CE-A521-0020AF0BE560)
+]
+interface IDirectDrawClipper : IUnknown
+{
+    HRESULT GetClipList(
+        [in] LPRECT lpRect,
+        [out] LPRGNDATA  lpClipList,
+        [out] LPDWORD lpdwSize
+    );
+
+    HRESULT GetHWnd(
+        [out] HWND* lphWnd
+    );
+
+    HRESULT Initialize(
+        [in] LPDIRECTDRAW lpDD,
+        [in] DWORD dwFlags
+    );
+
+    HRESULT IsClipListChanged(
+        [out] BOOL* lpbChanged
+    );
+
+    HRESULT SetClipList(
+        [in] LPRGNDATA lpClipList,
+        [in] DWORD dwFlags
+    );
+
+    HRESULT SetHWnd(
+        [in] DWORD dwFlags,
+        [in] HWND hWnd
+    );
+};
+
+[
+    local,
+    object,
+    uuid(6C14DB80-A733-11CE-A521-0020AF0BE560)
+]
+interface IDirectDraw : IUnknown
+{
+    HRESULT Compact();
+
+    HRESULT CreateClipper(
+        [in] DWORD dwFlags,
+        [out] LPDIRECTDRAWCLIPPER *lplpDDClipper,
+        [in, optional] IUnknown *pUnkOuter
+    );
+
+    HRESULT CreatePalette(
+        [in] DWORD dwFlags,
+        [in] LPPALETTEENTRY lpColorTable,
+        [out] LPDIRECTDRAWPALETTE *lplpDDPalette,
+        [in, optional] IUnknown *pUnkOuter
+    );
+
+    HRESULT CreateSurface(
+        [in] LPDDSURFACEDESC lpDDSurfaceDesc,
+        [out] LPDIRECTDRAWSURFACE *lplpDDSurface,
+        [in, optional] IUnknown *pUnkOuter
+    );
+
+    HRESULT DuplicateSurface(
+        [in] LPDIRECTDRAWSURFACE lpDDSurface,
+        [out] LPDIRECTDRAWSURFACE *lplpDupDDSurface
+    );
+
+    HRESULT EnumDisplayModes(
+        [in] DWORD dwFlags,
+        [in] LPDDSURFACEDESC lpDDSurfaceDesc,
+        [in] LPVOID lpContext,
+        [in] LPDDENUMMODESCALLBACK lpEnumModesCallback
+    );
+
+    HRESULT EnumSurfaces(
+        [in] DWORD dwFlags,
+        [in] LPDDSURFACEDESC lpDDSD,
+        [in] LPVOID lpContext,
+        [in] LPDDENUMSURFACESCALLBACK lpEnumSurfacesCallback
+    );
+
+    HRESULT FlipToGDISurface();
+
+    HRESULT GetCaps(
+        [out] LPDDCAPS lpDDDriverCaps,
+        [out] LPDDCAPS lpDDHELCaps
+    );
+
+    HRESULT GetDisplayMode(
+        [out] LPDDSURFACEDESC lpDDSurfaceDesc
+    );
+
+    HRESULT GetFourCCCodes(
+        [out] LPDWORD lpNumCodes,
+        [out, optional] LPDWORD lpCodes
+    );
+
+    HRESULT GetGDISurface(
+        [out] LPDIRECTDRAWSURFACE* lplpGDIDDSurface
+    );
+
+    HRESULT GetMonitorFrequency(
+        [out] LPDWORD lpdwFrequency
+    );
+
+    HRESULT GetScanLine(
+        [out] LPDWORD lpdwScanLine
+    );
+
+    HRESULT GetVerticalBlankStatus(
+        [out] BOOL* lpbIsInVB
+    );
+
+    HRESULT Initialize(
+        [in, optional] GUID* lpGUID
+    );
+
+    HRESULT RestoreDisplayMode();
+
+    HRESULT SetCooperativeLevel(
+        [in] HWND hWnd,
+        [in] DWORD dwFlags
+    );
+
+    HRESULT SetDisplayMode(
+        [in] DWORD dwWidth,
+        [in] DWORD dwHeight,
+        [in] DWORD dwBPP
+    );
+
+    HRESULT WaitForVerticalBlank(
+        [in] DWORD dwFlags,
+        [in, optional] HANDLE hEvent
+    );
+};
+
+[
+    object,
+    local,
+    uuid(B3A6F3E0-2B43-11CF-A2DE-00AA00B93356)
+]
+interface IDirectDraw2 : IDirectDraw
+{
+    HRESULT GetAvailableVidMem(
+        [in] LPDDSCAPS lpDDCaps,
+        [out] LPDWORD lpdwTotal,
+        [out] LPDWORD lpdwFree
+    );
+};
+
+[
+    object,
+    local,
+    uuid(618f8ad4-8b7a-11d0-8fcc-00c04fd9189d)
+]
+interface IDirectDraw3 : IDirectDraw2
+{
+    HRESULT GetSurfaceFromDC(
+        [in] HDC hdc,
+        [out] LPDIRECTDRAWSURFACE* pSurf
+    );
+};
+
+[
+    object,
+    local,
+    uuid(9c59509a-39bd-11d1-8c4a-00c04fd930c5)
+]
+interface IDirectDraw4 : IDirectDraw3
+{
+    HRESULT RestoreAllSurfaces();
+
+    HRESULT TestCooperativeLevel();
+
+    HRESULT GetDeviceIdentifier(
+        [out] LPDDDEVICEIDENTIFIER pDDDI,
+        [in] DWORD dwFlags
+    );
+};
+
+[
+    object,
+    local,
+    uuid(15e65ec0-3b9c-11d2-b92f-00609797ea5b)
+]
+interface IDirectDraw7 : IUnknown
+{
+    HRESULT Compact();
+
+    HRESULT CreateClipper(
+        [in] DWORD dwFlags,
+        [out] LPDIRECTDRAWCLIPPER* lplpDDClipper,
+        [in, optional] IUnknown* pUnkOuter
+    );
+
+    HRESULT CreatePalette(
+        [in] DWORD dwFlags,
+        [in] LPPALETTEENTRY lpColorTable,
+        [out] LPDIRECTDRAWPALETTE* lplpDDPalette,
+        [in, optional] IUnknown* pUnkOuter
+    );
+
+    HRESULT CreateSurface(
+        [in] LPDDSURFACEDESC lpDDSurfaceDesc,
+        [out] LPDIRECTDRAWSURFACE7* lplpDDSurface,
+        [in, optional] IUnknown* pUnkOuter
+    );
+
+    HRESULT DuplicateSurface(
+        [in] LPDIRECTDRAWSURFACE7  lpDDSurface,
+        [out] LPDIRECTDRAWSURFACE7* lplpDupDDSurface
+    );
+
+    HRESULT EnumDisplayModes(
+        [in] DWORD dwFlags,
+        [in] LPDDSURFACEDESC2 lpDDSurfaceDesc,
+        [in] LPVOID lpContext,
+        [in] LPDDENUMMODESCALLBACK2 lpEnumModesCallback
+    );
+
+    HRESULT EnumSurfaces(
+        [in] DWORD dwFlags,
+        [in] LPDDSURFACEDESC2 lpDDSD,
+        [in] LPVOID lpContext,
+        [in] LPDDENUMSURFACESCALLBACK7 lpEnumSurfacesCallback
+    );
+
+    HRESULT FlipToGDISurface();
+
+    HRESULT GetCaps(
+        [out] LPDDCAPS lpDDDriverCaps,
+        [out] LPDDCAPS lpDDHELCaps
+    );
+
+    HRESULT GetDisplayMode(
+        [out] LPDDSURFACEDESC2 lpDDSurfaceDesc
+    );
+
+    HRESULT GetFourCCCodes(
+        [out] LPDWORD lpNumCodes,
+        [out, optional] LPDWORD lpCodes
+    );
+
+    HRESULT GetGDISurface(
+        [out] LPDIRECTDRAWSURFACE7* lplpGDIDDSurface
+    );
+
+    HRESULT GetMonitorFrequency(
+        [out] LPDWORD lpdwFrequency
+    );
+
+    HRESULT GetScanLine(
+        [out] LPDWORD lpdwScanLine
+    );
+
+    HRESULT GetVerticalBlankStatus(
+        [out] BOOL* lpbIsInVB
+    );
+
+    HRESULT Initialize(
+        [in, optional] GUID* lpGUID
+    );
+
+    HRESULT RestoreDisplayMode();
+
+    HRESULT SetCooperativeLevel(
+        [in] HWND hWnd,
+        [in] DWORD dwFlags
+    );
+
+    HRESULT SetDisplayMode(
+        [in] DWORD dwWidth,
+        [in] DWORD dwHeight,
+        [in] DWORD dwBPP,
+        [in] DWORD dwRefreshRate,
+        [in] DWORD dwFlags
+    );
+
+    HRESULT WaitForVerticalBlank(
+        [in] DWORD dwFlags,
+        [in, optional] HANDLE hEvent
+    );
+
+    HRESULT GetAvailableVidMem(
+        [in] LPDDSCAPS2 lpDDCaps,
+        [out] LPDWORD lpdwTotal,
+        [out] LPDWORD lpdwFree
+    );
+
+    HRESULT GetSurfaceFromDC(
+        [in] HDC hdc,
+        [out] LPDIRECTDRAWSURFACE7* pSurf
+    );
+
+    HRESULT RestoreAllSurfaces();
+
+    HRESULT TestCooperativeLevel();
+
+    HRESULT GetDeviceIdentifier(
+        [out] LPDDDEVICEIDENTIFIER2 pDDDI,
+        [in] DWORD dwFlags
+    );
+
+    /* added in v7 */
+    HRESULT StartModeTest(
+        [in] LPSIZE pModes,
+        [in] DWORD dwNumModes,
+        [in] DWORD dwFlags
+    );
+
+    HRESULT EvalutateMode(
+        [in] DWORD dwFlags,
+        [out] LPDWORD pTimeout
+    );
+};
+
+[
+    local,
+    object,
+    uuid(4B9F0EE0-0D7E-11D0-9B06-00A0C903A3B8)
+]
+interface IDirectDrawColorControl : IUnknown
+{
+    HRESULT GetColorControls(
+        [out] LPDDCOLORCONTROL lpColorControl
+    );
+
+    HRESULT SetColorControls(
+        [in] LPDDCOLORCONTROL lpColorControl
+    );
+};
+
+[
+    local,
+    object,
+    uuid(69C11C3E-B46B-11D1-AD7A-00C04FC29B4E)
+]
+interface IDirectDrawGammaControl : IUnknown
+{
+    HRESULT GetGammaRamp(
+        [in] DWORD dwFlags,
+        [out] LPDDGAMMARAMP lpGammaRamp
+    );
+
+    HRESULT SetGammaRamp(
+        [in] DWORD dwFlags,
+        [in] LPDDGAMMARAMP lpGammaRamp
+    );
+};
+
+[
+    local,
+    object,
+    uuid(6C14DB81-A733-11CE-A521-0020AF0BE560)
+]
+interface IDirectDrawSurface : IUnknown
+{
+    HRESULT AddAttachedSurface(
+        [in] LPDIRECTDRAWSURFACE lpDDSAttachedSurface
+    );
+
+    HRESULT AddOverlayDirtyRect(
+        [in] LPRECT lpRect
+    );
+
+    HRESULT Blt(
+        [in] LPRECT lpDestRect,
+        [in] LPDIRECTDRAWSURFACE lpDDSrcSurface,
+        [in] LPRECT lpSrcRect,
+        [in] DWORD dwFlags,
+        [in] LPDDBLTFX lpDDBltFx
+    );
+
+    HRESULT BltBatch(
+        [in] LPDDBLTBATCH lpDDBltBatch,
+        [in] DWORD dwCount,
+        [in] DWORD dwFlags
+    );
+
+    HRESULT BltFast(
+        [in] DWORD dwX,
+        [in] DWORD dwY,
+        [in] LPDIRECTDRAWSURFACE lpDDSrcSurface,
+        [in] LPRECT lpSrcRect,
+        [in] DWORD dwTrans
+    );
+
+    HRESULT DeleteAttachedSurface(
+        [in] DWORD dwFlags,
+        [in] LPDIRECTDRAWSURFACE lpDDSAttachedSurface
+    );
+
+    HRESULT EnumAttachedSurfaces(
+        [in] LPVOID lpContext,
+        [in] LPDDENUMSURFACESCALLBACK lpEnumSurfacesCallback
+    );
+
+    HRESULT EnumOverlayZOrders(
+        [in] DWORD dwFlags,
+        [in] LPVOID lpContext,
+        [in] LPDDENUMSURFACESCALLBACK lpfnCallback
+    );
+
+    HRESULT Flip(
+        [in] LPDIRECTDRAWSURFACE lpDDSurfaceTargetOverride,
+        [in] DWORD dwFlags
+    );
+
+    HRESULT GetAttachedSurface(
+        [in] LPDDSCAPS lpDDSCaps,
+        [out] LPDIRECTDRAWSURFACE* lplpDDAttachedSurface
+    );
+
+    HRESULT GetBltStatus(
+        [in] DWORD dwFlags
+    );
+
+    HRESULT GetCaps(
+        [in, out] LPDDSCAPS lpDDSCaps
+    );
+
+    HRESULT GetClipper(
+        [out] LPDIRECTDRAWCLIPPER* lplpDDClipper
+    );
+
+    HRESULT GetColorKey(
+        [in] DWORD dwFlags,
+        [out] LPDDCOLORKEY lpDDColorKey
+    );
+
+    HRESULT GetDC(
+        [out] HDC* lphDC
+    );
+
+    HRESULT GetFlipStatus(
+        [in] DWORD dwFlags
+    );
+
+    HRESULT GetOverlayPosition(
+        [out] LONG* lplX,
+        [out] LONG* lplY
+    );
+
+    HRESULT GetPalette(
+        [out] LPDIRECTDRAWPALETTE* lplpDDPalette
+    );
+
+    HRESULT GetPixelFormat(
+        [out] LPDDPIXELFORMAT lpDDPixelFormat
+    );
+
+    HRESULT GetSurfaceDesc(
+        [in, out] LPDDSURFACEDESC lpDDSurfaceDesc
+    );
+
+    HRESULT Initialize(
+        [in] LPDIRECTDRAW lpDD,
+        [in] LPDDSURFACEDESC lpDDSurfaceDesc
+    );
+
+    HRESULT IsLost();
+
+    HRESULT Lock(
+        [in] LPRECT lpDestRect,
+        [in, out] LPDDSURFACEDESC lpDDSurfaceDesc,
+        [in] DWORD dwFlags,
+        [in] HANDLE hEvent
+    );
+
+    HRESULT ReleaseDC(
+        [in] HDC hDC
+    );
+
+    HRESULT Restore();
+
+    HRESULT SetClipper(
+        [in] LPDIRECTDRAWCLIPPER lpDDClipper
+    );
+
+    HRESULT SetColorKey(
+        [in] DWORD dwFlags,
+        [in] LPDDCOLORKEY lpDDColorKey
+    );
+
+    HRESULT SetOverlayPosition(
+        [in] LONG lX,
+        [in] LONG lY
+    );
+
+    HRESULT SetPalette(
+        [in] LPDIRECTDRAWPALETTE lpDDPalette
+    );
+
+    HRESULT Unlock(
+        [in] LPVOID lpSurfaceData
+    );
+
+    HRESULT UpdateOverlay(
+        [in] LPRECT lpSrcRect,
+        [in] LPDIRECTDRAWSURFACE lpDDDestSurface,
+        [in] LPRECT lpDestRect,
+        [in] DWORD dwFlags,
+        [in] LPDDOVERLAYFX lpDDOverlayFx
+    );
+
+    HRESULT UpdateOverlayDisplay(
+        [in] DWORD dwFlags
+    );
+
+    HRESULT UpdateOverlayZOrder(
+        [in] DWORD dwFlags,
+        [in] LPDIRECTDRAWSURFACE lpDDSReference
+    );
+};
+
+[
+    local,
+    object,
+    uuid(57805885-6eec-11cf-9441-a82303c10e27)
+]
+interface IDirectDrawSurface2 : IDirectDrawSurface
+{
+    HRESULT GetDDInterface(
+        [out] LPVOID* lplpDD
+    );
+
+    HRESULT PageLock(
+        [in] DWORD dwFlags
+    );
+
+    HRESULT PageUnlock(
+        [in] DWORD dwFlags
+    );
+};
+
+[
+    local,
+    object,
+    uuid(DA044E00-69B2-11D0-A1D5-00AA00B8DFBB)
+]
+interface IDirectDrawSurface3 : IDirectDrawSurface2
+{
+    HRESULT SetSurfaceDesc(
+        [in] LPDDSURFACEDESC lpDDSD,
+        [in] DWORD dwFlags
+    );
+};
+
+[
+    local,
+    object,
+    uuid(0B2B8630-AD35-11D0-8EA6-00609797EA5B)
+]
+interface IDirectDrawSurface4 : IDirectDrawSurface3
+{
+    HRESULT SetPrivateData(
+        [in] REFGUID tag,
+        [in] LPVOID pData,
+        [in] DWORD cbSize,
+        [in] DWORD dwFlags
+    );
+
+    HRESULT GetPrivateData(
+        [in] REFGUID tag,
+        [out] LPVOID pBuffer,
+        [in, out] LPDWORD pcbBufferSize
+    );
+
+    HRESULT FreePrivateData(
+        [in] REFGUID tag
+    );
+
+    HRESULT GetUniquenessValue(
+        [out] LPDWORD pValue
+    );
+
+    HRESULT ChangeUniquenessValue();
+};
+
+[
+    local,
+    object,
+    uuid(06675a80-3b9b-11d2-b92f-00609797ea5b)
+]
+interface IDirectDrawSurface7 : IUnknown
+{
+    HRESULT AddAttachedSurface(
+        [in] LPDIRECTDRAWSURFACE7 lpDDSAttachedSurface
+    );
+
+    HRESULT AddOverlayDirtyRect(
+        [in] LPRECT lpRect
+    );
+
+    HRESULT Blt(
+        [in] LPRECT lpDestRect,
+        [in] LPDIRECTDRAWSURFACE7 lpDDSrcSurface,
+        [in] LPRECT lpSrcRect,
+        [in] DWORD dwFlags,
+        [in] LPDDBLTFX lpDDBltFx
+    );
+
+    HRESULT BltBatch(
+        [in] LPDDBLTBATCH lpDDBltBatch,
+        [in] DWORD dwCount,
+        [in] DWORD dwFlags
+    );
+
+    HRESULT BltFast(
+        [in] DWORD dwX,
+        [in] DWORD dwY,
+        [in] LPDIRECTDRAWSURFACE7 lpDDSrcSurface,
+        [in] LPRECT lpSrcRect,
+        [in] DWORD dwTrans
+    );
+
+    HRESULT DeleteAttachedSurface(
+        [in] DWORD dwFlags,
+        [in] LPDIRECTDRAWSURFACE7 lpDDSAttachedSurface
+    );
+
+    HRESULT EnumAttachedSurfaces(
+        [in] LPVOID lpContext,
+        [in] LPDDENUMSURFACESCALLBACK7 lpEnumSurfacesCallback
+    );
+
+    HRESULT EnumOverlayZOrders(
+        [in] DWORD dwFlags,
+        [in] LPVOID lpContext,
+        [in] LPDDENUMSURFACESCALLBACK7 lpfnCallback
+    );
+
+    HRESULT Flip(
+        [in] LPDIRECTDRAWSURFACE7 lpDDSurfaceTargetOverride,
+        [in] DWORD dwFlags
+    );
+
+    HRESULT GetAttachedSurface(
+        [in] LPDDSCAPS2 lpDDSCaps,
+        [out] LPDIRECTDRAWSURFACE7* lplpDDAttachedSurface
+    );
+
+    HRESULT GetBltStatus(
+        [in] DWORD dwFlags
+    );
+
+    HRESULT GetCaps(
+        [in, out] LPDDSCAPS2 lpDDSCaps
+    );
+
+    HRESULT GetClipper(
+        [out] LPDIRECTDRAWCLIPPER* lplpDDClipper
+    );
+
+    HRESULT GetColorKey(
+        [in] DWORD dwFlags,
+        [out] LPDDCOLORKEY lpDDColorKey
+    );
+
+    HRESULT GetDC(
+        [out] HDC* lphDC
+    );
+
+    HRESULT GetFlipStatus(
+        [in] DWORD dwFlags
+    );
+
+    HRESULT GetOverlayPosition(
+        [out] LONG* lplX,
+        [out] LONG* lplY
+    );
+
+    HRESULT GetPalette(
+        [out] LPDIRECTDRAWPALETTE* lplpDDPalette
+    );
+
+    HRESULT GetPixelFormat(
+        [out] LPDDPIXELFORMAT lpDDPixelFormat
+    );
+
+    HRESULT GetSurfaceDesc(
+        [in, out] LPDDSURFACEDESC2 lpDDSurfaceDesc
+    );
+
+    HRESULT Initialize(
+        [in] LPDIRECTDRAW lpDD,
+        [in] LPDDSURFACEDESC2 lpDDSurfaceDesc
+    );
+
+    HRESULT IsLost();
+
+    HRESULT Lock(
+        [in] LPRECT lpDestRect,
+        [in, out] LPDDSURFACEDESC2 lpDDSurfaceDesc,
+        [in] DWORD dwFlags,
+        [in] HANDLE hEvent
+    );
+
+    HRESULT ReleaseDC(
+        [in] HDC hDC
+    );
+
+    HRESULT Restore();
+
+    HRESULT SetClipper(
+        [in] LPDIRECTDRAWCLIPPER lpDDClipper
+    );
+
+    HRESULT SetColorKey(
+        [in] DWORD dwFlags,
+        [in] LPDDCOLORKEY lpDDColorKey
+    );
+
+    HRESULT SetOverlayPosition(
+        [in] LONG lX,
+        [in] LONG lY
+    );
+
+    HRESULT SetPalette(
+        [in] LPDIRECTDRAWPALETTE lpDDPalette
+    );
+
+    HRESULT Unlock(
+        [in] LPVOID lpSurfaceData
+    );
+
+    HRESULT UpdateOverlay(
+        [in] LPRECT lpSrcRect,
+        [in] LPDIRECTDRAWSURFACE7 lpDDDestSurface,
+        [in] LPRECT lpDestRect,
+        [in] DWORD dwFlags,
+        [in] LPDDOVERLAYFX lpDDOverlayFx
+    );
+
+    HRESULT UpdateOverlayDisplay(
+        [in] DWORD dwFlags
+    );
+
+    HRESULT UpdateOverlayZOrder(
+        [in] DWORD dwFlags,
+        [in] LPDIRECTDRAWSURFACE7 lpDDSReference
+    );
+
+    HRESULT GetDDInterface(
+        [out] LPVOID* lplpDD
+    );
+
+    HRESULT PageLock(
+        [in] DWORD dwFlags
+    );
+
+    HRESULT PageUnlock(
+        [in] DWORD dwFlags
+    );
+
+    HRESULT SetSurfaceDesc(
+        [in] LPDDSURFACEDESC2 lpDDSD,
+        [in] DWORD dwFlags
+    );
+
+    HRESULT SetPrivateData(
+        [in] REFGUID tag,
+        [in] LPVOID pData,
+        [in] DWORD cbSize,
+        [in] DWORD dwFlags
+    );
+
+    HRESULT GetPrivateData(
+        [in] REFGUID tag,
+        [out] LPVOID pBuffer,
+        [in, out] LPDWORD pcbBufferSize
+    );
+
+    HRESULT FreePrivateData(
+        [in] REFGUID tag
+    );
+
+    HRESULT GetUniquenessValue(
+        [out] LPDWORD pValue
+    );
+
+    HRESULT ChangeUniquenessValue();
+
+    /* added in v7 */
+
+    HRESULT SetPriority(
+        [in] DWORD prio
+    );
+
+    HRESULT GetPriority(
+        [out] LPDWORD prio
+    );
+
+    HRESULT SetLOD(
+        [in] DWORD lod
+    );
+
+    HRESULT GetLOD(
+        [out] LPDWORD lod
+    );
+};
+
+[uuid(593817A0-7DB3-11CF-A2DE-00AA00b93356)]
+coclass DirectDrawClipper
+{
+    interface IDirectDrawClipper;
+};
+
+[uuid(D7B70EE0-4340-11CF-B063-0020AFC2CD35)]
+coclass DirectDraw
+{
+    interface IDirectDraw;
+};
+
+[uuid(3C305196-50DB-11D3-9CFE-00C04FD930C5)]
+coclass DirectDraw7
+{
+    interface IDirectDraw7;
+};
+
+cpp_quote("HRESULT WINAPI DirectDrawCreate(GUID*, LPDIRECTDRAW*, IUnknown*);")
+cpp_quote("HRESULT WINAPI DirectDrawCreateEx(GUID*, LPVOID*, REFIID, IUnknown*);")
+cpp_quote("HRESULT WINAPI DirectDrawCreateClipper(DWORD, LPDIRECTDRAWCLIPPER*, IUnknown*);")

@@ -1,4 +1,6 @@
 Files from mingw-w64: (sync at version 11.0)
+sdk/include/dxsdk/ddrawi.h
+sdk/include/dxsdk/ddrawgdi.h
 sdk/include/dxsdk/d3d10.idl
 sdk/include/dxsdk/d3d10_1.idl
 sdk/include/dxsdk/d3d10effect.idl

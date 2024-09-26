@@ -394,7 +394,9 @@ interface ID3D10Blob : IUnknown
 
 cpp_quote("typedef interface ID3D10Blob* LPD3D10BLOB;")
 
-typedef ID3D10Blob ID3DBlob;
+//typedef ID3D10Blob ID3DBlob;
+cpp_quote("typedef ID3DBlob ID3D10Blob;")
+
 cpp_quote("typedef ID3DBlob* LPD3DBLOB;")
 cpp_quote("#define IID_ID3DBlob IID_ID3D10Blob")
 

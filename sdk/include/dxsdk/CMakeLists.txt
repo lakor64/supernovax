@@ -11,6 +11,8 @@ set(NORMAL_SRC
     dxgixaml.idl
     lockowner.idl
     usecounted.idl
+    #d3d11shader.idl
+    ddraw.idl
 
     # mingw-w64
     dxgi.idl
@@ -32,7 +34,7 @@ set(NORMAL_SRC
 	#d3d11on12.idl
 
     # DX headers
-    #d3dcommon.idl
+    d3dcommon.idl
     #d3d12.idl
     #d3d12compatibility.idl
     #d3d12sdklayers.idl
@@ -44,6 +46,7 @@ set(IDLONLY_SRC
     dxgitype.idl
     dxgiformat.idl
     dxgicommon.idl
+    d3d10misc.idl
 )
 
 add_idl_headers(dxsdk ${NORMAL_SRC} ${IDLONLY_SRC})
