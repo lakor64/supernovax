@@ -1,1 +1,5 @@
+add_subdirectory(do_query_interface)
+add_subdirectory(dxgi_sa_test)
+add_subdirectory(gdi_test)
+add_subdirectory(my_test_unrefdll)
 add_subdirectory(my_tests)
