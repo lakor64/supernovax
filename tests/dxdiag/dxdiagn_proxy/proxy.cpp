@@ -4,17 +4,23 @@
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS 1	// explicit CString
 #define ATL_NO_ASSERT_ON_DESTROY_NONEXISTENT_WINDOW 1
 #define USE_STATIC_ATL 1
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING 1 // kys
 
 #include <atlbase.h>
 #include <atlcom.h>
 #include <atlctl.h>
 #include <dxdiag.h>
-#include <dxdiag_private.h>
+#include <dxdiagternl.h>
 #include <string>
+#include <locale>
+#include <codecvt>
 #include <sstream>
 #include <proxy_i.h>
 
 typedef HRESULT(WINAPI* DllGetClassObjectCb)(_In_ IID* rclsid, _In_ IID* riid, _Out_ LPVOID* ppv);
+
+static void MYLOG_A(HWND hwnd, LPCSTR text, LPCSTR title, DWORD style);
+static void MYLOG_W(HWND hwnd, LPCWSTR text, LPCWSTR title, DWORD style);
 
 class CDxDiagProviderModule :
 	public ATL::CAtlDllModuleT<CDxDiagProviderModule>
@@ -25,6 +31,8 @@ public:
 	explicit CDxDiagProviderModule() : m_hDll(nullptr), m_pProc(nullptr) {}
 	~CDxDiagProviderModule() = default;
 
+    static FILE* ayo_log;
+
 	BOOL WINAPI DllMain(_In_ DWORD dwReason, _In_opt_ LPVOID lpReserved)
 	{
         if (!ATL::CAtlDllModuleT<CDxDiagProviderModule>::DllMain(dwReason, lpReserved))
@@ -33,6 +41,14 @@ public:
 		switch (dwReason)
 		{
 		case DLL_PROCESS_DETACH:
+            MYLOG_A(nullptr, "proxy dxdiag offline", "dxdiagn proxy", MB_OK);
+
+            if (ayo_log)
+            {
+                fflush(ayo_log);
+                fclose(ayo_log);
+            }
+
 			if (m_hDll)
 				FreeLibrary(m_hDll);
 
@@ -41,6 +57,15 @@ public:
 			break;
 
 		case DLL_PROCESS_ATTACH:
+
+            fopen_s(&ayo_log, "ayoo_log.txt", "wb");
+            if (!ayo_log)
+            {
+                MessageBoxW(nullptr, L"CANNOT MAKE LOG !!!!", L"FATAL ERROR", MB_OK | MB_ICONERROR);
+                return FALSE;
+            }
+
+            fwrite("\xff\xfe", 2, 1, ayo_log);
 
 			m_hDll = LoadLibraryW(L"dxdiagn2.dll");
             if (!m_hDll)
@@ -58,7 +83,7 @@ public:
 				return FALSE;
 			}
 
-            MessageBoxA(nullptr, "proxy dxdiag online", "dxdiagn proxy", MB_OK);
+            MYLOG_A(nullptr, "proxy dxdiag online", "dxdiagn proxy", MB_OK);
 			break;
 		}
 
@@ -70,14 +95,14 @@ public:
 		if (!m_pProc)
 			return E_NOINTERFACE;
 
-        //MessageBoxA(nullptr, "Test create dxprovider", "dxdiagn proxy", MB_OK);
+        //MYLOG_A(nullptr, "Test create dxprovider", "dxdiagn proxy", MB_OK);
         IClassFactory* caf = nullptr;
 		auto x = m_pProc((IID*) & CLSID_DxDiagProvider, (IID*)&IID_IClassFactory, (LPVOID*)&caf);
         if (FAILED(x))
             return x;
         x = caf->CreateInstance(nullptr, IID_IDxDiagProvider, (void**)ptr);
         caf->Release();
-        //MessageBoxA(nullptr, "Test create dxprovider ok", "dxdiagn proxy", MB_OK);
+        //MYLOG_A(nullptr, "Test create dxprovider ok", "dxdiagn proxy", MB_OK);
         return x;
     }
 
@@ -85,6 +110,8 @@ private:
 	HMODULE m_hDll;
 	DllGetClassObjectCb m_pProc;
 };
+
+FILE* CDxDiagProviderModule::ayo_log = nullptr;
 
 static CDxDiagProviderModule _AtlModule;
 
@@ -219,6 +246,18 @@ static void add_variant_val(const VARIANT& val, std::wstring& q, LPCWSTR key)
     case VT_I8:
     case VT_UI8:
         q += std::to_wstring(val.ullVal);
+        break;
+    case VT_LPSTR:
+    {
+        std::string inp = (LPCSTR)val.byref;
+        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+        q += converter.from_bytes(inp);
+        break;
+    }
+    case VT_LPWSTR:
+    case VT_BSTR:
+        q += (LPWSTR)val.byref;
+        break;
     case VT_BYREF:
         if (wcscmp(key, L"TestDD") == 0 ||
             wcscmp(key, L"TestD3D") == 0 ||
@@ -266,6 +305,175 @@ static void add_variant_val(const VARIANT& val, std::wstring& q, LPCWSTR key)
     }
 }
 
+class ATL_NO_VTABLE CDxDiagContainer :
+    public IDxDiagContainer,
+    public ATL::CComObjectRootEx<ATL::CComSingleThreadModel>
+{
+public:
+    BEGIN_COM_MAP(CDxDiagContainer)
+        COM_INTERFACE_ENTRY_IID(IID_IDxDiagContainer, IDxDiagContainer)
+    END_COM_MAP()
+
+    DECLARE_NO_REGISTRY()
+    DECLARE_NOT_AGGREGATABLE(CDxDiagContainer)
+
+    CDxDiagContainer() : m_pcnt(nullptr) {}
+
+    ~CDxDiagContainer() {
+        if (m_pcnt)
+            m_pcnt->Release();
+    }
+
+    void SetContainer(IDxDiagContainer* cnt) { m_pcnt = cnt;  }
+
+    void SetWhoIs(LPCWSTR who) { wcscpy_s(m_who, _countof(m_who), who); }
+
+    STDMETHODIMP GetNumberOfChildContainers(DWORD* pdwCount) override
+    {
+        auto hr = m_pcnt->GetNumberOfChildContainers(pdwCount);
+
+        std::wstring p = L"HR: ";
+        p += std::to_wstring(hr);
+
+        if (pdwCount)
+        {
+            p += L" count: ";
+            p += std::to_wstring(*pdwCount);
+        }
+
+        MYLOG_W(nullptr, p.c_str(), L"GetNumberOfChildContainers", MB_OK);
+        return hr;
+    }
+
+    STDMETHODIMP EnumChildContainerNames(
+        /* [in] */ DWORD dwIndex,
+        /* [out] */ LPWSTR pwszContainer,
+        /* [in] */ DWORD cchContainer) override
+    {
+        std::wstring aa = L"index: ";
+        aa += std::to_wstring(dwIndex);
+
+        auto hr = m_pcnt->EnumChildContainerNames(dwIndex, pwszContainer, cchContainer);
+
+        if (pwszContainer && cchContainer > 0)
+        {
+            aa += L" buffer: ";
+            aa += pwszContainer;
+        }
+
+        aa += L" hr:";
+        aa += std::to_wstring(hr);
+
+        MYLOG_W(nullptr, aa.c_str(), L"EnumchildContainerNames", MB_OK);
+        return hr;
+    }
+
+    STDMETHODIMP GetChildContainer(
+        /* [in] */ LPCWSTR pwszConainer,
+        /* [out] */ IDxDiagContainer** ppInstance) override
+    {
+        *ppInstance = nullptr;
+
+        IDxDiagContainer* origcont = nullptr;
+        auto hr = m_pcnt->GetChildContainer(pwszConainer, &origcont);
+        if (FAILED(hr))
+        {
+            std::wstring ops = L"Fail ";
+            ops += pwszConainer;
+            ops += L" HR: ";
+            ops += std::to_wstring(hr);
+            MYLOG_W(nullptr, ops.c_str(), L"GetChildContainer", MB_OK);
+            return hr;
+        }
+
+        ATL::CComObject<CDxDiagContainer>* conta;
+        hr = ATL::CComObject<CDxDiagContainer>::CreateInstance(&conta);
+        if (FAILED(hr))
+        {
+            MYLOG_W(nullptr, L"Create CDxDiagContainer fail, wtf", L"GetChildContainer", MB_OK);
+            origcont->Release();
+            return hr;
+        }
+
+        conta->SetContainer(origcont);
+        conta->SetWhoIs(pwszConainer);
+        conta->AddRef();
+
+        *ppInstance = conta;
+        return S_OK;
+    }
+
+    STDMETHODIMP GetNumberOfProps(
+        /* [out] */ DWORD* pdwCount)
+    {
+        auto hr = m_pcnt->GetNumberOfProps(pdwCount);
+
+        std::wstring p = L"HR: ";
+        p += std::to_wstring(hr);
+
+        if (pdwCount)
+        {
+            p += L" count: ";
+            p += std::to_wstring(*pdwCount);
+        }
+        MYLOG_W(nullptr, p.c_str(), L"GetNumberOfProps", MB_OK);
+
+        return hr;
+    }
+
+    STDMETHODIMP EnumPropNames(
+        /* [in] */ DWORD dwIndex,
+        /* [out] */ LPWSTR pwszPropName,
+        /* [in] */ DWORD cchPropName)
+    {
+        auto hr = m_pcnt->EnumPropNames(dwIndex, pwszPropName, cchPropName);
+        std::wstring aa = L"index: ";
+        aa += std::to_wstring(dwIndex);
+
+        if (pwszPropName && cchPropName > 0)
+        {
+            aa += L" data: ";
+            aa += pwszPropName;
+        }
+
+        aa += L" hr:";
+        aa += std::to_wstring(hr);
+
+        MYLOG_W(nullptr, aa.c_str(), L"EnumPropNames", MB_OK);
+        return hr;
+    }
+
+    STDMETHODIMP GetProp(
+        /* [in] */ LPCWSTR pwszPropName,
+        /* [out] */ VARIANT* pvarProp) override
+    {
+        std::wstring prop = L"prop: ";
+        prop += pwszPropName;
+        prop += L" from: ";
+        prop += m_who;
+
+        auto hr = m_pcnt->GetProp(pwszPropName, pvarProp);
+        prop += L" hr: ";
+        prop += std::to_wstring(hr);
+
+        if (pvarProp)
+        {
+            prop += L" val: ";
+            add_variant_val(*pvarProp, prop, pwszPropName);
+            prop += L"(";
+            prop += val_type(*pvarProp);
+            prop += L")";
+        }
+
+        MYLOG_W(nullptr, prop.c_str(), L"GetProp", MB_OK);
+        return hr;
+    }
+
+private:
+    IDxDiagContainer* m_pcnt;
+    WCHAR m_who[256];
+};
+
 class ATL_NO_VTABLE CDxDiagProvider : 
     public IDxDiagProvider,
 	public IDxDiagProviderPrivate,
@@ -282,9 +490,7 @@ public:
 
 	CDxDiagProvider() : m_pms(nullptr), m_ppms(nullptr)
     {
-#ifdef BIG_DEBUG
-        MessageBoxA(nullptr, "create provider", "dxdiagn proxy", MB_OK);
-#endif
+        MYLOG_A(nullptr, "create provider", "dxdiagn proxy", MB_OK);
     }
 
 	~CDxDiagProvider()
@@ -297,9 +503,7 @@ public:
 
 	STDMETHODIMP Initialize(DXDIAG_INIT_PARAMS* pParams) override
 	{
-#ifdef BIG_DEBUG
-        MessageBoxA(nullptr, "Create base DxDiag Provider", "dxdiagn proxy", MB_OK);
-#endif
+        MYLOG_A(nullptr, "Create base DxDiag Provider", "dxdiagn proxy", MB_OK);
 
         auto hr = _AtlModule.CreateDxDiagProvider(&m_pms);
         if (FAILED(hr))
@@ -308,13 +512,11 @@ public:
             sss << "CreateDxDiagProvider fail: ";
             sss << std::hex << hr;
 
-            MessageBoxA(nullptr, sss.str().c_str(), "dxdiagn proxy", MB_OK);
+            MYLOG_A(nullptr, sss.str().c_str(), "dxdiagn proxy", MB_OK);
             return hr;
         }
 
-#ifdef BIG_DEBUG
-        MessageBoxA(nullptr, "Initialize base DxDiag Provider", "dxdiagn proxy", MB_OK);
-#endif
+        MYLOG_A(nullptr, "Initialize base DxDiag Provider", "dxdiagn proxy", MB_OK);
 
 		hr = m_pms->Initialize(pParams);
         if (FAILED(hr))
@@ -323,7 +525,7 @@ public:
             sss << "Initialize fail: ";
             sss << std::hex << hr;
 
-            MessageBoxA(nullptr, sss.str().c_str(), "dxdiagn proxy", MB_OK);
+            MYLOG_A(nullptr, sss.str().c_str(), "dxdiagn proxy", MB_OK);
             return hr;
         }
 
@@ -334,7 +536,7 @@ public:
             sss << "QueryInterface private fail: ";
             sss << std::hex << hr;
 
-            MessageBoxA(nullptr, sss.str().c_str(), "dxdiagn proxy", MB_OK);
+            MYLOG_A(nullptr, sss.str().c_str(), "dxdiagn proxy", MB_OK);
             return hr;
         }
 
@@ -343,8 +545,36 @@ public:
 
 	STDMETHODIMP GetRootContainer(IDxDiagContainer** ppInstance) override
 	{
-		// TODO: Proxy this!
-		return m_pms->GetRootContainer(ppInstance);
+        *ppInstance = nullptr;
+
+        IDxDiagContainer* cnt2 = nullptr;
+		auto hr = m_pms->GetRootContainer(&cnt2);
+
+        if (FAILED(hr))
+        {
+            std::string aa = "HR: ";
+            aa += std::to_string(hr);
+            MYLOG_A(nullptr, aa.c_str(), "GetRootContainer", MB_OK);
+            return hr;
+        }
+
+        ATL::CComObject<CDxDiagContainer>* cnt;
+        hr = ATL::CComObject<CDxDiagContainer>::CreateInstance(&cnt);
+        if (FAILED(hr))
+        {
+            MYLOG_A(nullptr, "Cannot create atl obj", "GetRootContainer", MB_OK);
+            cnt2->Release();
+            return hr;
+        }
+
+        cnt->SetContainer(cnt2);
+        cnt->SetWhoIs(L"___ROOT___");
+        cnt->AddRef();
+
+        MYLOG_A(nullptr, "Called by ?", "GetRootContainer", MB_OK);
+
+        *ppInstance = cnt;
+        return S_OK;
 	}
 
     STDMETHODIMP_(int) ExecMethod(
@@ -370,7 +600,7 @@ public:
         qo += L" return->";
         qo += std::to_wstring(r);
 
-        MessageBoxW(nullptr, qo.c_str(), L"dxdiagn proxy", MB_OK);
+        MYLOG_W(nullptr, qo.c_str(), L"dxdiagn proxy", MB_OK);
         return r;
 	}
 
@@ -393,7 +623,7 @@ static void print_no_interface(REFIID rclsid, REFIID riid)
     CoTaskMemFree(riidlp);
     CoTaskMemFree(clsidlp);
 
-    MessageBoxW(nullptr, p.c_str(), L"dxdiagn proxy", MB_OK);
+    MYLOG_W(nullptr, p.c_str(), L"dxdiagn proxy", MB_OK);
 }
 
 class ATL_NO_VTABLE CDxDiagProviderFactory :
@@ -410,7 +640,7 @@ public:
             auto hr = ATL::CComObject<CDxDiagProvider>::CreateInstance(&prov);
             if (FAILED(hr))
             {
-                MessageBoxA(nullptr, "Provider CreateInstance fail", "dxdiagn proxy", MB_OK);
+                MYLOG_A(nullptr, "Provider CreateInstance fail", "dxdiagn proxy", MB_OK);
                 return hr;
             }
 
@@ -470,4 +700,27 @@ extern "C"
 	{
 		return _AtlModule.DllUnregisterServer();
 	}
+}
+
+void MYLOG_A(HWND hwnd, LPCSTR text, LPCSTR title, DWORD style)
+{
+    std::string inp = title;
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    auto q = converter.from_bytes(inp);
+    q += L"::";
+
+    inp = text;
+    q += converter.from_bytes(inp);
+    q += L"\n";
+
+    fwrite(q.data(), q.size() * 2, 1, CDxDiagProviderModule::ayo_log);
+}
+
+void MYLOG_W(HWND hwnd, LPCWSTR text, LPCWSTR title, DWORD style)
+{
+    std::wstring q = title;
+    q += L"::";
+    q += text;
+    q += L"\n";
+    fwrite(q.data(), q.size() * 2, 1, CDxDiagProviderModule::ayo_log);
 }

@@ -9,7 +9,7 @@ import "oaidl.idl";
 import "dxdiagternl.idl";
 
 cpp_quote("#define DXDIAG_DX9_SDK_VERSION 111")
-cpp_quote("#define #define DXDIAG_E_INSUFFICIENT_BUFFER       ((HRESULT)0x8007007AL)")
+cpp_quote("#define DXDIAG_E_INSUFFICIENT_BUFFER       ((HRESULT)0x8007007AL)")
 
 typedef struct _DXDIAG_INIT_PARAMS {
   DWORD  dwSize;
@@ -63,6 +63,8 @@ interface IDxDiagProvider : IUnknown
 	HRESULT GetRootContainer(
 		[out] IDxDiagContainer **ppInstance);
 };
+
+cpp_quote("DEFINE_GUID(CLSID_DxDiagProvider, 0xa65b8071, 0x3bfe, 0x4213, 0x9a, 0x5b, 0x49, 0x1d, 0xa4, 0x46, 0x1c, 0xa7);")
 
 [
 	uuid(a65b8071-3bfe-4213-9a5b-491da4461ca7),

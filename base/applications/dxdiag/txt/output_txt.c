@@ -85,7 +85,7 @@ static BOOL output_crlf(HANDLE hFile)
     return WriteFile(hFile, crlf, sizeof(crlf), &bytes_written, NULL);
 }
 
-static inline void fill_system_text_output_table(struct dxdiag_information* dxdiag_info, struct text_information_field* fields)
+static inline void fill_system_text_output_table(PDXDIAG_INFO dxdiag_info, struct text_information_field* fields)
 {
     fields[0].field_name = "Time of this report";
     fields[0].value = dxdiag_info->system_info.szTimeEnglish;
@@ -117,7 +117,7 @@ static inline void fill_system_text_output_table(struct dxdiag_information* dxdi
     fields[13].value = dxdiag_info->system_info.szDxDiagVersion;
 }
 
-BOOL output_text_information(struct dxdiag_information* dxdiag_info, const WCHAR* filename)
+BOOL output_text_information(PDXDIAG_CONTEXT dxdiag_info, LPCWSTR filename)
 {
     struct information_block
     {
@@ -132,7 +132,7 @@ BOOL output_text_information(struct dxdiag_information* dxdiag_info, const WCHAR
     HANDLE hFile;
     size_t i;
 
-    fill_system_text_output_table(dxdiag_info, output_table[0].fields);
+    fill_system_text_output_table(&dxdiag_info->data, output_table[0].fields);
 
     hFile = CreateFileW(filename, GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
         NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);

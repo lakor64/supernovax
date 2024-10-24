@@ -1,8 +1,7 @@
 /*
- * PROJECT:     ReactX Diagnosis Application
- * LICENSE:     LGPL - See COPYING in the top level directory
- * FILE:        base/applications/dxdiag/network.c
- * PURPOSE:     ReactX diagnosis network page
+ * PROJECT:     SupernovaX Diagnostic Tool
+ * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
+ * PURPOSE:     Diagnosis network page
  * COPYRIGHT:   Copyright 2008 Johannes Anderwald
  *
  */

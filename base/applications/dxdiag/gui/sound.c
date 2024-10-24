@@ -1,8 +1,7 @@
 /*
- * PROJECT:     ReactX Diagnosis Application
- * LICENSE:     LGPL - See COPYING in the top level directory
- * FILE:        base/applications/dxdiag/sound.c
- * PURPOSE:     ReactX diagnosis sound page
+ * PROJECT:     SupernovaX Diagnostic Tool
+ * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
+ * PURPOSE:     Diagnosis sound page
  * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
  *              Copyright 2008 Johannes Anderwald
  *
@@ -190,13 +189,13 @@ SetDeviceDetails(HWND hwndDlg, LPCGUID classGUID, LPCWSTR lpcstrDescription)
 #endif
 
 
-BOOL CALLBACK InitializeDSPage(PDXDIAG_CONTEXT pContext, struct sound_input_device* pDevice)
+BOOL CALLBACK InitializeDSPage(PDXDIAG_CONTEXT pContext, PDXDIAG_SOUND_DEVICE_INFO pDevice)
 {
     HWND hwndDlg;
     WCHAR szSound[20];
     WCHAR szText[30];
 
-    hwndDlg = CreateDialogParamW(hInstance, MAKEINTRESOURCEW(IDD_SOUND_DIALOG), pContext->hMainDialog, SoundPageWndProc, (LPARAM)pContext); EnableDialogTheme(hwndDlg);
+    hwndDlg = CreateDialogParamW(hInstance, MAKEINTRESOURCEW(IDD_SOUND_DIALOG), pContext->gui.hMainDialog, SoundPageWndProc, (LPARAM)pContext); EnableDialogTheme(hwndDlg);
     if (!hwndDlg)
         return FALSE;
 
@@ -241,26 +240,28 @@ BOOL CALLBACK InitializeDSPage(PDXDIAG_CONTEXT pContext, struct sound_input_devi
     LoadStringW(hInstance, IDS_SOUND_DIALOG, szSound, sizeof(szSound) / sizeof(WCHAR));
     szSound[(sizeof(szSound) / sizeof(WCHAR)) - 1] = L'\0';
     /* output the device id */
-    wsprintfW(szText, L"%s %u", szSound, pContext->NumSoundAdapter + 1);
+    wsprintfW(szText, L"%s %u", szSound, pContext->data.sound_devices.ulOutputs + 1);
 
+#if 0
     /* insert it into general tab */
-    InsertTabCtrlItem(pContext->hTabCtrl, pContext->NumDisplayAdapter + pContext->NumSoundAdapter + 1, szText);
+    InsertTabCtrlItem(pContext->hTabCtrl, pContext->data.ulDisplays + pContext->data.sound_devices.ulOutputs + 1, szText);
     /* store dialog window */
     pContext->hSoundWnd[pContext->NumSoundAdapter] = hwndDlg;
     pContext->NumSoundAdapter++;
+#endif
     return TRUE;
 }
 
 void InitializeDirectSoundPage(PDXDIAG_CONTEXT pContext)
 {
-    pContext->hSoundWnd = HeapAlloc(GetProcessHeap(), 0, (DxDiagInfo->sound_devices.ulInputs + 1) * sizeof(HWND));
+    pContext->gui.hSoundWnd = HeapAlloc(GetProcessHeap(), 0, (pContext->data.sound_devices.ulInputs + 1) * sizeof(HWND));
 
-    if (!pContext->hSoundWnd)
+    if (!pContext->gui.hSoundWnd)
         return;
 
-    for (ULONG i = 0; i < DxDiagInfo->sound_devices.ulInputs; i++)
+    for (ULONG i = 0; i < pContext->data.sound_devices.ulInputs; i++)
     {
-        InitializeDSPage(pContext, &DxDiagInfo->sound_devices.inputs[i]);
+       // InitializeDSPage(pContext, &pContext->data.sound_devices.inputs[i]);
     }
 }
 

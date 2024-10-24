@@ -1,3 +1,5 @@
+target_dx()
+
 spec2def(dxdiagn_proxy.dll dxdiagn.spec ADD_IMPORTLIB)
 
 add_definitions(-D_USRDLL -D_FORCENAMELESSUNION)

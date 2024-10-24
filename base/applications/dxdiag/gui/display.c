@@ -1,7 +1,7 @@
  /*
-  * PROJECT:     ReactX Diagnosis Application
+  * PROJECT:     SupernovaX Diagnostic Tool
   * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
-  * PURPOSE:     ReactX diagnosis display page
+  * PURPOSE:     Diagnosis display page
   * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
   *				 Copyright 2008 Johannes Anderwald
   */
@@ -204,7 +204,7 @@ DisplayPageSetDeviceDetails(HWND * hDlgCtrls, LPCGUID classGUID, LPGUID * device
 
 static
 BOOL
-InitializeDialog(HWND hwndDlg, struct display_device* pDispDevice)
+InitializeDialog(HWND hwndDlg, PDXDIAG_DISPLAY_DEVICE_INFO pDispDevice)
 {
     WCHAR szText[100];
 #if 0
@@ -219,7 +219,7 @@ InitializeDialog(HWND hwndDlg, struct display_device* pDispDevice)
     SendDlgItemMessageW(hwndDlg, IDC_STATIC_ADAPTER_LOGO, WM_SETTEXT, 0, (LPARAM)szText);
 
     SendDlgItemMessageW(hwndDlg, IDC_STATIC_ADAPTER_CHIP, WM_SETTEXT, 0, (LPARAM)pDispDevice->szChipType);
-    SendDlgItemMessageW(hwndDlg, IDC_STATIC_ADAPTER_DAC, WM_SETTEXT, 0, (LPARAM)pDispDevice->dacType);
+    SendDlgItemMessageW(hwndDlg, IDC_STATIC_ADAPTER_DAC, WM_SETTEXT, 0, (LPARAM)pDispDevice->szDACType);
     SendDlgItemMessageW(hwndDlg, IDS_FORMAT_ADAPTER_MEM, WM_SETTEXT, 0, (LPARAM)pDispDevice->szDisplayMemoryLocalized);
     SendDlgItemMessageW(hwndDlg, IDC_STATIC_ADAPTER_MODE, WM_SETTEXT, 0, (LPARAM)pDispDevice->szDisplayModeLocalized);
     SendDlgItemMessageW(hwndDlg, IDC_STATIC_ADAPTER_MONITOR, WM_SETTEXT, 0, (LPARAM)pDispDevice->szMonitorName);
@@ -237,6 +237,7 @@ InitializeDialog(HWND hwndDlg, struct display_device* pDispDevice)
     return TRUE;
 }
 
+#if 0
 void InitializeDisplayAdapter(PDXDIAG_CONTEXT pContext, struct display_device* disp)
 {
     HWND hwndDlg;
@@ -273,7 +274,7 @@ void InitializeDisplayAdapters(PDXDIAG_CONTEXT pContext)
         InitializeDisplayAdapter(pContext, &DxDiagInfo->display_devices[i]);
     }
 }
-
+#endif
 
 INT_PTR CALLBACK
 DisplayPageWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -295,7 +296,7 @@ DisplayPageWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             {
                 case IDC_BUTTON_TESTDD:
                 case IDC_BUTTON_TEST3D:
-                    GetWindowRect(pContext->hMainDialog, &rect);
+                    GetWindowRect(pContext->gui.hMainDialog, &rect);
 
 #if 0 // TODO: Use IDxDiagProviderPrivate for this!!
                     /* FIXME log result errors */
@@ -305,7 +306,7 @@ DisplayPageWndProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
                         D3DTests();
 #endif
 
-                    SetWindowPos(pContext->hMainDialog, NULL, rect.left, rect.top, rect.right, rect.bottom, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
+                    SetWindowPos(pContext->gui.hMainDialog, NULL, rect.left, rect.top, rect.right, rect.bottom, SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_NOSIZE | SWP_NOZORDER);
                     break;
             }
             break;

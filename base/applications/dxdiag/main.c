@@ -1,40 +1,22 @@
-/*
- * DxDiag Implementation
- *
- * Copyright 2009 Austin English
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA
- */
-
-#ifndef __REACTOS__
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <dxdiag.h>
-#include <commctrl.h>
-
-#include "wine/debug.h"
-#include "dxdiag_private.h"
-#else
+ /*
+  * PROJECT:     SupernovaX Diagnostic Tool
+  * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
+  * PURPOSE:     Main entrypoint
+  * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
+  *              Copyright 2009 Austin English
+  */
 #include "precomp.h"
+#include "info/information.h"
+#include "resource.h"
+
 #include <CommCtrl.h>
-#endif
 
 #define wcsnicmp _wcsnicmp
+#define MAX_STRING_LEN          1024
+
 WINE_DEFAULT_DEBUG_CHANNEL(dxdiag);
 
-HINSTANCE hInstance;
+HINSTANCE hInstance = NULL;
 
 struct command_line_info
 {
@@ -48,8 +30,8 @@ static void usage(void)
     WCHAR title[MAX_STRING_LEN];
     WCHAR usage[MAX_STRING_LEN];
 
-    LoadStringW(hInstance, STRING_DXDIAG_TOOL, title, ARRAY_SIZE(title));
-    LoadStringW(hInstance, STRING_USAGE, usage, ARRAY_SIZE(usage));
+    LoadStringW(hInstance, IDS_MAIN_DIALOG, title, ARRAY_SIZE(title));
+    LoadStringW(hInstance, IDS_USAGE, usage, ARRAY_SIZE(usage));
 
     MessageBoxW(NULL, usage, title, MB_OK | MB_ICONWARNING);
 
@@ -191,7 +173,7 @@ static BOOL process_command_line(const WCHAR *cmdline, struct command_line_info 
 int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPWSTR cmdline, int cmdshow)
 {
     struct command_line_info info;
-    struct dxdiag_information *dxdiag_info;
+    struct dxdiag_context ctx;
 
     InitCommonControls();
 
@@ -205,26 +187,29 @@ int WINAPI wWinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPWSTR cmdline, int cm
     if (info.output_type != OUTPUT_NONE)
         WINE_TRACE("Output filename: %s\n", debugstr_output_type(info.output_type));
 
+    memset(&ctx, 0, sizeof(ctx));
+
     CoInitialize(NULL);
 
-    dxdiag_info = collect_dxdiag_information(info.whql_check);
-    if (!dxdiag_info)
+    if (!init_dxdiag_context(&ctx.info, info.whql_check))
     {
-        WINE_ERR("DxDiag information collection failed\n");
+        CoUninitialize();
+        return 1;
+    }
+
+    if (!refresh_display_container(&ctx.info, &ctx.data))
+    {
         CoUninitialize();
         return 1;
     }
 
     if (info.output_type != OUTPUT_NONE)
-        output_dxdiag_information(dxdiag_info, info.outfile, info.output_type);
+        output_dxdiag_information(&ctx, info.outfile, info.output_type);
     else
-#ifdef __REACTOS__
-        output_dxdiag_gui(dxdiag_info);
-#else
-        WINE_FIXME("Information dialog is not implemented\n");
-#endif
+        output_dxdiag_gui(&ctx);
 
-    free_dxdiag_information(dxdiag_info);
+    free_dxdiag_context(&ctx.info);
+    free_dxdiag_information(&ctx.data);
 
     CoUninitialize();
     return 0;

@@ -1,3 +1,9 @@
+/*
+ * PROJECT:     SupernovaX Diagnostic Tool
+ * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
+ * PURPOSE:     Precompiled header
+ * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
+ */
 #ifndef PRECOMP_H__
 #define PRECOMP_H__
 
@@ -27,20 +33,7 @@ typedef struct IDxDiagContainer IDxDiagContainer; // fix declaration for xp
 #define ARRAY_SIZE(A) (sizeof(A)/sizeof(*(A)))
 #endif
 
-#ifdef __REACTOS__
-typedef struct _DXDIAG_CONTEXT
-{
-    HWND* hDisplayWnd;
-    HWND* hSoundWnd;
-    HWND hMainDialog;
-    HWND hTabCtrl;
-    HWND hDialogs[5];
-    DWORD NumDisplayAdapter;
-    DWORD NumSoundAdapter;
-}DXDIAG_CONTEXT, * PDXDIAG_CONTEXT;
-
-extern void output_dxdiag_gui(struct dxdiag_information* dxdiag_info);
-#endif
+#include <dxdiagternl.h>
 
 /* globals */
 extern HINSTANCE hInstance;

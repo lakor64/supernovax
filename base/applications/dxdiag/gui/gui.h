@@ -1,7 +1,7 @@
 /*
- * PROJECT:     ReactX Diagnosis Application
+ * PROJECT:     SupernovaX Diagnostic Tool
  * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
- * PURPOSE:     ReactX diagnosis gui entry
+ * PURPOSE:     Diagnosis gui entry
  * COPYRIGHT:   Copyright 2024 Christian Rendina <pizzaiolo100@proton.me>
  *				Copyright 2008 Johannes Anderwald
  */
@@ -11,7 +11,6 @@
 
 /* globals */
 extern HWND hTabCtrlWnd;
-extern struct dxdiag_information* DxDiagInfo;
 
 /* theming hack */
 BOOL EnableDialogTheme(HWND hwnd);

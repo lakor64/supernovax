@@ -1,5 +1,5 @@
  /*
-  * PROJECT:     ReactX Diagnosis Application
+  * PROJECT:     SupernovaX Diagnostic Tool
   * LICENSE:     LGPL-2.1-or-later (https://spdx.org/licenses/LGPL-2.1-or-later.html)
   * PURPOSE:     ReactX diagnosis help page
   * COPYRIGHT:   Copyright 2008 Johannes Anderwald

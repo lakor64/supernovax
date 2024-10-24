@@ -1,3 +1,5 @@
+target_dx()
+
 add_definitions(-D_UNICODE)
 add_executable(dxdiag_walker walker.cpp)
 add_dependencies(dxdiag_walker dxsdk)
