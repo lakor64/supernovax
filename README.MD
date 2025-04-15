@@ -1,5 +1,7 @@
 # SupernovaX (formarly pff)
 
+**NOTE:** On going upgrade and rewrite of the project here: https://github.com/lakor64/supernovax/blob/v2, it might get merged into main until I'm satisfied, consider the main code as old code
+
 The following repository holds an open-source GPL/LGPL 2.1 reimplementation of Microsoft DirectX Infrastructure for NT-based operative systems.
 
 ***Modern DirectX:*** Targets what's found inside Windows 7 SP1. (DXGI 1.2 & D3D11 1.1)
