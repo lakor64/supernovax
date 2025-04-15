@@ -3,6 +3,8 @@ SupernovaX is an open-source reimplementation of the Microsoft DirectX Infrastru
 
 **WARNING ⚠️:** The project is currently at an early stage (and is undergoing a rewrite) and may not work at all.
 
+I am currently not working on this, consider this project in halt until I modify this message again, inside snx_old_code.7z you can find old notes and code (mostly for a dxdiag reimplementation)
+
 ## Goal of the project
 The goal of the project is to eventually provide a reimplementation of some of the Microsoft DirectX user-land and tools distributed as part of the DirectX SDK/Runtime/Windows itself.
 
