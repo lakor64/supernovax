@@ -1,26 +1,52 @@
-# SupernovaX (formarly pff)
+# SupernovaX
+SupernovaX is an open-source reimplementation of the Microsoft DirectX Infrastructure that targets NT compatible operative systems.
 
-The following repository holds an open-source GPL/LGPL 2.1 reimplementation of Microsoft DirectX Infrastructure for NT-based operative systems.
+**WARNING ⚠️:** The project is currently at an early stage (and is undergoing a rewrite) and may not work at all.
 
-***Modern DirectX:*** Targets what's found inside Windows 7 SP1. (DXGI 1.2 & D3D11 1.1)
+## Goal of the project
+The goal of the project is to eventually provide a reimplementation of some of the Microsoft DirectX user-land and tools distributed as part of the DirectX SDK/Runtime/Windows itself.
 
-***Legacy DirectX:*** Targets what's found inside Windows XP SP3. (D3D9)
+The project is divided into two separate parts:
+* XDDM
+* WDDM
 
-**NOTE:** This project has no correlation or endorsement by ReactOS or similar project.
+### XDDM
+[XDDM](https://learn.microsoft.com/en-us/previous-versions/windows/drivers/display/windows-2000-display-driver-model-design-guide) is the previous Display Driver Model used up to Windows XP.
+
+The following model supports several "legacy" Windows components like DirectDraw, Direct3D9.
+
+This project aims to target Windows XP SP3 XDDM userland implementation. (Direct3D9)
+
+### XDDM
+[XDDM](https://learn.microsoft.com/en-us/windows-hardware/drivers/display/windows-vista-and-later-display-driver-model-architecture) is the current Display Driver Model used in modern versions of Windows.
+
+The following model supports the modern Windows components like Direct3D10, Direct2D.
+
+This project aims to target Windows Vista WDDM userland implementation. (Direct3D10 with DXGI 1.0)
 
 ## What's missing
-See [Issues](https://github.com/lakor64/pff/issues) for more information.
+Everything, see [Issues](https://github.com/lakor64/supernovax/issues) for more information.
 
 ## Supported compilers
-- Visual Studio 2022
-- Visual Studio 2019
-- Visual Studio 2017 (XP target)
+Generally any compiler that supports C++14 or greater like.
 
-## Will Modern DX work under NT5?
-Probably with special hacks and things there might be a way to allow this to work under XP-based environments, which does involve replacing GDI32.dll at most. I'm still in the process of thinking how specifically something like this could be implemented.
+Does it build on Linux/MinGW? No, feel free to send a PR if interested.
+
+The reference compiler for this project is `Visual Studio 2017 with Windows XP target (v141_xp)` with MIDL.
+
+## How to build
+Fetch [this](https://github.com/lakor64/xmake) version of XMake until PR#6301 is merged inside xmake dev branch and rolled out.
+
+Install Visual Studio 2017 with Windows XP triplet.
+
+Run `xmake config -m debug -a x86`, this command will switch to a debug build for 32-bit computers.
+
+Run `xmake` to build the project.
 
 ## Special thanks
-- ReactOS (as the whole repository structured is based upon them)
+The following are the basis in which this project was possible, this project is **NOT ENDORSED OR SPONSORED** by any of the project/companies that appears in this list:
+- ReactOS
 - ReactOS Longhorn fork
 - Wine
 - mingw-w64
+- Various Microsoft repos open-sourced trough the years

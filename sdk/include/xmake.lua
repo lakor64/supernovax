@@ -1,0 +1,8 @@
+target("dxguid")
+    add_rules("c++")
+    set_kind("static")
+    set_warnings("none")
+    add_files("*.idl", { proxy = false })
+    add_headerfiles("*.h")
+    add_headerfiles("*.hpp")
+    add_includedirs(".", { public = true })

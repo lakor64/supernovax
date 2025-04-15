@@ -1,2 +1,0 @@
-add_subdirectory(ddraw_enum)
-add_subdirectory(ddrawi_test_all)
